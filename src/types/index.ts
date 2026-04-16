@@ -1,7 +1,8 @@
 export interface FakturPajak {
   id: string;
   no: number;
-  tanggal: string;
+  tanggalPengajuan: string;
+  tanggalFaktur: string;
   noMVP: string;
   nomorFakturPajak: string;
   kodeFakturSAP: 'BV' | 'BZ';

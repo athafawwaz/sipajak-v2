@@ -19,10 +19,13 @@ const generateDummyData = (): FakturPajak[] => {
     const month = String(Math.floor(Math.random() * 12) + 1).padStart(2, '0');
     const tanggal = `${day}/${month}/2024`;
 
+    const tanggalPengajuan = `${day}/${month}/2024`;
+
     return {
       id: `fp-${String(i + 1).padStart(4, '0')}`,
       no: i + 1,
-      tanggal,
+      tanggalPengajuan,
+      tanggalFaktur: tanggal,
       noMVP: `MVP-${String(2024000 + i + 1)}`,
       nomorFakturPajak: String(Math.floor(1000000000000000 + Math.random() * 9000000000000000)),
       kodeFakturSAP: codes[Math.floor(Math.random() * 2)],
@@ -92,7 +95,8 @@ export const useFakturStore = create<FakturStore>((set, get) => ({
     const newItems: FakturPajak[] = items.map((item) => ({
       id: `fp-${Date.now()}-${nextNo}`,
       no: nextNo++,
-      tanggal: item.tanggal || '',
+      tanggalPengajuan: item.tanggalPengajuan || '',
+      tanggalFaktur: item.tanggalFaktur || '',
       noMVP: item.noMVP || '',
       nomorFakturPajak: item.nomorFakturPajak || '',
       kodeFakturSAP: item.kodeFakturSAP || 'BV',

@@ -52,7 +52,7 @@ import VendorSearchInput from '../components/master-vendor/VendorSearchInput';
 
 // --- Zod Schema ---
 const fakturSchema = z.object({
-  tanggal: z.string().min(1, 'Tanggal wajib diisi'),
+  tanggalFaktur: z.string().min(1, 'Tanggal Faktur wajib diisi'),
   noMVP: z.string().min(1, 'No MVP wajib diisi'),
   nomorFakturPajak: z
     .string()
@@ -190,8 +190,13 @@ const FakturPajakPage: React.FC = () => {
         cell: (info) => <span className="text-gray-500 font-medium">{info.getValue()}</span>,
         size: 50,
       }),
-      columnHelper.accessor('tanggal', {
-        header: 'Tanggal',
+      columnHelper.accessor('tanggalPengajuan', {
+        header: 'Tgl Pengajuan',
+        cell: (info) => info.getValue(),
+        size: 110,
+      }),
+      columnHelper.accessor('tanggalFaktur', {
+        header: 'Tgl Faktur',
         cell: (info) => info.getValue(),
         size: 110,
       }),
@@ -781,7 +786,8 @@ const FakturPajakPage: React.FC = () => {
             <table className="w-full text-sm">
               <thead className="bg-gray-50 sticky top-0">
                 <tr>
-                  <th className="px-3 py-2 text-left text-xs font-semibold text-gray-600">Tanggal</th>
+                  <th className="px-3 py-2 text-left text-xs font-semibold text-gray-600">Terima/Pengajuan</th>
+                  <th className="px-3 py-2 text-left text-xs font-semibold text-gray-600">Tanggal Faktur</th>
                   <th className="px-3 py-2 text-left text-xs font-semibold text-gray-600">No MVP</th>
                   <th className="px-3 py-2 text-left text-xs font-semibold text-gray-600">No Faktur</th>
                   <th className="px-3 py-2 text-left text-xs font-semibold text-gray-600">Nama Vendor</th>
@@ -792,7 +798,8 @@ const FakturPajakPage: React.FC = () => {
               <tbody className="divide-y divide-gray-100">
                 {importPreviewData.map((row, idx) => (
                   <tr key={idx} className="hover:bg-gray-50">
-                    <td className="px-3 py-2">{row.tanggal}</td>
+                    <td className="px-3 py-2">{row.tanggalPengajuan}</td>
+                    <td className="px-3 py-2">{row.tanggalFaktur}</td>
                     <td className="px-3 py-2">{row.noMVP}</td>
                     <td className="px-3 py-2 font-mono text-xs">{row.nomorFakturPajak}</td>
                     <td className="px-3 py-2">{row.namaPerusahaan}</td>
@@ -840,7 +847,7 @@ const FakturModal: React.FC<FakturModalProps> = ({ isOpen, onClose, title, initi
   } = useForm<FakturFormData>({
     resolver: zodResolver(fakturSchema),
     defaultValues: {
-      tanggal: '',
+      tanggalFaktur: '',
       noMVP: '',
       nomorFakturPajak: '',
       kodeFakturSAP: 'BV',
@@ -861,7 +868,7 @@ const FakturModal: React.FC<FakturModalProps> = ({ isOpen, onClose, title, initi
         return d;
       };
       reset({
-        tanggal: convertDate(initialData.tanggal),
+        tanggalFaktur: convertDate(initialData.tanggalFaktur),
         noMVP: initialData.noMVP,
         nomorFakturPajak: initialData.nomorFakturPajak,
         kodeFakturSAP: initialData.kodeFakturSAP,
@@ -890,183 +897,177 @@ const FakturModal: React.FC<FakturModalProps> = ({ isOpen, onClose, title, initi
       if (parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0]}`;
       return d;
     };
+
+    const today = new Date();
+    const dd = String(today.getDate()).padStart(2, '0');
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const yyyy = today.getFullYear();
+    const tanggalPengajuan = initialData?.tanggalPengajuan || `${dd}/${mm}/${yyyy}`;
+
     onSubmit({
       ...formData,
       requester: user?.name || 'Sistem',
-      tanggal: convertDateBack(formData.tanggal),
+      tanggalFaktur: convertDateBack(formData.tanggalFaktur),
+      tanggalPengajuan,
       dokumen,
     });
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={title} size="lg">
-      <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Tanggal */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Tanggal *</label>
-            <input
-              type="date"
-              className={cn(
-                'w-full rounded-lg border px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all',
-                errors.tanggal ? 'border-red-300' : 'border-gray-300'
-              )}
-              {...register('tanggal')}
-            />
-            {errors.tanggal && <p className="mt-1 text-xs text-red-600">{errors.tanggal.message}</p>}
+    <Modal isOpen={isOpen} onClose={onClose} title={title} size="xl">
+      <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-6">
+        {/* Section 1 — Identitas Faktur */}
+        <div className="border border-gray-200 rounded-xl overflow-hidden">
+          <div className="bg-gray-50 px-4 py-2.5 border-b border-gray-200">
+            <h3 className="text-sm font-semibold text-gray-800">📋 Identitas Faktur</h3>
           </div>
-
-          {/* No MVP */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">No MVP *</label>
-            <input
-              type="text"
-              placeholder="MVP-XXXXXXX"
-              className={cn(
-                'w-full rounded-lg border px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all',
-                errors.noMVP ? 'border-red-300' : 'border-gray-300'
-              )}
-              {...register('noMVP')}
-            />
-            {errors.noMVP && <p className="mt-1 text-xs text-red-600">{errors.noMVP.message}</p>}
-          </div>
-
-          {/* Nomor Faktur Pajak */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Nomor Faktur Pajak *</label>
-            <input
-              type="text"
-              placeholder="16 digit angka"
-              maxLength={16}
-              className={cn(
-                'w-full rounded-lg border px-3.5 py-2.5 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all',
-                errors.nomorFakturPajak ? 'border-red-300' : 'border-gray-300'
-              )}
-              {...register('nomorFakturPajak')}
-            />
-            {errors.nomorFakturPajak && <p className="mt-1 text-xs text-red-600">{errors.nomorFakturPajak.message}</p>}
-          </div>
-
-          {/* Kode Faktur SAP */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Kode Faktur SAP *</label>
-            <select
-              className={cn(
-                'w-full rounded-lg border px-3.5 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all',
-                errors.kodeFakturSAP ? 'border-red-300' : 'border-gray-300'
-              )}
-              {...register('kodeFakturSAP')}
-            >
-              <option value="BV">BV</option>
-              <option value="BZ">BZ</option>
-            </select>
-            {errors.kodeFakturSAP && <p className="mt-1 text-xs text-red-600">{errors.kodeFakturSAP.message}</p>}
-          </div>
-
-          {/* Nama Perusahaan */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Nama Vendor *</label>
-            <Controller
-              name="namaPerusahaan"
-              control={control}
-              render={({ field }) => (
-                <VendorSearchInput
-                  value={field.value}
-                  onChange={field.onChange}
-                  placeholder="Cari vendor atau ketik manual"
+          <div className="p-4 space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">Tanggal Faktur *</label>
+                <input
+                  type="date"
                   className={cn(
                     'w-full rounded-lg border px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all',
-                    errors.namaPerusahaan ? 'border-red-300' : 'border-gray-300'
+                    errors.tanggalFaktur ? 'border-red-300' : 'border-gray-300'
                   )}
+                  {...register('tanggalFaktur')}
                 />
-              )}
-            />
-            {errors.namaPerusahaan && <p className="mt-1 text-xs text-red-600">{errors.namaPerusahaan.message}</p>}
-          </div>
-
-          {/* Nilai PPN */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Nilai DPP (Rp)</label>
-            <Controller
-              name="nilaiDPP"
-              control={control}
-              render={({ field }) => (
+                {errors.tanggalFaktur && <p className="mt-1 text-xs text-red-600">{errors.tanggalFaktur.message}</p>}
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">No MVP *</label>
                 <input
                   type="text"
-                  inputMode="numeric"
-                  placeholder="0"
-                  value={dppDisplay}
-                  onChange={(e) => {
-                    const num = parseCurrencyInput(e.target.value);
-                    const ppn = Math.round(num * 0.11);
-                    setDppDisplay(formatCurrencyInput(num));
-                    setPpnDisplay(formatCurrencyInput(ppn));
-                    field.onChange(num);
-                    setValue('nilaiPPN', ppn, { shouldValidate: true });
-                  }}
+                  placeholder="MVP-XXXXXXX"
                   className={cn(
                     'w-full rounded-lg border px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all',
-                    errors.nilaiDPP ? 'border-red-300' : 'border-gray-300'
+                    errors.noMVP ? 'border-red-300' : 'border-gray-300'
                   )}
+                  {...register('noMVP')}
                 />
-              )}
-            />
-            {errors.nilaiDPP && <p className="mt-1 text-xs text-red-600">{errors.nilaiDPP.message}</p>}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Nilai PPN (Rp) *</label>
-            <Controller
-              name="nilaiPPN"
-              control={control}
-              render={() => (
+                {errors.noMVP && <p className="mt-1 text-xs text-red-600">{errors.noMVP.message}</p>}
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">Nomor Faktur Pajak *</label>
                 <input
                   type="text"
-                  inputMode="numeric"
-                  placeholder="0"
-                  value={ppnDisplay}
-                  readOnly
+                  placeholder="16 digit angka"
+                  maxLength={16}
                   className={cn(
-                    'w-full rounded-lg border px-3.5 py-2.5 text-sm bg-gray-50 text-gray-600 cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all',
-                    errors.nilaiPPN ? 'border-red-300' : 'border-gray-300'
+                    'w-full rounded-lg border px-3.5 py-2.5 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all',
+                    errors.nomorFakturPajak ? 'border-red-300' : 'border-gray-300'
                   )}
+                  {...register('nomorFakturPajak')}
                 />
-              )}
-            />
-            {errors.nilaiPPN && <p className="mt-1 text-xs text-red-600">{errors.nilaiPPN.message}</p>}
+                {errors.nomorFakturPajak && <p className="mt-1 text-xs text-red-600">{errors.nomorFakturPajak.message}</p>}
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">Kode Faktur SAP *</label>
+                <select
+                  className={cn(
+                    'w-full rounded-lg border px-3.5 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all',
+                    errors.kodeFakturSAP ? 'border-red-300' : 'border-gray-300'
+                  )}
+                  {...register('kodeFakturSAP')}
+                >
+                  <option value="BV">BV</option>
+                  <option value="BZ">BZ</option>
+                </select>
+                {errors.kodeFakturSAP && <p className="mt-1 text-xs text-red-600">{errors.kodeFakturSAP.message}</p>}
+              </div>
+            </div>
           </div>
-
-          {/* Verifikator */}
-          {/* <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Verifikator *</label>
-            <input
-              type="text"
-              placeholder="Nama verifikator"
-              className={cn(
-                'w-full rounded-lg border px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all',
-                errors.verifikator ? 'border-red-300' : 'border-gray-300'
-              )}
-              {...register('verifikator')}
-            />
-            {errors.verifikator && <p className="mt-1 text-xs text-red-600">{errors.verifikator.message}</p>}
-          </div> */}
         </div>
 
-        {/* Keterangan */}
-        {/* <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">Keterangan</label>
-          <textarea
-            rows={3}
-            placeholder="Catatan tambahan (opsional)"
-            className="w-full rounded-lg border border-gray-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all resize-none"
-            {...register('keterangan')}
-          />
-        </div> */}
+        {/* Section 2 — Detail Transaksi */}
+        <div className="border border-gray-200 rounded-xl overflow-hidden">
+          <div className="bg-blue-50 px-4 py-2.5 border-b border-blue-200">
+            <h3 className="text-sm font-semibold text-blue-800">💰 Detail Transaksi</h3>
+          </div>
+          <div className="p-4 space-y-4">
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Nama Vendor *</label>
+              <Controller
+                name="namaPerusahaan"
+                control={control}
+                render={({ field }) => (
+                  <VendorSearchInput
+                    value={field.value}
+                    onChange={field.onChange}
+                    placeholder="Cari vendor atau ketik manual"
+                    className={cn(
+                      'w-full rounded-lg border px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all',
+                      errors.namaPerusahaan ? 'border-red-300' : 'border-gray-300'
+                    )}
+                  />
+                )}
+              />
+              {errors.namaPerusahaan && <p className="mt-1 text-xs text-red-600">{errors.namaPerusahaan.message}</p>}
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">Nilai DPP (Rp)</label>
+                <Controller
+                  name="nilaiDPP"
+                  control={control}
+                  render={({ field }) => (
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      placeholder="0"
+                      value={dppDisplay}
+                      onChange={(e) => {
+                        const num = parseCurrencyInput(e.target.value);
+                        const ppn = Math.round(num * 0.11);
+                        setDppDisplay(formatCurrencyInput(num));
+                        setPpnDisplay(formatCurrencyInput(ppn));
+                        field.onChange(num);
+                        setValue('nilaiPPN', ppn, { shouldValidate: true });
+                      }}
+                      className={cn(
+                        'w-full rounded-lg border px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all',
+                        errors.nilaiDPP ? 'border-red-300' : 'border-gray-300'
+                      )}
+                    />
+                  )}
+                />
+                {errors.nilaiDPP && <p className="mt-1 text-xs text-red-600">{errors.nilaiDPP.message}</p>}
+              </div>
 
-        {/* Dokumen Pendukung */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">Dokumen Pendukung</label>
-          <DokumenUploader value={dokumen} onChange={setDokumen} maxFiles={5} maxSizeMB={10} />
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">Nilai PPN (Rp) *</label>
+                <Controller
+                  name="nilaiPPN"
+                  control={control}
+                  render={() => (
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      placeholder="0"
+                      value={ppnDisplay}
+                      readOnly
+                      className={cn(
+                        'w-full rounded-lg border px-3.5 py-2.5 text-sm bg-gray-50 text-gray-600 cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all',
+                        errors.nilaiPPN ? 'border-red-300' : 'border-gray-300'
+                      )}
+                    />
+                  )}
+                />
+                {errors.nilaiPPN && <p className="mt-1 text-xs text-red-600">{errors.nilaiPPN.message}</p>}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Section 3 — Dokumen Pendukung */}
+        <div className="border border-gray-200 rounded-xl overflow-hidden">
+          <div className="bg-gray-50 px-4 py-2.5 border-b border-gray-200">
+            <h3 className="text-sm font-semibold text-gray-800">📎 Dokumen Pendukung</h3>
+          </div>
+          <div className="p-4">
+            <DokumenUploader value={dokumen} onChange={setDokumen} maxFiles={5} maxSizeMB={10} />
+          </div>
         </div>
 
         <div className="flex justify-end gap-2 pt-2 border-t border-gray-100">
@@ -1166,8 +1167,12 @@ const ApprovalModal: React.FC<ApprovalModalProps> = ({ isOpen, onClose, faktur, 
               <p className="font-semibold text-gray-900">{formatCurrency(faktur.nilaiPPN)}</p>
             </div>
             <div>
-              <p className="text-xs text-gray-500 mb-0.5">Tanggal</p>
-              <p className="text-gray-900">{faktur.tanggal}</p>
+              <p className="text-xs text-gray-500 mb-0.5">Tgl Terima/Pengajuan</p>
+              <p className="text-gray-900">{faktur.tanggalPengajuan}</p>
+            </div>
+            <div>
+              <p className="text-xs text-gray-500 mb-0.5">Tanggal Faktur</p>
+              <p className="text-gray-900">{faktur.tanggalFaktur}</p>
             </div>
             <div>
               <p className="text-xs text-gray-500 mb-0.5">Verifikator</p>
@@ -1293,7 +1298,8 @@ const DetailModal: React.FC<DetailModalProps> = ({ isOpen, onClose, faktur }) =>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
             <DetailField label="No Faktur Pajak" value={faktur.nomorFakturPajak} mono />
             <DetailField label="No MVP" value={faktur.noMVP} />
-            <DetailField label="Tanggal" value={faktur.tanggal} />
+            <DetailField label="Tgl Terima/Pengajuan" value={faktur.tanggalPengajuan} />
+            <DetailField label="Tanggal Faktur" value={faktur.tanggalFaktur} />
             <DetailField label="Kode Faktur SAP" value={faktur.kodeFakturSAP} />
             <DetailField label="Nama Vendor" value={faktur.namaPerusahaan} />
             <DetailField label="Nilai PPN" value={formatCurrency(faktur.nilaiPPN)} bold />

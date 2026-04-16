@@ -5,7 +5,8 @@ import { formatCurrency } from './formatCurrency';
 export function exportToExcel(data: FakturPajak[], filename: string = 'faktur-pajak') {
   const exportData = data.map((item) => ({
     'No': item.no,
-    'Tanggal': item.tanggal,
+    'Tanggal Pengajuan': item.tanggalPengajuan,
+    'Tanggal Faktur': item.tanggalFaktur,
     'No MVP': item.noMVP,
     'Nomor Faktur Pajak': item.nomorFakturPajak,
     'Kode Faktur SAP': item.kodeFakturSAP,
@@ -42,7 +43,8 @@ export function parseImportFile(file: File): Promise<Partial<FakturPajak>[]> {
         const json = XLSX.utils.sheet_to_json<Record<string, string>>(sheet);
 
         const parsed: Partial<FakturPajak>[] = json.map((row) => ({
-          tanggal: row['Tanggal'] || '',
+          tanggalPengajuan: row['Tanggal Pengajuan'] || '',
+          tanggalFaktur: row['Tanggal Faktur'] || '',
           noMVP: row['No MVP'] || '',
           nomorFakturPajak: row['Nomor Faktur Pajak'] || '',
           kodeFakturSAP: (row['Kode Faktur SAP'] as 'BV' | 'BZ') || 'BV',
