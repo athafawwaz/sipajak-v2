@@ -50,6 +50,7 @@ const App: React.FC = () => {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/" element={<Navigate to="/dashboard" replace />} />
         {/* Public routes */}
         <Route
           path="/login"
