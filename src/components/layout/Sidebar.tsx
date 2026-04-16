@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, FileText, FileSpreadsheet, Calculator, ChevronDown, UserCog, Building2, Send, Users, Truck } from 'lucide-react';
+import { LayoutDashboard, FileText, FileSpreadsheet, Calculator, ChevronDown, UserCog, Building2, Users, Truck } from 'lucide-react';
 import { cn } from '../../utils/cn';
 
 interface SidebarProps {

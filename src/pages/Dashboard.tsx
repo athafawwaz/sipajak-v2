@@ -10,7 +10,6 @@ import {
   Clock,
   ArrowRight,
   TrendingUp,
-  DollarSign,
   ChevronRight,
   Sparkles,
   CalendarDays,
@@ -33,8 +32,6 @@ const getGreeting = (): string => {
   return 'Selamat Malam';
 };
 
-const formatCurrency = (val: number) =>
-  new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(val);
 
 
 

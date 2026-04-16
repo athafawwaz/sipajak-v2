@@ -25,7 +25,7 @@ const ApprovalTimeline: React.FC<ApprovalTimelineProps> = ({ logs, status }) => 
 
   return (
     <div className="space-y-6 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-gray-200 before:to-transparent">
-      {sortedLogs.map((log, i) => {
+      {sortedLogs.map((log) => {
         const isApprove = log.action === 'approve';
         const isAssign = log.action === 'assign_vp';
         return (

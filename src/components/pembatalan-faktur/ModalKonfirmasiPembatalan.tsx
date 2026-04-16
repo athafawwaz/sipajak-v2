@@ -52,7 +52,7 @@ const ModalKonfirmasiPembatalan: React.FC<Props> = ({ isOpen, onClose, faktur })
     }
     if (!user) return;
 
-    createPengajuan(faktur.id, alasan, dokumen, user.badge);
+    createPengajuan(faktur.id, alasan, dokumen, user.badge || '');
     addToast('Pengajuan pembatalan berhasil diajukan', 'success');
     onClose();
   };

@@ -334,7 +334,7 @@ export const usePembatalanFakturStore = create<PembatalanFakturStore>((set, get)
       return items.filter(item => item.status === 'Menunggu Approval Keuangan').length;
     }
     if (role === 'requester') {
-      return items.filter(item => item.status === 'Ditolak' || item.status === 'Revisi').length;
+      return items.filter(item => item.status === 'Pembatalan Ditolak' || item.status === 'Revisi').length;
     }
     return 0; // admin / lain-lain
   }

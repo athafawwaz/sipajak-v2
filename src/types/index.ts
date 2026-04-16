@@ -15,6 +15,7 @@ export interface FakturPajak {
   approvedBy?: string;
   rejectionReason?: string;
   dokumen?: DokumenPDF[];
+  verifikator?: string;
 }
 
 export interface PenyampaiInfo {

@@ -33,7 +33,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
               'transition-all duration-200',
               'disabled:bg-gray-50 disabled:text-gray-500',
               error && 'border-red-300 focus:ring-red-200 focus:border-red-500',
-              leftIcon && 'pl-10',
+              leftIcon ? 'pl-10' : '',
               className
             )}
             {...props}

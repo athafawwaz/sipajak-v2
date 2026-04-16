@@ -169,14 +169,12 @@ const createDummyData = (): PenerbitanFakturKeluaran[] => {
   // Tambahan data dummy acak untuk mencapai 15+ baris
   const customers = ["PT Indofood", "PT Astra", "CV Maju Jaya", "Toko Sinar Makmur", "PT PLN Persero"];
   const statuses: PenerbitanFakturKeluaran['status'][] = ['Draft', 'Selesai', 'Selesai', 'Selesai', 'Selesai', 'Selesai', 'Menunggu Approval VP', 'Menunggu Approval Keuangan', 'Menunggu Assign VP'];
-  const unitKerjas = ["ADM Aset", "DIVISI OPERASI (OPERASI P-VI)", "DEPARTEMEN KEUANGAN PAJAK", "Departemen Keuangan", "Pengadaan", "SDM"];
   
   for (let i = 6; i <= 25; i++) {
     const nilai = Math.floor(Math.random() * 500 + 10) * 1000000;
     const dpp = Math.floor((11/12) * nilai);
     const ppn = Math.floor(0.11 * nilai);
     const status = statuses[Math.floor(Math.random() * statuses.length)];
-    const unitKerja = unitKerjas[i % unitKerjas.length];
     
     dummy.push({
       id: `FK-00${i}`,

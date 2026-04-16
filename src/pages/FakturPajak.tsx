@@ -23,7 +23,6 @@ import {
   FileText,
   CheckCircle,
   Clock,
-  DollarSign,
   ArrowUpDown,
   Search,
   AlertTriangle,
@@ -59,7 +58,7 @@ const fakturSchema = z.object({
     .string()
     .min(1, 'Nomor Faktur Pajak wajib diisi')
     .regex(/^\d{16}$/, 'Harus tepat 16 digit angka'),
-  kodeFakturSAP: z.enum(['BV', 'BZ'], { required_error: 'Kode Faktur SAP wajib dipilih' }),
+  kodeFakturSAP: z.enum(['BV', 'BZ'], { message: 'Kode Faktur SAP wajib dipilih' }),
   namaPerusahaan: z.string().min(1, 'Nama Perusahaan wajib diisi'),
   nilaiDPP: z.number().optional(),
   nilaiPPN: z.number().min(1, 'Nilai PPN wajib diisi'),
@@ -1172,7 +1171,7 @@ const ApprovalModal: React.FC<ApprovalModalProps> = ({ isOpen, onClose, faktur, 
             </div>
             <div>
               <p className="text-xs text-gray-500 mb-0.5">Verifikator</p>
-              <p className="text-gray-900">{faktur.verifikator}</p>
+              <p className="text-gray-900">{faktur.verifikator || '-'}</p>
             </div>
           </div>
         </div>
@@ -1298,7 +1297,7 @@ const DetailModal: React.FC<DetailModalProps> = ({ isOpen, onClose, faktur }) =>
             <DetailField label="Kode Faktur SAP" value={faktur.kodeFakturSAP} />
             <DetailField label="Nama Vendor" value={faktur.namaPerusahaan} />
             <DetailField label="Nilai PPN" value={formatCurrency(faktur.nilaiPPN)} bold />
-            <DetailField label="Verifikator" value={faktur.verifikator} />
+            <DetailField label="Verifikator" value={faktur.verifikator || '-'} />
             <DetailField label="Tanggal Approve" value={faktur.tanggalApprove || '-'} />
             {faktur.keterangan && (
               <div className="md:col-span-2">

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import ModalInputFaktur from './ModalInputFaktur';
 import type { PenerbitanFakturKeluaran } from '../../types';
 import { AlertCircle } from 'lucide-react';

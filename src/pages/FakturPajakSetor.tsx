@@ -16,7 +16,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
   Plus,
-  Upload,
   Download,
   Trash2,
   Edit3,
@@ -106,7 +105,6 @@ const FakturPajakSetorPage: React.FC = () => {
 
   // Determine current view from URL
   const isTindakLanjutPage = location.pathname.includes('/tindak-lanjut');
-  const isKeuangan = user?.role === 'keuangan';
 
   // State
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -172,7 +170,7 @@ const FakturPajakSetorPage: React.FC = () => {
   }, [data, isTindakLanjutPage, columnFilters]);
 
   // Columns with grouped headers
-  const columns = useMemo<ColumnDef<FakturPajakSetor, unknown>[]>(
+  const columns = useMemo<ColumnDef<FakturPajakSetor, any>[]>(
     () => [
       // Checkbox
       {
@@ -1408,8 +1406,8 @@ const DetailModal: React.FC<DetailModalProps> = ({ isOpen, onClose, faktur }) =>
             </div>
             <DetailField label="DPP" value={formatCurrency(faktur.dpp)} bold />
             <DetailField label="PPN" value={formatCurrency(faktur.ppn)} bold />
-            <DetailField label="No Akun Perkiraan Biaya" value={faktur.noAkunPerkiraanBiaya} />
-            <DetailField label="No BP" value={faktur.noBP} />
+            <DetailField label="No Akun Perkiraan Biaya" value={faktur.noAkunPerkiraanBiaya || '-'} />
+            <DetailField label="No BP" value={faktur.noBP || '-'} />
             <DetailField label="Badge (Nama)" value={`${faktur.badge} (${faktur.nama})`} />
             <DetailField label="Unit Kerja" value={faktur.unitKerja} />
             <DetailField label="Kontak" value={`${faktur.email} / ${faktur.noWhatsapp}`} />
