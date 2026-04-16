@@ -6,6 +6,7 @@ export interface FakturPajak {
   noMVP: string;
   nomorFakturPajak: string;
   kodeFakturSAP: 'BV' | 'BZ';
+  npwpVendor: string;
   namaPerusahaan: string;
   nilaiDPP?: number;
   nilaiPPN: number;

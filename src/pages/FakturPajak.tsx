@@ -53,6 +53,7 @@ import VendorSearchInput from '../components/master-vendor/VendorSearchInput';
 // --- Zod Schema ---
 const fakturSchema = z.object({
   tanggalFaktur: z.string().min(1, 'Tanggal Faktur wajib diisi'),
+  npwpVendor: z.string().min(1, 'NPWP Vendor wajib diisi'),
   noMVP: z.string().min(1, 'No MVP wajib diisi'),
   nomorFakturPajak: z
     .string()
@@ -218,6 +219,11 @@ const FakturPajakPage: React.FC = () => {
       columnHelper.accessor('namaPerusahaan', {
         header: 'Nama Vendor',
         cell: (info) => <span className="font-medium">{info.getValue()}</span>,
+        size: 180,
+      }),
+      columnHelper.accessor('npwpVendor', {
+        header: 'NPWP Vendor',
+        cell: (info) => <span className="font-mono tracking-wider text-xs">{info.getValue()}</span>,
         size: 180,
       }),
       columnHelper.accessor('nilaiDPP', {
@@ -791,6 +797,7 @@ const FakturPajakPage: React.FC = () => {
                   <th className="px-3 py-2 text-left text-xs font-semibold text-gray-600">No MVP</th>
                   <th className="px-3 py-2 text-left text-xs font-semibold text-gray-600">No Faktur</th>
                   <th className="px-3 py-2 text-left text-xs font-semibold text-gray-600">Nama Vendor</th>
+                  <th className="px-3 py-2 text-left text-xs font-semibold text-gray-600">NPWP Vendor</th>
                   <th className="px-3 py-2 text-left text-xs font-semibold text-gray-600">Nilai PPN</th>
                   <th className="px-3 py-2 text-left text-xs font-semibold text-gray-600">Status</th>
                 </tr>
@@ -803,6 +810,7 @@ const FakturPajakPage: React.FC = () => {
                     <td className="px-3 py-2">{row.noMVP}</td>
                     <td className="px-3 py-2 font-mono text-xs">{row.nomorFakturPajak}</td>
                     <td className="px-3 py-2">{row.namaPerusahaan}</td>
+                    <td className="px-3 py-2 font-mono text-xs">{row.npwpVendor}</td>
                     <td className="px-3 py-2 text-right">{formatCurrency(row.nilaiPPN || 0)}</td>
                     <td className="px-3 py-2">{row.status}</td>
                   </tr>
@@ -848,6 +856,7 @@ const FakturModal: React.FC<FakturModalProps> = ({ isOpen, onClose, title, initi
     resolver: zodResolver(fakturSchema),
     defaultValues: {
       tanggalFaktur: '',
+      npwpVendor: '',
       noMVP: '',
       nomorFakturPajak: '',
       kodeFakturSAP: 'BV',
@@ -869,6 +878,7 @@ const FakturModal: React.FC<FakturModalProps> = ({ isOpen, onClose, title, initi
       };
       reset({
         tanggalFaktur: convertDate(initialData.tanggalFaktur),
+        npwpVendor: initialData.npwpVendor || '',
         noMVP: initialData.noMVP,
         nomorFakturPajak: initialData.nomorFakturPajak,
         kodeFakturSAP: initialData.kodeFakturSAP,
@@ -986,25 +996,45 @@ const FakturModal: React.FC<FakturModalProps> = ({ isOpen, onClose, title, initi
             <h3 className="text-sm font-semibold text-blue-800">💰 Detail Transaksi</h3>
           </div>
           <div className="p-4 space-y-4">
-            <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">Nama Vendor *</label>
-              <Controller
-                name="namaPerusahaan"
-                control={control}
-                render={({ field }) => (
-                  <VendorSearchInput
-                    value={field.value}
-                    onChange={field.onChange}
-                    placeholder="Cari vendor atau ketik manual"
-                    className={cn(
-                      'w-full rounded-lg border px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all',
-                      errors.namaPerusahaan ? 'border-red-300' : 'border-gray-300'
-                    )}
-                  />
-                )}
-              />
-              {errors.namaPerusahaan && <p className="mt-1 text-xs text-red-600">{errors.namaPerusahaan.message}</p>}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">Nama Vendor *</label>
+                <Controller
+                  name="namaPerusahaan"
+                  control={control}
+                  render={({ field }) => (
+                    <VendorSearchInput
+                      value={field.value}
+                      onChange={field.onChange}
+                      onVendorSelect={(vendor) => {
+                        setValue('npwpVendor', vendor.npwp, { shouldValidate: true });
+                      }}
+                      placeholder="Cari vendor atau ketik manual"
+                      className={cn(
+                        'w-full rounded-lg border px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all',
+                        errors.namaPerusahaan ? 'border-red-300' : 'border-gray-300'
+                      )}
+                    />
+                  )}
+                />
+                {errors.namaPerusahaan && <p className="mt-1 text-xs text-red-600">{errors.namaPerusahaan.message}</p>}
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">NPWP Vendor *</label>
+                <input
+                  type="text"
+                  placeholder="00.000.000.0-000.000"
+                  className={cn(
+                    'w-full rounded-lg border px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all',
+                    errors.npwpVendor ? 'border-red-300' : 'border-gray-300'
+                  )}
+                  {...register('npwpVendor')}
+                />
+                {errors.npwpVendor && <p className="mt-1 text-xs text-red-600">{errors.npwpVendor.message}</p>}
+              </div>
             </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">Nilai DPP (Rp)</label>
@@ -1163,6 +1193,10 @@ const ApprovalModal: React.FC<ApprovalModalProps> = ({ isOpen, onClose, faktur, 
               <p className="font-medium text-gray-900">{faktur.namaPerusahaan}</p>
             </div>
             <div>
+              <p className="text-xs text-gray-500 mb-0.5">NPWP Vendor</p>
+              <p className="font-mono text-gray-900 tracking-wider text-xs pt-1">{faktur.npwpVendor}</p>
+            </div>
+            <div>
               <p className="text-xs text-gray-500 mb-0.5">Nilai PPN</p>
               <p className="font-semibold text-gray-900">{formatCurrency(faktur.nilaiPPN)}</p>
             </div>
@@ -1302,6 +1336,7 @@ const DetailModal: React.FC<DetailModalProps> = ({ isOpen, onClose, faktur }) =>
             <DetailField label="Tanggal Faktur" value={faktur.tanggalFaktur} />
             <DetailField label="Kode Faktur SAP" value={faktur.kodeFakturSAP} />
             <DetailField label="Nama Vendor" value={faktur.namaPerusahaan} />
+            <DetailField label="NPWP Vendor" value={faktur.npwpVendor} mono />
             <DetailField label="Nilai PPN" value={formatCurrency(faktur.nilaiPPN)} bold />
             <DetailField label="Verifikator" value={faktur.verifikator || '-'} />
             <DetailField label="Tanggal Approve" value={faktur.tanggalApprove || '-'} />
