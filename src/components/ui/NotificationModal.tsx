@@ -1,11 +1,12 @@
 import React, { useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { CheckCircle, AlertCircle, Info, AlertTriangle, X } from 'lucide-react';
 import { cn } from '../../utils/cn';
 import { useToastStore } from '../../store/toastStore';
 import type { ToastVariant } from '../../types';
 import Button from './Button';
 
-const variantConfig: Record<ToastVariant, { bg: string; icon: React.ReactNode; text: string; buttonColor: 'primary' | 'danger' | 'warning' | 'secondary' }> = {
+const variantConfig: Record<ToastVariant, { bg: string; icon: React.ReactNode; text: string; buttonColor: 'primary' | 'danger' | 'secondary' }> = {
   success: {
     bg: 'bg-emerald-50 text-emerald-600',
     icon: <CheckCircle className="w-16 h-16 text-emerald-500" />,
@@ -28,7 +29,7 @@ const variantConfig: Record<ToastVariant, { bg: string; icon: React.ReactNode; t
     bg: 'bg-amber-50 text-amber-600',
     icon: <AlertTriangle className="w-16 h-16 text-amber-500" />,
     text: 'text-amber-800',
-    buttonColor: 'warning',
+    buttonColor: 'secondary',
   },
 };
 

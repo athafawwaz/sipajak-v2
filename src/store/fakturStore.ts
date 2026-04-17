@@ -111,7 +111,7 @@ export const useFakturStore = create<FakturStore>((set, get) => ({
       nilaiDPP: item.nilaiDPP || 0,
       nilaiPPN: item.nilaiPPN || 0,
       badge: (item as any).badge || '',
-      nama: (item as any).nama || item.requester || '',
+      nama: (item as any).nama || (item as any).requester || '',
       unitKerja: (item as any).unitKerja || '',
       noExtKantor: (item as any).noExtKantor || '',
       noWhatsapp: (item as any).noWhatsapp || '',
