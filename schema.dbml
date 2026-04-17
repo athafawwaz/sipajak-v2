@@ -101,6 +101,10 @@ Table faktur_pajak {
   
   // Relasi Data Master
   vendor_id uuid [ref: > master_vendors.id]
+  // Snapshot Data Vendor
+  npwp_vendor varchar
+  nama_vendor varchar
+  
   requester_id uuid [ref: > users.id]
   // Snapshot Data Penyampai
   badge varchar
@@ -139,6 +143,12 @@ Table faktur_pajak_setor {
   
   // Relasi Master
   vendor_id uuid [ref: > master_vendors.id]
+  // Snapshot Data Vendor
+  npwp_vendor varchar
+  nama_vendor varchar
+  alamat text
+  no_bp varchar [null]
+  
   requester_id uuid [ref: > users.id]
   // Snapshot Data Penyampai
   badge varchar

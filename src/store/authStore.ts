@@ -30,13 +30,13 @@ const dummyAccounts = [
     email: "bambang.susanto@pusri.co.id",
   },
   {
-    badge: "6121502",
-    username: "Siti Rahayu",
-    password: "Keuangan@1234",
+    badge: "6150706",
+    username: "Sukirman Kuhapa",
+    password: "Pusri2015@",
     role: "keuangan",
     unitKerja: "DEPARTEMEN KEUANGAN PAJAK",
     hp: "08119876543",
-    email: "siti.rahayu@pusri.co.id",
+    email: "sukirman@pusri.co.id",
   },
 ];
 
