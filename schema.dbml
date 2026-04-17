@@ -1,0 +1,254 @@
+// SIPAJAK v2 Database Schema - Professional Enterprise Edition
+
+// --- Enums ---
+
+Enum vendor_type { 
+  "PKP" 
+  "Non PKP" 
+}
+
+Enum status_aktif { 
+  "Aktif" 
+  "Nonaktif" 
+}
+
+Enum status_approval { 
+  "Pending" 
+  "Sudah Approve" 
+  "Ditolak" 
+  "Dalam Proses Pembatalan"
+  "Dibatalkan"
+  "Revisi"
+  "Selesai"
+}
+
+Enum sap_code { 
+  "BV" 
+  "BZ" 
+}
+
+Enum tipe_faktur {
+  "Subsidi"
+  "Non Subsidi"
+}
+
+// --- Tabel Master & Organisasi ---
+
+Table unit_kerja {
+  id uuid [pk, note: 'Primary Key']
+  kode varchar [unique]
+  nama varchar
+  deskripsi text [null]
+  menu_permissions jsonb [note: 'Access Control List']
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table roles {
+  id uuid [pk]
+  name varchar [unique, note: "'requester', 'vp', 'keuangan', 'admin'"]
+  permissions jsonb
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table users {
+  id uuid [pk]
+  nip varchar [unique, note: 'Nomor Induk Pegawai']
+  badge varchar [unique]
+  name varchar
+  email varchar [unique]
+  password_hash varchar
+  role_id uuid [ref: > roles.id]
+  unit_kerja_id uuid [ref: > unit_kerja.id]
+  jabatan varchar [null]
+  no_telp varchar [null]
+  hp varchar [null]
+  avatar varchar [null]
+  status status_aktif [default: 'Aktif']
+  created_at timestamp
+  updated_at timestamp
+  deleted_at timestamp [null]
+}
+
+Table master_vendors {
+  id uuid [pk]
+  kode_vendor varchar [unique]
+  nama_vendor varchar
+  npwp varchar [unique]
+  alamat text
+  tipe_vendor vendor_type
+  no_bp varchar [null]
+  pic_name varchar
+  no_telp varchar
+  email varchar
+  status status_aktif [default: 'Aktif']
+  created_at timestamp
+  updated_at timestamp
+  deleted_at timestamp [null]
+}
+
+// --- Modul Bisnis: Transaksi ---
+
+Table faktur_pajak {
+  id uuid [pk]
+  no_urut serial
+  tanggal_pengajuan timestamp
+  tanggal_faktur date
+  no_mvp varchar
+  nomor_faktur_pajak varchar(16)
+  kode_sap sap_code
+  
+  // Relasi Data Master
+  vendor_id uuid [ref: > master_vendors.id]
+  requester_id uuid [ref: > users.id]
+  // Snapshot Data Penyampai
+  badge varchar
+  nama_penyampai varchar
+  unit_kerja varchar
+  no_ext_kantor varchar
+  no_whatsapp varchar
+  email varchar
+  
+  nilai_dpp decimal(18,2) [null]
+  nilai_ppn decimal(18,2)
+  status status_approval [default: 'Pending']
+  keterangan text [null]
+  
+  // Logging dan Approval
+  verifikator_id uuid [null, ref: > users.id]
+  approved_by uuid [null, ref: > users.id]
+  tanggal_approve timestamp [null]
+  rejection_reason text [null]
+  
+  // Audit Trail
+  created_by uuid [ref: > users.id]
+  created_at timestamp
+  updated_by uuid [null, ref: > users.id]
+  updated_at timestamp
+  deleted_at timestamp [null]
+}
+
+Table faktur_pajak_setor {
+  id uuid [pk]
+  no_urut serial
+  tipe_fa varchar [note: "'TA' | 'Non TA'"]
+  tanggal_penyampaian timestamp
+  nomor_faktur_pajak varchar(16)
+  tanggal_faktur date
+  
+  // Relasi Master
+  vendor_id uuid [ref: > master_vendors.id]
+  requester_id uuid [ref: > users.id]
+  // Snapshot Data Penyampai
+  badge varchar
+  nama_penyampai varchar
+  unit_kerja varchar
+  no_ext_kantor varchar
+  no_whatsapp varchar
+  email varchar
+  
+  dpp decimal(18,2)
+  ppn decimal(18,2)
+  no_akun_perkiraan_biaya varchar [null]
+  no_sel_kamish varchar [null]
+  no_virtu_sap varchar [null]
+
+  status status_approval [default: 'Pending']
+  keterangan text [null]
+  
+  // Logging
+  approved_by uuid [null, ref: > users.id]
+  tanggal_approve timestamp [null]
+  rejection_reason text [null]
+  
+  // Audit Trail
+  created_by uuid [ref: > users.id]
+  created_at timestamp
+  updated_by uuid [null, ref: > users.id]
+  updated_at timestamp
+  deleted_at timestamp [null]
+}
+
+Table penerbitan_faktur_keluaran {
+  id uuid [pk]
+  no_urut serial
+  tanggal_request timestamp
+  no_so_no_doc varchar
+  tanggal_so date
+  
+  // Customer/Vendor Relation
+  customer_id uuid [ref: > master_vendors.id, note: 'Bisa merujuk ke tabel Customer jika terpisah']
+  
+  total_tagihan decimal(18,2)
+  nilai_transaksi decimal(18,2)
+  dpp decimal(18,2)
+  ppn decimal(18,2)
+  quantity integer [null]
+  keterangan_transaksi text [null]
+  alamat text [null, note: 'Snapshot alamat saat transaksi']
+  
+  requester_id uuid [ref: > users.id]
+  
+  // Output Generated
+  nomor_faktur_pajak varchar(16) [null]
+  tanggal_faktur_pajak date [null]
+  jenis_faktur tipe_faktur
+  status status_approval
+  
+  // Workflow
+  assigned_vp_id uuid [null, ref: > users.id]
+  catatan_penolakan text [null]
+  
+  // Audit Trail
+  created_by uuid [ref: > users.id]
+  created_at timestamp
+  updated_by uuid [null, ref: > users.id]
+  updated_at timestamp
+  deleted_at timestamp [null]
+}
+
+Table pembatalan_faktur_pajak {
+  id uuid [pk]
+  no_urut serial
+  
+  // Relasi Kuat ke Faktur Asli
+  faktur_asli_id uuid [ref: > penerbitan_faktur_keluaran.id]
+  
+  alasan_pembatalan text
+  status status_approval
+  assigned_vp_id uuid [null, ref: > users.id]
+  catatan_penolakan text [null]
+  
+  // Audit Trail
+  created_by uuid [ref: > users.id]
+  created_at timestamp
+  updated_by uuid [null, ref: > users.id]
+  updated_at timestamp
+  deleted_at timestamp [null]
+}
+
+// --- Support / Logging ---
+
+Table approval_logs {
+  id uuid [pk]
+  referensi_id uuid [note: 'Berisi ID dari FakturPajak, Setor, atau Penerbitan/Pembatalan']
+  modul varchar [note: "'FakturPajak Keluaran', 'Penerbitan', dll"]
+  step integer
+  role varchar [note: 'Role approver pada saat itu (contoh: vp, keuangan)']
+  approver_id uuid [ref: > users.id]
+  action varchar [note: 'approve | reject | assign_vp']
+  catatan text [null]
+  timestamp timestamp
+}
+
+Table attachments {
+  id uuid [pk]
+  parent_id uuid [note: 'Polymorphic relasi ke ID modul manapun']
+  parent_type varchar [note: 'Contoh: FakturPajak, PembatalanFaktur']
+  file_name varchar
+  file_path varchar
+  file_size int [note: 'Bytes']
+  uploaded_by uuid [ref: > users.id]
+  uploaded_at timestamp
+}

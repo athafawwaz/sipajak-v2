@@ -63,6 +63,12 @@ const fakturSchema = z.object({
   namaPerusahaan: z.string().min(1, 'Nama Perusahaan wajib diisi'),
   nilaiDPP: z.number().optional(),
   nilaiPPN: z.number().min(1, 'Nilai PPN wajib diisi'),
+  badge: z.string().min(1, 'Wajib diisi'),
+  nama: z.string().min(2, 'Wajib diisi'),
+  unitKerja: z.string().min(2, 'Wajib diisi'),
+  noExtKantor: z.string().min(1, 'Wajib diisi'),
+  noWhatsapp: z.string().regex(/^(08|628|\+628)\d{8,11}$/, 'Format nomor tidak valid'),
+  email: z.string().email('Format email tidak valid'),
   keterangan: z.string().optional(),
 });
 
@@ -240,10 +246,24 @@ const FakturPajakPage: React.FC = () => {
         ),
         size: 160,
       }),
-      columnHelper.accessor('requester', {
-        header: 'Requester',
-        cell: (info) => info.getValue(),
-        size: 130,
+      columnHelper.accessor('badge', {
+        header: 'Badge',
+        cell: (info) => <span className="font-mono text-xs bg-gray-100 px-1.5 py-0.5 rounded">{info.getValue()}</span>,
+        size: 90,
+      }),
+      columnHelper.accessor('nama', {
+        header: 'Nama',
+        cell: (info) => <span className="font-medium text-gray-900 whitespace-nowrap">{info.getValue()}</span>,
+        size: 150,
+      }),
+      columnHelper.accessor('unitKerja', {
+        header: 'Unit Kerja',
+        cell: (info) => (
+          <div className="max-w-[200px] truncate text-xs" title={info.getValue()}>
+            {info.getValue()}
+          </div>
+        ),
+        size: 180,
       }),
       columnHelper.accessor('status', {
         header: 'Status',
@@ -864,6 +884,12 @@ const FakturModal: React.FC<FakturModalProps> = ({ isOpen, onClose, title, initi
       nilaiDPP: undefined,
       nilaiPPN: 0,
       keterangan: '',
+      badge: user?.badge || '',
+      nama: user?.name || '',
+      unitKerja: user?.unitKerja || '',
+      noExtKantor: '1234',
+      noWhatsapp: user?.hp || '081234567890',
+      email: user?.email || 'user@pusri.co.id',
     },
   });
 
@@ -886,6 +912,12 @@ const FakturModal: React.FC<FakturModalProps> = ({ isOpen, onClose, title, initi
         nilaiDPP: initialData.nilaiDPP,
         nilaiPPN: initialData.nilaiPPN,
         keterangan: initialData.keterangan || '',
+        badge: initialData.badge,
+        nama: initialData.nama,
+        unitKerja: initialData.unitKerja,
+        noExtKantor: initialData.noExtKantor,
+        noWhatsapp: initialData.noWhatsapp,
+        email: initialData.email,
       });
       setPpnDisplay(formatCurrencyInput(initialData.nilaiPPN));
       if (initialData.nilaiDPP) setDppDisplay(formatCurrencyInput(initialData.nilaiDPP));
@@ -916,7 +948,6 @@ const FakturModal: React.FC<FakturModalProps> = ({ isOpen, onClose, title, initi
 
     onSubmit({
       ...formData,
-      requester: user?.name || 'Sistem',
       tanggalFaktur: convertDateBack(formData.tanggalFaktur),
       tanggalPengajuan,
       dokumen,
@@ -1090,7 +1121,46 @@ const FakturModal: React.FC<FakturModalProps> = ({ isOpen, onClose, title, initi
           </div>
         </div>
 
-        {/* Section 3 — Dokumen Pendukung */}
+        {/* Section 3 — Data Penyampai */}
+        <div className="border border-gray-200 rounded-xl overflow-hidden">
+          <div className="bg-amber-50 px-4 py-2.5 border-b border-amber-200">
+            <h3 className="text-sm font-semibold text-amber-800">👤 Data Penyampai Faktur Pajak</h3>
+          </div>
+          <div className="p-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Badge *</label>
+              <input type="text" placeholder="1100XXX" className={cn('w-full rounded-lg border px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all', errors.badge ? 'border-red-300' : 'border-gray-300')} {...register('badge')} />
+              {errors.badge && <p className="mt-1 text-xs text-red-600">{errors.badge.message}</p>}
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Nama *</label>
+              <input type="text" placeholder="Nama lengkap" className={cn('w-full rounded-lg border px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all', errors.nama ? 'border-red-300' : 'border-gray-300')} {...register('nama')} />
+              {errors.nama && <p className="mt-1 text-xs text-red-600">{errors.nama.message}</p>}
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Unit Kerja *</label>
+              <input type="text" placeholder="Unit kerja" className={cn('w-full rounded-lg border px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all', errors.unitKerja ? 'border-red-300' : 'border-gray-300')} {...register('unitKerja')} />
+              {errors.unitKerja && <p className="mt-1 text-xs text-red-600">{errors.unitKerja.message}</p>}
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">No. Ext Kantor *</label>
+              <input type="text" placeholder="XXXX" className={cn('w-full rounded-lg border px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all', errors.noExtKantor ? 'border-red-300' : 'border-gray-300')} {...register('noExtKantor')} />
+              {errors.noExtKantor && <p className="mt-1 text-xs text-red-600">{errors.noExtKantor.message}</p>}
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">No. WhatsApp *</label>
+              <input type="text" placeholder="08XXXXXXXXXX" className={cn('w-full rounded-lg border px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all', errors.noWhatsapp ? 'border-red-300' : 'border-gray-300')} {...register('noWhatsapp')} />
+              {errors.noWhatsapp && <p className="mt-1 text-xs text-red-600">{errors.noWhatsapp.message}</p>}
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Email *</label>
+              <input type="email" placeholder="email@pusri.co.id" className={cn('w-full rounded-lg border px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all', errors.email ? 'border-red-300' : 'border-gray-300')} {...register('email')} />
+              {errors.email && <p className="mt-1 text-xs text-red-600">{errors.email.message}</p>}
+            </div>
+          </div>
+        </div>
+
+        {/* Section 4 — Dokumen Pendukung */}
         <div className="border border-gray-200 rounded-xl overflow-hidden">
           <div className="bg-gray-50 px-4 py-2.5 border-b border-gray-200">
             <h3 className="text-sm font-semibold text-gray-800">📎 Dokumen Pendukung</h3>
@@ -1338,6 +1408,10 @@ const DetailModal: React.FC<DetailModalProps> = ({ isOpen, onClose, faktur }) =>
             <DetailField label="Nama Vendor" value={faktur.namaPerusahaan} />
             <DetailField label="NPWP Vendor" value={faktur.npwpVendor} mono />
             <DetailField label="Nilai PPN" value={formatCurrency(faktur.nilaiPPN)} bold />
+            <DetailField label="Badge (Nama)" value={`${faktur.badge} (${faktur.nama})`} />
+            <DetailField label="Unit Kerja" value={faktur.unitKerja} />
+            <DetailField label="Kontak" value={`${faktur.email} / ${faktur.noWhatsapp}`} />
+            <DetailField label="No Ext Kantor" value={faktur.noExtKantor || '-'} />
             <DetailField label="Verifikator" value={faktur.verifikator || '-'} />
             <DetailField label="Tanggal Approve" value={faktur.tanggalApprove || '-'} />
             {faktur.keterangan && (

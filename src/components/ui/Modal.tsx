@@ -1,4 +1,5 @@
 import React, { useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { cn } from '../../utils/cn';
 
@@ -38,8 +39,8 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, size = 'md', chil
 
   if (!isOpen) return null;
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in">
+  return createPortal(
+    <div className="fixed inset-0 z-[900] flex items-center justify-center p-4 animate-fade-in">
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
 
@@ -65,7 +66,8 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, size = 'md', chil
         {/* Body */}
         <div className="flex-1 overflow-y-auto px-6 py-4">{children}</div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

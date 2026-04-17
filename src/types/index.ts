@@ -10,7 +10,12 @@ export interface FakturPajak {
   namaPerusahaan: string;
   nilaiDPP?: number;
   nilaiPPN: number;
-  requester: string;
+  badge: string;
+  nama: string;
+  unitKerja: string;
+  noExtKantor: string;
+  noWhatsapp: string;
+  email: string;
   status: 'Sudah Approve' | 'Pending' | 'Ditolak';
   keterangan?: string;
   tanggalApprove?: string;

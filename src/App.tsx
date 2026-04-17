@@ -14,7 +14,7 @@ import FakturPajakSetorPage from './pages/FakturPajakSetor';
 import PenerbitanFakturKeluaranPage from './pages/PenerbitanFakturKeluaran';
 import PembatalanFakturPajakPage from './pages/PembatalanFakturPajak';
 import NotFound from './pages/NotFound';
-import Toast from './components/ui/Toast';
+import NotificationModal from './components/ui/NotificationModal';
 
 // --- PrivateRoute: redirect to /login if not authenticated ---
 const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -94,7 +94,7 @@ const App: React.FC = () => {
         {/* Default redirect */}
         <Route path="*" element={<NotFound />} />
       </Routes>
-      <Toast />
+      <NotificationModal />
     </BrowserRouter>
   );
 };

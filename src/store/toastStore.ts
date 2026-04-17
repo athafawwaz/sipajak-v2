@@ -14,11 +14,6 @@ export const useToastStore = create<ToastStore>((set, get) => ({
     const id = `toast-${Date.now()}`;
     const toast: ToastMessage = { id, message, variant };
     set({ toasts: [...get().toasts, toast] });
-
-    // Auto-dismiss after 3 seconds
-    setTimeout(() => {
-      set({ toasts: get().toasts.filter((t) => t.id !== id) });
-    }, 3000);
   },
 
   removeToast: (id) => {
