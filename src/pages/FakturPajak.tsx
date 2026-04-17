@@ -508,6 +508,18 @@ const FakturPajakPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {/* --- Title Block --- */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 border-l-4 border-primary pl-3">
+            Faktur Pajak {isTindakLanjutPage ? '- Tindak Lanjut' : '- Baru'}
+          </h1>
+          <p className="text-sm text-gray-500 mt-1">
+            Kelola data permohonan {isTindakLanjutPage ? 'tindak lanjut persetujuan' : 'baru'} faktur pajak masukan
+          </p>
+        </div>
+      </div>
+
       {/* --- Summary Cards --- */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard

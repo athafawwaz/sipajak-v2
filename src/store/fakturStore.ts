@@ -38,7 +38,7 @@ const generateDummyData = (): FakturPajak[] => {
       unitKerja: 'Departemen Pajak',
       noExtKantor: '1234',
       noWhatsapp: '081234567890',
-      email: 'user@pusri.co.id',
+      email: 'user@example.com',
       status,
       keterangan: status === 'Ditolak' ? 'Nomor faktur tidak valid' : '',
       tanggalApprove: status === 'Sudah Approve' ? `${String(Math.floor(Math.random() * 28) + 1).padStart(2, '0')}/${month}/2024` : '',

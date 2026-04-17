@@ -483,7 +483,7 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, title, initialDa
           </FormField>
 
           <FormField label="Email *" error={errors.email?.message}>
-            <input type="email" className={inputClass(!!errors.email)} placeholder="nama@pusri.co.id" {...register('email')} />
+            <input type="email" className={inputClass(!!errors.email)} placeholder="nama@example.com" {...register('email')} />
           </FormField>
 
           <FormField label="Role *" error={errors.role?.message}>

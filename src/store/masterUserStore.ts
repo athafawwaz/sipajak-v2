@@ -8,7 +8,7 @@ const generateDummyData = (): MasterUser[] => {
     {
       id: 'usr-001',
       name: 'Handika Pranajaya',
-      email: 'handikapj@pusri.co.id',
+      email: 'handikapj@example.com',
       jabatan: 'Officer Koordinator Digitalisasi',
       unitKerja: 'DEPARTEMEN TEKNOLOGI INFORMASI',
       noTelp: '0711-712345',
@@ -22,7 +22,7 @@ const generateDummyData = (): MasterUser[] => {
     {
       id: 'usr-002',
       name: 'Bambang Susanto',
-      email: 'bambang.susanto@pusri.co.id',
+      email: 'bambang.susanto@example.com',
       jabatan: 'Vice President',
       unitKerja: 'DIVISI OPERASI (OPERASI P-VI)',
       noTelp: '0711-718888',
@@ -36,7 +36,7 @@ const generateDummyData = (): MasterUser[] => {
     {
       id: 'usr-003',
       name: 'Siti Rahayu',
-      email: 'siti.rahayu@pusri.co.id',
+      email: 'siti.rahayu@example.com',
       jabatan: 'Staf Keuangan',
       unitKerja: 'DEPARTEMEN KEUANGAN PAJAK',
       noTelp: '0711-719999',
@@ -50,7 +50,7 @@ const generateDummyData = (): MasterUser[] => {
     {
       id: 'usr-004',
       name: 'Rizky Pratama',
-      email: 'rizky.pratama@pusri.co.id',
+      email: 'rizky.pratama@example.com',
       jabatan: 'Staff Administrasi',
       unitKerja: 'DEPARTEMEN PEMASARAN',
       noTelp: '0711-713210',

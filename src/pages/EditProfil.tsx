@@ -218,7 +218,7 @@ const EditProfil: React.FC = () => {
                   </label>
                   <input
                     type="email"
-                    placeholder="email@pusri.co.id"
+                    placeholder="email@example.com"
                     className={cn(
                       'w-full rounded-lg border px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all',
                       errors.email ? 'border-red-300' : 'border-gray-300'

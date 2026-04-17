@@ -18,7 +18,7 @@ const dummyAccounts = [
     role: "requester",
     unitKerja: "DEPARTEMEN TEKNOLOGI INFORMASI",
     hp: "082175433331",
-    email: "handikapj@pusri.co.id",
+    email: "handikapj@example.com",
   },
   {
     badge: "6121501",
@@ -27,7 +27,7 @@ const dummyAccounts = [
     role: "vp",
     unitKerja: "DIVISI OPERASI (OPERASI P-VI)",
     hp: "08211234567",
-    email: "bambang.susanto@pusri.co.id",
+    email: "bambang.susanto@example.com",
   },
   {
     badge: "6150706",
@@ -36,7 +36,7 @@ const dummyAccounts = [
     role: "keuangan",
     unitKerja: "DEPARTEMEN KEUANGAN PAJAK",
     hp: "08119876543",
-    email: "sukirman@pusri.co.id",
+    email: "sukirman@example.com",
   },
 ];
 
@@ -55,7 +55,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         nip: dummy.badge,
         name: dummy.username,
         token,
-        email: dummy.email || `${dummy.badge}@pusri.co.id`,
+        email: dummy.email || `${dummy.badge}@example.com`,
         jabatan: dummy.role === 'vp' ? 'Vice President' : dummy.role === 'keuangan' ? 'Staf Keuangan' : 'Officer Koordinator Digitalisasi',
         unitKerja: dummy.unitKerja,
         noTelp: dummy.hp,
@@ -68,7 +68,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         nip: badge,
         name: badge === 'admin' ? 'Administrator' : `User ${badge}`,
         token,
-        email: badge === 'admin' ? 'admin@pusri.co.id' : `${badge}@pusri.co.id`,
+        email: badge === 'admin' ? 'admin@example.com' : `${badge}@example.com`,
         jabatan: badge === 'admin' ? 'Admin Sistem' : 'Staff Pajak',
         unitKerja: 'Departemen Keuangan',
         noTelp: '0711-712345',

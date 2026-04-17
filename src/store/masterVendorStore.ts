@@ -210,7 +210,7 @@ const generateDummyData = (): MasterVendor[] => {
       noBP: 'BP-101441',
       pic: 'Rahmat Kurniawan',
       noTelp: '0711-712222',
-      email: 'koperasi@pusri.co.id',
+      email: 'koperasi@example.com',
       status: 'Aktif',
       createdAt: now,
       updatedAt: now,

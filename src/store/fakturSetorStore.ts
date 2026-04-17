@@ -58,7 +58,7 @@ const generateDummyData = (): FakturPajakSetor[] => {
       unitKerja: unitKerjas[i % unitKerjas.length],
       noExtKantor: `${Math.floor(Math.random() * 9000) + 1000}`,
       noWhatsapp: `0812${String(Math.floor(Math.random() * 90000000) + 10000000)}`,
-      email: `${namaList[namaIdx].toLowerCase().replace(/\s/g, '.')}@pusri.co.id`,
+      email: `${namaList[namaIdx].toLowerCase().replace(/\s/g, '.')}@example.com`,
       noSELKamish: i % 3 === 0 ? `SEL-${String(Math.floor(Math.random() * 9000) + 1000)}/KMS/${2024}` : undefined,
       noVirtuSAP: i % 4 === 0 ? `SAP-${String(Math.floor(Math.random() * 9000000) + 1000000)}` : undefined,
       status,
