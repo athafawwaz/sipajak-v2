@@ -272,18 +272,18 @@ const FakturPajakPage: React.FC = () => {
       }),
       columnHelper.accessor('keterangan', {
         header: 'Keterangan',
-        cell: (info) => (
-          <span className="text-gray-500 text-xs">{info.getValue() || '-'}</span>
-        ),
+        cell: (info) => <span className="text-gray-500 text-xs">{info.getValue() || '-'}</span>,
         size: 150,
       }),
-      columnHelper.accessor('tanggalApprove', {
-        header: 'Tgl Approve',
-        cell: (info) => (
-          <span className="text-gray-500">{info.getValue() || '-'}</span>
-        ),
-        size: 110,
-      }),
+      ...(isTindakLanjutPage
+        ? [
+            columnHelper.accessor('tanggalApprove', {
+              header: 'Tgl Approve',
+              cell: (info: any) => <span className="text-gray-500">{info.getValue() || '-'}</span>,
+              size: 110,
+            }),
+          ]
+        : []),
       columnHelper.display({
         id: 'dokumen',
         header: 'PDF',
@@ -364,7 +364,7 @@ const FakturPajakPage: React.FC = () => {
         size: 220,
       }),
     ],
-    [StatusBadge, CodeBadge, isKeuangan]
+    [StatusBadge, CodeBadge, isKeuangan, isTindakLanjutPage]
   );
 
   // --- Table instance ---

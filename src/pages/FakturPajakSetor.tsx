@@ -333,11 +333,15 @@ const FakturPajakSetorPage: React.FC = () => {
         },
         size: 130,
       }),
-      columnHelper.accessor('tanggalApprove', {
-        header: 'Tgl Approve',
-        cell: (info) => <span className="whitespace-nowrap text-xs text-gray-500">{info.getValue() || '-'}</span>,
-        size: 110,
-      }),
+      ...(isTindakLanjutPage
+        ? [
+            columnHelper.accessor('tanggalApprove', {
+              header: 'Tgl Approve',
+              cell: (info) => <span className="whitespace-nowrap text-xs text-gray-500">{info.getValue() || '-'}</span>,
+              size: 110,
+            }),
+          ]
+        : []),
       // --- DOKUMEN ---
       columnHelper.display({
         id: 'dokumen',
@@ -410,7 +414,7 @@ const FakturPajakSetorPage: React.FC = () => {
         size: 160,
       }),
     ],
-    []
+    [isTindakLanjutPage]
   );
 
   // Table instance
