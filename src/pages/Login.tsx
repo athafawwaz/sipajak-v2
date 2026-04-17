@@ -215,7 +215,7 @@ const Login: React.FC = () => {
                       </div>
                       <div className="flex justify-between border-b border-gray-50 pb-1">
                         <span className="font-medium">Keuangan</span>
-                        <span className="font-mono bg-gray-50 text-gray-800 px-1.5 py-0.5 rounded">6121502 / Keuangan@1234</span>
+                        <span className="font-mono bg-gray-50 text-gray-800 px-1.5 py-0.5 rounded">6150706 / Pusri2015@</span>
                       </div>
                     </div>
                   </div>
