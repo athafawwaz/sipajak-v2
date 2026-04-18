@@ -19,20 +19,13 @@ import {
   Trash2,
   Search,
   Building2,
-  Settings,
   ArrowUpDown,
   Inbox,
   AlertTriangle,
-  Shield,
-  ToggleLeft,
-  ToggleRight,
   Eye,
-  Hash,
-  FileText,
 } from 'lucide-react';
 
 import Button from '../components/ui/Button';
-import Badge from '../components/ui/Badge';
 import Modal from '../components/ui/Modal';
 import StatCard from '../components/ui/StatCard';
 import Pagination from '../components/ui/Pagination';
@@ -405,7 +398,7 @@ const MasterUnitKerja: React.FC = () => {
         onClose={() => setIsDeleteConfirmOpen(false)}
         onConfirm={handleDelete}
         title="Hapus Unit Kerja"
-        message="Apakah Anda yakin ingin menghapus unit kerja ini? Semua konfigurasi akses menu akan ikut terhapus."
+        message="Apakah Anda yakin ingin menghapus unit kerja ini?"
       />
     </div>
   );
@@ -436,7 +429,7 @@ const UnitKerjaModal: React.FC<UnitKerjaModalProps> = ({
     formState: { errors, isSubmitting },
   } = useForm<UnitKerjaFormData>({
     resolver: zodResolver(unitKerjaSchema),
-    defaultValues: { kode: '', nama: '', deskripsi: '' },
+    defaultValues: { nama: '', deskripsi: '' },
   });
 
   useEffect(() => {

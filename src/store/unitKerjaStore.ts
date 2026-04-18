@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { UnitKerja, MenuPermission, MenuKey } from '../types';
+import type { UnitKerja } from '../types';
 
 
 

@@ -126,7 +126,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed }) => {
 
       // For others (requesters), access is granted if their Unit Kerja is REGISTERED in Master Data
       const isRegistered = unitKerjaData.some(
-        (uk) => uk.nama.toLowerCase() === user.unitKerja.toLowerCase()
+        (uk) => uk.nama.toLowerCase() === (user.unitKerja || '').toLowerCase()
       );
       return isRegistered;
     }
