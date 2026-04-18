@@ -47,12 +47,21 @@ const menuGroups: MenuGroup[] = [
     title: 'PPH Keluaran',
     items: [
       {
-        label: 'Penerbitan Faktur',
-        path: '/pph-keluaran/penerbitan-faktur',
+        label: 'Penerbitan Subsidi',
+        path: '/pph-keluaran/penerbitan-faktur/subsidi',
         icon: <FileText className="w-5 h-5" />,
         children: [
-          { label: 'Subsidi', path: '/pph-keluaran/penerbitan-faktur/subsidi' },
-          { label: 'Non Subsidi', path: '/pph-keluaran/penerbitan-faktur/non-subsidi' },
+          { label: 'Penerbitan Baru', path: '/pph-keluaran/penerbitan-faktur/subsidi/baru' },
+          { label: 'Tindak Lanjut', path: '/pph-keluaran/penerbitan-faktur/subsidi/tindak-lanjut' },
+        ],
+      },
+      {
+        label: 'Penerbitan Non Subsidi',
+        path: '/pph-keluaran/penerbitan-faktur/non-subsidi',
+        icon: <FileText className="w-5 h-5" />,
+        children: [
+          { label: 'Penerbitan Baru', path: '/pph-keluaran/penerbitan-faktur/non-subsidi/baru' },
+          { label: 'Tindak Lanjut', path: '/pph-keluaran/penerbitan-faktur/non-subsidi/tindak-lanjut' },
         ],
       },
       {
@@ -114,7 +123,8 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed }) => {
   const { penerbitan, pembatalan } = usePendingCount();
 
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({
-    '/pph-keluaran/penerbitan-faktur': true
+    '/pph-keluaran/penerbitan-faktur/subsidi': true,
+    '/pph-keluaran/penerbitan-faktur/non-subsidi': true,
   });
 
   const checkPermission = (path: string) => {

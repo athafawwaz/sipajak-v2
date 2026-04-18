@@ -2,10 +2,13 @@ import React, { useState } from 'react';
 import Modal from '../ui/Modal';
 import Button from '../ui/Button';
 import Input from '../ui/Input';
-import type { PenerbitanFakturKeluaran } from '../../types';
+import type { PenerbitanFakturKeluaran, DokumenPDF } from '../../types';
 import ApprovalTimeline from './ApprovalTimeline';
+import DokumenUploader from './DokumenUploader';
 import { FileText, Download, ExternalLink } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
+
+import { usePembatalanFakturStore } from '../../store/pembatalanFakturStore';
 
 interface ModalDetailApprovalProps {
   isOpen: boolean;
@@ -13,23 +16,39 @@ interface ModalDetailApprovalProps {
   data: PenerbitanFakturKeluaran | null;
   onApprove: (id: string, notes?: string, invoiceData?: {no: string, tgl: string}) => void;
   onReject: (id: string, notes: string) => void;
+  onAssignVP?: (item: PenerbitanFakturKeluaran) => void;
+  onRevisi?: (item: PenerbitanFakturKeluaran) => void;
+  onAjukanBatal?: (item: PenerbitanFakturKeluaran) => void;
+  onLihatPembatalan?: () => void;
 }
 
-const ModalDetailApproval: React.FC<ModalDetailApprovalProps> = ({ isOpen, onClose, data, onApprove, onReject }) => {
+const ModalDetailApproval: React.FC<ModalDetailApprovalProps> = ({ 
+  isOpen, onClose, data, onApprove, onReject, 
+  onAssignVP, onRevisi, onAjukanBatal, onLihatPembatalan 
+}) => {
   const [activeTab, setActiveTab] = useState<'detail' | 'dokumen' | 'riwayat'>('detail');
   const [rejectNotes, setRejectNotes] = useState('');
   const [showRejectForm, setShowRejectForm] = useState(false);
   const [nomorFaktur, setNomorFaktur] = useState('');
   const [tanggalFaktur, setTanggalFaktur] = useState('');
+  const [uploadedDocs, setUploadedDocs] = useState<DokumenPDF[]>([]);
 
   const { user } = useAuthStore();
+  const getByFakturAsliId = usePembatalanFakturStore((s) => s.getByFakturAsliId);
   const isVP = user?.role === 'vp';
   const isKeuangan = user?.role === 'keuangan';
+  const isRequester = user?.role === 'requester';
 
   if (!data) return null;
 
-  const canApproveVP = isVP && data.status === 'Menunggu Approval VP';
+  const canApproveVP = isVP && data.status === 'Menunggu Approval VP' && data.assignedVPId === user?.badge;
   const canApproveKeuangan = isKeuangan && data.status === 'Menunggu Approval Keuangan';
+  const canAssignVP = isKeuangan && data.status === 'Menunggu Assign VP';
+  const canRevisi = isRequester && data.status === 'Ditolak' && data.createdBy === user?.badge;
+  const canAjukanBatal = isRequester && data.status === 'Selesai' && data.createdBy === user?.badge && !getByFakturAsliId(data.id);
+  const canLihatPembatalan = isRequester && data.status === 'Dalam Proses Pembatalan' && data.createdBy === user?.badge;
+
+  const hasAnyAction = canApproveVP || canApproveKeuangan || canAssignVP || canRevisi || canAjukanBatal || canLihatPembatalan;
 
   const handleApprove = () => {
     if (canApproveKeuangan) {
@@ -138,19 +157,46 @@ const ModalDetailApproval: React.FC<ModalDetailApprovalProps> = ({ isOpen, onClo
            </div>
          </div>
       ) : (
-        (canApproveVP || canApproveKeuangan) && (
+        hasAnyAction && (
           <div className="mt-6 pt-4 border-t">
             {canApproveKeuangan && (
-               <div className="grid grid-cols-2 gap-4 mb-4 pb-4 border-b">
-                 <Input label="Nomor Faktur Pajak" placeholder="Wajib diisi..." value={nomorFaktur} onChange={(e) => setNomorFaktur(e.target.value)} required />
-                 <Input label="Tanggal Faktur Pajak" type="date" value={tanggalFaktur} onChange={(e) => setTanggalFaktur(e.target.value)} required />
+               <div className="mb-4 pb-4 border-b">
+                 <div className="grid grid-cols-2 gap-4 mb-4">
+                   <Input label="Nomor Faktur Pajak" placeholder="Wajib diisi..." value={nomorFaktur} onChange={(e) => setNomorFaktur(e.target.value)} required />
+                   <Input label="Tanggal Faktur Pajak" type="date" value={tanggalFaktur} onChange={(e) => setTanggalFaktur(e.target.value)} required />
+                 </div>
+                 <div>
+                   <label className="block text-sm font-medium text-gray-700 mb-1.5">Upload Dokumen Faktur Pajak (PDF) *</label>
+                   <DokumenUploader
+                     value={uploadedDocs}
+                     onChange={setUploadedDocs}
+                     maxFiles={1}
+                     maxSizeMB={5}
+                   />
+                 </div>
                </div>
             )}
-            <div className="flex justify-end gap-3">
-              <Button variant="outline" className="text-red-600 hover:bg-red-50 hover:border-red-200" onClick={() => setShowRejectForm(true)}>❌ Tolak Pengajuan</Button>
-              <Button variant="primary" className="bg-emerald-600 hover:bg-emerald-700" onClick={handleApprove} disabled={canApproveKeuangan && (!nomorFaktur || !tanggalFaktur)}>
-                ✅ {isVP ? 'Approve' : 'Final Approve'}
-              </Button>
+            <div className="flex justify-end gap-3 flex-wrap">
+              {canAssignVP && (
+                <Button variant="secondary" onClick={() => { onClose(); onAssignVP?.(data); }}>Assign VP</Button>
+              )}
+              {canRevisi && (
+                <Button variant="outline" className="text-orange-600 hover:bg-orange-50 border-orange-200" onClick={() => { onClose(); onRevisi?.(data); }}>Revisi</Button>
+              )}
+              {canAjukanBatal && (
+                <Button className="bg-orange-500 hover:bg-orange-600 text-white" onClick={() => { onClose(); onAjukanBatal?.(data); }}>Ajukan Pembatalan</Button>
+              )}
+              {canLihatPembatalan && (
+                <Button variant="outline" className="text-orange-600 hover:bg-orange-50 border-orange-200" onClick={() => { onClose(); onLihatPembatalan?.(); }}>Lihat Status Pembatalan</Button>
+              )}
+              {(canApproveVP || canApproveKeuangan) && (
+                <>
+                  <Button variant="outline" className="text-red-600 hover:bg-red-50 hover:border-red-200" onClick={() => setShowRejectForm(true)}>❌ Tolak Pengajuan</Button>
+                  <Button variant="primary" className="bg-emerald-600 hover:bg-emerald-700" onClick={handleApprove} disabled={canApproveKeuangan && (!nomorFaktur || !tanggalFaktur || uploadedDocs.length === 0)}>
+                    ✅ {isVP ? 'Approve' : 'Final Approve'}
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         )

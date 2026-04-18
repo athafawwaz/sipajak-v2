@@ -1,10 +1,7 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import { FileText, Inbox } from 'lucide-react';
 
 import type { PenerbitanFakturKeluaran } from '../../types';
-import { useAuthStore } from '../../store/authStore';
-import { usePembatalanFakturStore } from '../../store/pembatalanFakturStore';
 import { cn } from '../../utils/cn';
 import Button from '../ui/Button';
 import StatusBadge from './StatusBadge';
@@ -12,12 +9,9 @@ import StatusBadge from './StatusBadge';
 interface FakturKeluaranTableProps {
   data: PenerbitanFakturKeluaran[];
   onReviewApprove: (item: PenerbitanFakturKeluaran) => void;
-  onAssignVP: (item: PenerbitanFakturKeluaran) => void;
-  onRevisi: (item: PenerbitanFakturKeluaran) => void;
   selectedIds: string[];
   onToggleSelect: (id: string) => void;
   onToggleSelectAll: () => void;
-  onAjukanBatal?: (item: PenerbitanFakturKeluaran) => void;
   columnFilters: Record<string, string>;
   onColumnFilterChange: (key: string, value: string) => void;
 }
@@ -34,22 +28,12 @@ const formatRupiah = (value: number) => `Rp ${value.toLocaleString('id-ID')}`;
 const FakturKeluaranTable: React.FC<FakturKeluaranTableProps> = ({
   data,
   onReviewApprove,
-  onAssignVP,
-  onRevisi,
   selectedIds,
   onToggleSelect,
   onToggleSelectAll,
-  onAjukanBatal,
   columnFilters,
   onColumnFilterChange,
 }) => {
-  const { user } = useAuthStore();
-  const navigate = useNavigate();
-  const getByFakturAsliId = usePembatalanFakturStore((s) => s.getByFakturAsliId);
-  const isKeuangan = user?.role === 'keuangan';
-  const isVP = user?.role === 'vp';
-  const isRequester = user?.role === 'requester';
-
   const checkDuplicateSO = (so: string, id: string) => {
     return data.filter((d) => d.noSONoDoc === so && d.id !== id).length > 0;
   };
@@ -200,24 +184,6 @@ const FakturKeluaranTable: React.FC<FakturKeluaranTableProps> = ({
                     <Button size="sm" variant="outline" onClick={() => onReviewApprove(row)}>
                       Detail
                     </Button>
-                    {(isVP && row.status === 'Menunggu Approval VP' && row.assignedVPId === user?.badge) && (
-                      <Button size="sm" className="ml-2" onClick={() => onReviewApprove(row)}>Review & Approve</Button>
-                    )}
-                    {(isKeuangan && row.status === 'Menunggu Approval Keuangan') && (
-                      <Button size="sm" className="ml-2" onClick={() => onReviewApprove(row)}>Review & Approve</Button>
-                    )}
-                    {(isKeuangan && row.status === 'Menunggu Assign VP') && (
-                      <Button size="sm" variant="secondary" className="ml-2" onClick={() => onAssignVP(row)}>Assign VP</Button>
-                    )}
-                    {(isRequester && row.status === 'Ditolak' && row.createdBy === user?.badge) && (
-                      <Button size="sm" variant="outline" className="text-orange-600 hover:bg-orange-50 border-orange-200 ml-2" onClick={() => onRevisi(row)}>Revisi</Button>
-                    )}
-                    {(isRequester && row.status === 'Selesai' && row.createdBy === user?.badge && !getByFakturAsliId(row.id)) && (
-                      <Button size="sm" className="bg-orange-500 hover:bg-orange-600 text-white ml-2" onClick={() => onAjukanBatal && onAjukanBatal(row)}>Ajukan Pembatalan</Button>
-                    )}
-                    {(isRequester && row.status === 'Dalam Proses Pembatalan' && row.createdBy === user?.badge) && (
-                      <Button size="sm" variant="outline" className="text-orange-600 hover:bg-orange-50 border-orange-200 ml-2" onClick={() => navigate('/pph-keluaran/pembatalan-faktur-pajak')}>Lihat Status Pembatalan</Button>
-                    )}
                   </td>
                 </tr>
               );

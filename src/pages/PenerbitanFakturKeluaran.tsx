@@ -13,18 +13,21 @@ import ModalKonfirmasiPembatalan from '../components/pembatalan-faktur/ModalKonf
 import Pagination from '../components/ui/Pagination';
 import { Plus, Download, Trash2, FileSpreadsheet, CheckCircle, Clock, Search } from 'lucide-react';
 import { useToastStore } from '../store/toastStore';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 
 const PenerbitanFakturKeluaranPage: React.FC = () => {
+  const navigate = useNavigate();
   const { user } = useAuthStore();
   const { 
     getByRole, addItem, bulkDelete, 
     submitPengajuan, approveVP, rejectVP, assignVP, approveKeuangan, rejectKeuangan, submitRevisi
   } = useFakturKeluaranStore();
   const addToast = useToastStore(s => s.addToast);
-  const { jenis } = useParams<{ jenis: string }>();
+  const { jenis, kategori } = useParams<{ jenis: string, kategori: string }>();
   const isSubsidi = jenis === 'subsidi';
   const jenisFakturLabel = isSubsidi ? 'Subsidi' : 'Non Subsidi';
+  const isPenerbitanBaru = kategori === 'baru';
+  const kategoriLabel = isPenerbitanBaru ? 'Penerbitan Baru' : 'Tindak Lanjut';
 
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   
@@ -42,11 +45,41 @@ const PenerbitanFakturKeluaranPage: React.FC = () => {
   const [isBatalOpen, setIsBatalOpen] = useState(false);
   const [activeItem, setActiveItem] = useState<PenerbitanFakturKeluaran | null>(null);
 
+  // Reset states when switching submenus
+  React.useEffect(() => {
+    setCurrentPage(1);
+    setSearchQuery('');
+    setColumnFilters({});
+    setSelectedIds([]);
+  }, [jenis, kategori]);
+
   const role = user?.role || 'requester';
   const badge = user?.badge || '';
   const unitKerja = user?.unitKerja || '';
 
-  const data = getByRole(role, badge, unitKerja).filter(d => d.jenisFaktur === jenisFakturLabel);
+  const rawData = getByRole(role, badge, unitKerja).filter(d => d.jenisFaktur === jenisFakturLabel);
+
+  const data = useMemo(() => {
+    return rawData.filter((item) => {
+      const status = item.status;
+      if (isPenerbitanBaru) {
+        return [
+          'Draft',
+          'Menunggu Assign VP',
+          'Menunggu Approval VP',
+          'Revisi',
+          'Ditolak'
+        ].includes(status);
+      } else {
+        return [
+          'Menunggu Approval Keuangan',
+          'Selesai',
+          'Dalam Proses Pembatalan',
+          'Dibatalkan'
+        ].includes(status);
+      }
+    });
+  }, [rawData, isPenerbitanBaru]);
 
   // Summary stats
   const stats = useMemo(() => {
@@ -209,8 +242,8 @@ const PenerbitanFakturKeluaranPage: React.FC = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-            <h1 className="text-2xl font-bold text-gray-900 border-l-4 border-primary pl-3">Penerbitan Faktur Pajak - {jenisFakturLabel}</h1>
-            <p className="text-sm text-gray-500 mt-1">Kelola data permohonan penerbitan faktur pajak keluaran ({jenisFakturLabel.toLowerCase()})</p>
+            <h1 className="text-2xl font-bold text-gray-900 border-l-4 border-primary pl-3">{kategoriLabel} Faktur Pajak - {jenisFakturLabel}</h1>
+            <p className="text-sm text-gray-500 mt-1">Kelola data permohonan penerbitan faktur pajak keluaran ({jenisFakturLabel.toLowerCase()}) untuk tahap {kategoriLabel.toLowerCase()}</p>
         </div>
       </div>
 
@@ -227,7 +260,7 @@ const PenerbitanFakturKeluaranPage: React.FC = () => {
         {/* Toolbar & Search */}
         <div className="px-5 py-4 border-b border-gray-100 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div className="flex items-center gap-2 flex-wrap">
-            {role === 'requester' && (
+            {role === 'requester' && isPenerbitanBaru && (
               <Button size="sm" onClick={() => setIsInputOpen(true)} leftIcon={<Plus className="w-4 h-4" />}>
                 Input Faktur
               </Button>
@@ -263,9 +296,6 @@ const PenerbitanFakturKeluaranPage: React.FC = () => {
           onToggleSelect={handleToggleSelect}
           onToggleSelectAll={handleToggleSelectAll}
           onReviewApprove={handleReviewApprove}
-          onAssignVP={handleOpenAssignVP}
-          onRevisi={handleOpenRevisi}
-          onAjukanBatal={handleAjukanBatal}
           columnFilters={columnFilters}
           onColumnFilterChange={handleColumnFilterChange}
         />
@@ -299,6 +329,10 @@ const PenerbitanFakturKeluaranPage: React.FC = () => {
         data={activeItem}
         onApprove={handleApprove}
         onReject={handleReject}
+        onAssignVP={handleOpenAssignVP}
+        onRevisi={handleOpenRevisi}
+        onAjukanBatal={handleAjukanBatal}
+        onLihatPembatalan={() => navigate('/pph-keluaran/pembatalan-faktur-pajak')}
       />
 
       <ModalAssignVP
