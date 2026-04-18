@@ -36,10 +36,8 @@ Enum tipe_faktur {
 
 Table unit_kerja {
   id uuid [pk, note: 'Primary Key']
-  kode varchar [unique]
   nama varchar
   deskripsi text [null]
-  menu_permissions jsonb [note: 'Access Control List']
   created_at timestamp
   updated_at timestamp
 }

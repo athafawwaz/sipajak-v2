@@ -1126,17 +1126,35 @@ const FakturSetorFormModal: React.FC<FormModalProps> = ({ isOpen, onClose, initi
           <div className="p-4 grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="block text-xs font-medium text-gray-700 mb-1">Badge *</label>
-              <input type="text" placeholder="1100XXX" className={inputClass(!!errors.badge)} {...register('badge')} />
+              <input 
+                type="text" 
+                placeholder="1100XXX" 
+                readOnly
+                className={cn(inputClass(!!errors.badge), 'bg-gray-50 text-gray-500 cursor-not-allowed focus:outline-none')} 
+                {...register('badge')} 
+              />
               {errors.badge && <p className="mt-1 text-xs text-red-600">{errors.badge.message}</p>}
             </div>
             <div>
               <label className="block text-xs font-medium text-gray-700 mb-1">Nama *</label>
-              <input type="text" placeholder="Nama lengkap" className={inputClass(!!errors.nama)} {...register('nama')} />
+              <input 
+                type="text" 
+                placeholder="Nama lengkap" 
+                readOnly
+                className={cn(inputClass(!!errors.nama), 'bg-gray-50 text-gray-500 cursor-not-allowed focus:outline-none')} 
+                {...register('nama')} 
+              />
               {errors.nama && <p className="mt-1 text-xs text-red-600">{errors.nama.message}</p>}
             </div>
             <div>
               <label className="block text-xs font-medium text-gray-700 mb-1">Unit Kerja *</label>
-              <input type="text" placeholder="Unit kerja" className={inputClass(!!errors.unitKerja)} {...register('unitKerja')} />
+              <input 
+                type="text" 
+                placeholder="Unit kerja" 
+                readOnly
+                className={cn(inputClass(!!errors.unitKerja), 'bg-gray-50 text-gray-500 cursor-not-allowed focus:outline-none')} 
+                {...register('unitKerja')} 
+              />
               {errors.unitKerja && <p className="mt-1 text-xs text-red-600">{errors.unitKerja.message}</p>}
             </div>
             <div>

@@ -230,6 +230,12 @@ const MasterVendorPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 border-l-4 border-primary pl-3">Master Data Vendor</h1>
+          <p className="text-sm text-gray-500 mt-1">Kelola direktori vendor, status PKP, dan informasi kontak penagihan</p>
+        </div>
+      </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard label="Total Vendor" value={stats.totalVendor} icon={<Truck className="w-5 h-5" />} color="blue" />
         <StatCard label="Vendor PKP" value={stats.pkp} icon={<FileCheck2 className="w-5 h-5" />} color="green" />

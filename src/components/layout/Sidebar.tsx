@@ -105,13 +105,35 @@ const menuGroups: MenuGroup[] = [
 ];
 
 import { usePendingCount } from '../../hooks/usePendingCount';
+import { useAuthStore } from '../../store/authStore';
+import { useUnitKerjaStore } from '../../store/unitKerjaStore';
 
 const Sidebar: React.FC<SidebarProps> = ({ collapsed }) => {
+  const { user } = useAuthStore();
+  const { data: unitKerjaData } = useUnitKerjaStore();
   const { penerbitan, pembatalan } = usePendingCount();
 
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({
     '/pph-keluaran/penerbitan-faktur': true
   });
+
+  const checkPermission = (path: string) => {
+    // Only 'Faktur Pajak' (non-setor) is restricted by Unit Kerja Master Data
+    if (path === '/pph-masukan/faktur-pajak') {
+      if (!user) return false;
+      // Admin, VP, and Keuangan always have access to oversee everything
+      if (user.role === 'admin' || user.role === 'vp' || user.role === 'keuangan') return true;
+
+      // For others (requesters), access is granted if their Unit Kerja is REGISTERED in Master Data
+      const isRegistered = unitKerjaData.some(
+        (uk) => uk.nama.toLowerCase() === user.unitKerja.toLowerCase()
+      );
+      return isRegistered;
+    }
+    
+    // Other menus are accessible as usual
+    return true;
+  };
 
   const toggleMenu = (path: string) => {
     setOpenMenus(prev => ({ ...prev, [path]: !prev[path] }));
@@ -189,7 +211,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed }) => {
               </div>
             )}
             <div className="space-y-1">
-              {group.items.map((item) => {
+              {group.items.filter(item => checkPermission(item.path)).map((item) => {
                 const hasChildren = item.children && item.children.length > 0;
                 return (
                   <div key={item.path} className="space-y-1">

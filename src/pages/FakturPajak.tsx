@@ -1141,17 +1141,44 @@ const FakturModal: React.FC<FakturModalProps> = ({ isOpen, onClose, title, initi
           <div className="p-4 grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="block text-xs font-medium text-gray-700 mb-1">Badge *</label>
-              <input type="text" placeholder="1100XXX" className={cn('w-full rounded-lg border px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all', errors.badge ? 'border-red-300' : 'border-gray-300')} {...register('badge')} />
+              <input 
+                type="text" 
+                placeholder="1100XXX" 
+                readOnly
+                className={cn(
+                  'w-full rounded-lg border px-3.5 py-2.5 text-sm bg-gray-50 text-gray-500 cursor-not-allowed focus:outline-none transition-all', 
+                  errors.badge ? 'border-red-300' : 'border-gray-300'
+                )} 
+                {...register('badge')} 
+              />
               {errors.badge && <p className="mt-1 text-xs text-red-600">{errors.badge.message}</p>}
             </div>
             <div>
               <label className="block text-xs font-medium text-gray-700 mb-1">Nama *</label>
-              <input type="text" placeholder="Nama lengkap" className={cn('w-full rounded-lg border px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all', errors.nama ? 'border-red-300' : 'border-gray-300')} {...register('nama')} />
+              <input 
+                type="text" 
+                placeholder="Nama lengkap" 
+                readOnly
+                className={cn(
+                  'w-full rounded-lg border px-3.5 py-2.5 text-sm bg-gray-50 text-gray-500 cursor-not-allowed focus:outline-none transition-all', 
+                  errors.nama ? 'border-red-300' : 'border-gray-300'
+                )} 
+                {...register('nama')} 
+              />
               {errors.nama && <p className="mt-1 text-xs text-red-600">{errors.nama.message}</p>}
             </div>
             <div>
               <label className="block text-xs font-medium text-gray-700 mb-1">Unit Kerja *</label>
-              <input type="text" placeholder="Unit kerja" className={cn('w-full rounded-lg border px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all', errors.unitKerja ? 'border-red-300' : 'border-gray-300')} {...register('unitKerja')} />
+              <input 
+                type="text" 
+                placeholder="Unit kerja" 
+                readOnly
+                className={cn(
+                  'w-full rounded-lg border px-3.5 py-2.5 text-sm bg-gray-50 text-gray-500 cursor-not-allowed focus:outline-none transition-all', 
+                  errors.unitKerja ? 'border-red-300' : 'border-gray-300'
+                )} 
+                {...register('unitKerja')} 
+              />
               {errors.unitKerja && <p className="mt-1 text-xs text-red-600">{errors.unitKerja.message}</p>}
             </div>
             <div>

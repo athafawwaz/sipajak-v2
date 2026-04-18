@@ -235,6 +235,12 @@ const MasterUserPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 border-l-4 border-primary pl-3">Master Data User</h1>
+          <p className="text-sm text-gray-500 mt-1">Kelola data pengguna sistem, peranan (role), dan status aktifasi</p>
+        </div>
+      </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard label="Total User" value={stats.totalUser} icon={<Users className="w-5 h-5" />} color="blue" />
         <StatCard label="User Unit Kerja" value={stats.requester} icon={<UserCheck className="w-5 h-5" />} color="green" />

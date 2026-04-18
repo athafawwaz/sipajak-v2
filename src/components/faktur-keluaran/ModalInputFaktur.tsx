@@ -190,9 +190,10 @@ const ModalInputFaktur: React.FC<ModalInputFakturProps> = ({
         {/* Section 4 - Data Requester */}
         <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
           <h3 className="font-semibold text-gray-800 mb-4 border-b pb-2">4. Data Requester</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Input label="Nama / Badge" value={`${user?.name} / ${user?.badge}`} disabled />
-            <Input label="Unit Kerja" value={user?.unitKerja} disabled />
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <Input label="Nama" value={user?.name} readOnly className="bg-gray-50 cursor-not-allowed" />
+            <Input label="Badge" value={user?.badge} readOnly className="bg-gray-50 cursor-not-allowed" />
+            <Input label="Unit Kerja" value={user?.unitKerja} readOnly className="bg-gray-50 cursor-not-allowed" />
             <Input label="HP / Ext" value={formData.hp} onChange={(e) => handleInputChange('hp', e.target.value)} />
           </div>
         </div>

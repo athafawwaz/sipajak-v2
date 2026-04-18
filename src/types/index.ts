@@ -117,26 +117,12 @@ export interface MasterVendor {
   updatedAt: string;
 }
 
-export type MenuKey =
-  | 'faktur-pajak'
-  | 'faktur-pajak-setor'
-  | 'kalkulator-pph-21'
-  | 'edit-profil'
-  | 'master-unit-kerja'
-  | 'penerbitan-faktur-keluaran';
 
-export interface MenuPermission {
-  key: MenuKey;
-  label: string;
-  enabled: boolean;
-}
 
 export interface UnitKerja {
   id: string;
-  kode: string;
   nama: string;
   deskripsi?: string;
-  menuPermissions: MenuPermission[];
   createdAt: string;
   updatedAt: string;
 }
