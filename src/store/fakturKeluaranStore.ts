@@ -176,6 +176,54 @@ const createDummyData = (): PenerbitanFakturKeluaran[] => {
     const ppn = Math.floor(0.11 * nilai);
     const status = statuses[Math.floor(Math.random() * statuses.length)];
     
+    let approvalLogs: ApprovalLog[] = [];
+    
+    // Generate appropriate approval logs based on status
+    if (status === 'Selesai' || status === 'Ditolak' || status === 'Revisi' || status === 'Menunggu Approval Keuangan') {
+      // Setup base submission log if progressing past VP
+      if (status !== 'Draft' && status !== 'Menunggu Assign VP' && status !== 'Menunggu Approval VP') {
+        const assignedVP = status !== 'Draft' && status !== 'Menunggu Assign VP' ? "Bambang Susanto" : undefined;
+        const assignedVPId = status !== 'Draft' && status !== 'Menunggu Assign VP' ? "VP001" : undefined;
+        
+        if (assignedVPId) {
+             approvalLogs.push({
+                id: `log-${i}-assign`,
+                step: 0,
+                role: "keuangan",
+                approverName: "Sistem",
+                approverBadge: "SYS",
+                action: "assign_vp",
+                catatan: `Assigned to ${assignedVP} (${assignedVPId})`,
+                timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString()
+             });
+        }
+      }
+
+      if (status === 'Selesai') {
+        approvalLogs.push(
+          { id: `log-${i}-vp`, step: 1, role: "vp", approverName: "Bambang Susanto", approverBadge: "VP001", action: "approve", timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString() },
+          { id: `log-${i}-keu`, step: 2, role: "keuangan", approverName: "Siti Rahayu", approverBadge: "KEU001", action: "approve", timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString() }
+        );
+      } else if (status === 'Menunggu Approval Keuangan') {
+        approvalLogs.push(
+          { id: `log-${i}-vp`, step: 1, role: "vp", approverName: "Bambang Susanto", approverBadge: "VP001", action: "approve", timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString() }
+        );
+      } else if (status === 'Ditolak') {
+        // Randomly reject at VP or Keuangan stage
+        const rejectAtVP = Math.random() > 0.5;
+        if (rejectAtVP) {
+          approvalLogs.push(
+            { id: `log-${i}-vp-rej`, step: 1, role: "vp", approverName: "Bambang Susanto", approverBadge: "VP001", action: "reject", catatan: "Data tidak sesuai dengan dokumen fisik.", timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString() }
+          );
+        } else {
+          approvalLogs.push(
+            { id: `log-${i}-vp`, step: 1, role: "vp", approverName: "Bambang Susanto", approverBadge: "VP001", action: "approve", timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString() },
+            { id: `log-${i}-keu-rej`, step: 2, role: "keuangan", approverName: "Siti Rahayu", approverBadge: "KEU001", action: "reject", catatan: "Nominal PPN tidak match dengan hitungan sistem.", timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString() }
+          );
+        }
+      }
+    }
+
     dummy.push({
       id: `FK-00${i}`,
       no: i,
@@ -195,7 +243,8 @@ const createDummyData = (): PenerbitanFakturKeluaran[] => {
       jenisFaktur: i % 2 === 0 ? "Subsidi" : "Non Subsidi",
       status: status,
       dokumen: [{ id: `doc${i}`, namaFile: `dokumen-${i}.pdf`, ukuran: 800000, url: "#", uploadedAt: new Date().toISOString() }],
-      approvalLogs: [],
+      approvalLogs: approvalLogs,
+      catatanPenolakan: status === 'Ditolak' ? approvalLogs[approvalLogs.length - 1]?.catatan : undefined,
       assignedVPId: status !== 'Draft' && status !== 'Menunggu Assign VP' ? "VP001" : undefined,
       assignedVPNama: status !== 'Draft' && status !== 'Menunggu Assign VP' ? "Bambang Susanto" : undefined,
       nomorFakturPajak: status === 'Selesai' ? `010.008-24.241040${i}` : undefined,
