@@ -1,6 +1,5 @@
 import * as XLSX from 'xlsx';
 import type { FakturPajak } from '../types';
-import { formatCurrency } from './formatCurrency';
 
 export function exportToExcel(data: any[], filename: string = 'export', sheetName: string = 'Data') {
   if (data.length === 0) return;

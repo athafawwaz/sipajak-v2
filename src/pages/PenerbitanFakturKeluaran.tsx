@@ -11,7 +11,7 @@ import ModalAssignVP from '../components/faktur-keluaran/ModalAssignVP';
 import ModalRevisi from '../components/faktur-keluaran/ModalRevisi';
 import ModalKonfirmasiPembatalan from '../components/pembatalan-faktur/ModalKonfirmasiPembatalan';
 import Pagination from '../components/ui/Pagination';
-import { Plus, Download, Trash2, FileSpreadsheet, CheckCircle, Clock, Search } from 'lucide-react';
+import { Plus, Download, Trash2, FileSpreadsheet, Clock, Search } from 'lucide-react';
 import { useToastStore } from '../store/toastStore';
 import { useParams, useNavigate } from 'react-router-dom';
 import { exportToExcel } from '../utils/exportExcel';

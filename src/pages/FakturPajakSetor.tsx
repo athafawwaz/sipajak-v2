@@ -24,7 +24,6 @@ import {
   Inbox,
   AlertTriangle,
   FileSpreadsheet,
-  DollarSign,
   CheckCircle2,
   Clock,
   Eye,

@@ -581,7 +581,7 @@ const DetailUserModal: React.FC<DetailUserModalProps> = ({ isOpen, onClose, user
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <DetailField label="Badge" value={user.badge} mono />
+          <DetailField label="Badge" value={user.badge} />
           <DetailField label="Nama" value={user.name} bold />
           <DetailField label="Role" value={roleLabels[user.role]} />
           <DetailField label="Status" value={user.status} />
@@ -605,11 +605,10 @@ const DetailUserModal: React.FC<DetailUserModalProps> = ({ isOpen, onClose, user
 interface DetailFieldProps {
   label: string;
   value: string;
-  mono?: boolean;
   bold?: boolean;
 }
 
-const DetailField: React.FC<DetailFieldProps> = ({ label, value, mono, bold }) => (
+const DetailField: React.FC<DetailFieldProps> = ({ label, value, bold }) => (
   <div className="rounded-lg border border-gray-100 bg-gray-50/70 p-3">
     <p className="text-xs text-gray-500 mb-1">{label}</p>
     <p className={cn('text-sm text-gray-900 break-words', bold && 'font-semibold')}>

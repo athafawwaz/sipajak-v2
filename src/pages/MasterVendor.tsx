@@ -590,11 +590,11 @@ const DetailVendorModal: React.FC<DetailVendorModalProps> = ({ isOpen, onClose, 
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <DetailField label="Kode Vendor" value={vendor.kodeVendor} mono />
+          <DetailField label="Kode Vendor" value={vendor.kodeVendor} />
           <DetailField label="Nama Vendor" value={vendor.namaVendor} bold />
-          <DetailField label="NPWP" value={vendor.npwp} mono />
+          <DetailField label="NPWP" value={vendor.npwp} />
           <DetailField label="Tipe Vendor" value={vendor.tipeVendor} />
-          <DetailField label="No BP" value={vendor.noBP || '-'} mono />
+          <DetailField label="No BP" value={vendor.noBP || '-'} />
           <DetailField label="Status" value={vendor.status} />
           <DetailField label="PIC" value={vendor.pic} />
           <DetailField label="No. Telepon" value={vendor.noTelp} />
@@ -617,11 +617,10 @@ const DetailVendorModal: React.FC<DetailVendorModalProps> = ({ isOpen, onClose, 
 interface DetailFieldProps {
   label: string;
   value: string;
-  mono?: boolean;
   bold?: boolean;
 }
 
-const DetailField: React.FC<DetailFieldProps> = ({ label, value, mono, bold }) => (
+const DetailField: React.FC<DetailFieldProps> = ({ label, value, bold }) => (
   <div className="rounded-lg border border-gray-100 bg-gray-50/70 p-3">
     <p className="text-xs text-gray-500 mb-1">{label}</p>
     <p className={cn('text-sm text-gray-900 break-words', bold && 'font-semibold')}>
