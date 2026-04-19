@@ -229,7 +229,7 @@ const FakturPajakPage: React.FC = () => {
       }),
       columnHelper.accessor('npwpVendor', {
         header: 'NPWP Vendor',
-        cell: (info) => <span className="font-mono tracking-wider text-xs">{info.getValue()}</span>,
+        cell: (info) => <span className="text-xs">{info.getValue()}</span>,
         size: 180,
       }),
       columnHelper.accessor('nilaiDPP', {
@@ -248,7 +248,7 @@ const FakturPajakPage: React.FC = () => {
       }),
       columnHelper.accessor('badge', {
         header: 'Badge',
-        cell: (info) => <span className="font-mono text-xs bg-gray-100 px-1.5 py-0.5 rounded">{info.getValue()}</span>,
+        cell: (info) => <span className="text-xs bg-gray-100 px-1.5 py-0.5 rounded">{info.getValue()}</span>,
         size: 90,
       }),
       columnHelper.accessor('nama', {
@@ -415,9 +415,27 @@ const FakturPajakPage: React.FC = () => {
   }, [rowSelection, deleteMultiple, addToast]);
 
   const handleExport = useCallback(() => {
-    exportToExcel(data, `faktur-pajak-${new Date().toISOString().slice(0, 10)}`);
+    const exportData = filteredData.map((item) => ({
+      'No': item.no,
+      'Tanggal Pengajuan': item.tanggalPengajuan,
+      'Tanggal Faktur': item.tanggalFaktur,
+      'No MVP': item.noMVP,
+      'Nomor Faktur Pajak': item.nomorFakturPajak,
+      'Kode Faktur SAP': item.kodeFakturSAP,
+      'NPWP Vendor': item.npwpVendor,
+      'Nama Perusahaan': item.namaPerusahaan,
+      'Nilai DPP': item.nilaiDPP ? formatCurrency(item.nilaiDPP) : '-',
+      'Nilai PPN': formatCurrency(item.nilaiPPN),
+      'Badge': item.badge,
+      'Nama': item.nama,
+      'Unit Kerja': item.unitKerja,
+      'Status': item.status,
+      'Keterangan': item.keterangan || '',
+      'Tanggal Approve': item.tanggalApprove || '',
+    }));
+    exportToExcel(exportData, `faktur-pajak-${new Date().toISOString().slice(0, 10)}`, 'Faktur Pajak');
     addToast('Data berhasil di-export ke Excel', 'success');
-  }, [data, addToast]);
+  }, [filteredData, addToast]);
 
   const handleFileUpload = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -522,18 +540,37 @@ const FakturPajakPage: React.FC = () => {
 
       {/* --- Summary Cards --- */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
-        <StatCard
-          label="Total Faktur"
-          value={stats.totalFaktur}
-          icon={<FileText className="w-5 h-5" />}
-          color="blue"
-        />
-        <StatCard
-          label="Pending"
-          value={stats.pending}
-          icon={<Clock className="w-5 h-5" />}
-          color="yellow"
-        />
+        {isTindakLanjutPage ? (
+          <>
+            <StatCard
+              label="Sudah Approve"
+              value={stats.sudahApprove}
+              icon={<CheckCircle2 className="w-5 h-5" />}
+              color="green"
+            />
+            <StatCard
+              label="Ditolak"
+              value={stats.ditolak}
+              icon={<XCircle className="w-5 h-5" />}
+              color="red"
+            />
+          </>
+        ) : (
+          <>
+            <StatCard
+              label="Total Faktur"
+              value={stats.totalFaktur}
+              icon={<FileText className="w-5 h-5" />}
+              color="blue"
+            />
+            <StatCard
+              label="Pending"
+              value={stats.pending}
+              icon={<Clock className="w-5 h-5" />}
+              color="yellow"
+            />
+          </>
+        )}
       </div>
 
       {/* --- Table Card --- */}
@@ -828,9 +865,9 @@ const FakturPajakPage: React.FC = () => {
                     <td className="px-3 py-2">{row.tanggalPengajuan}</td>
                     <td className="px-3 py-2">{row.tanggalFaktur}</td>
                     <td className="px-3 py-2">{row.noMVP}</td>
-                    <td className="px-3 py-2 font-mono text-xs">{row.nomorFakturPajak}</td>
+                    <td className="px-3 py-2 text-xs">{row.nomorFakturPajak}</td>
                     <td className="px-3 py-2">{row.namaPerusahaan}</td>
-                    <td className="px-3 py-2 font-mono text-xs">{row.npwpVendor}</td>
+                    <td className="px-3 py-2 text-xs">{row.npwpVendor}</td>
                     <td className="px-3 py-2 text-right">{formatCurrency(row.nilaiPPN || 0)}</td>
                     <td className="px-3 py-2">{row.status}</td>
                   </tr>
@@ -996,7 +1033,7 @@ const FakturModal: React.FC<FakturModalProps> = ({ isOpen, onClose, title, initi
                   placeholder="16 digit angka"
                   maxLength={16}
                   className={cn(
-                    'w-full rounded-lg border px-3.5 py-2.5 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all',
+                    'w-full rounded-lg border px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all',
                     errors.nomorFakturPajak ? 'border-red-300' : 'border-gray-300'
                   )}
                   {...register('nomorFakturPajak')}
@@ -1279,7 +1316,7 @@ const ApprovalModal: React.FC<ApprovalModalProps> = ({ isOpen, onClose, faktur, 
           <div className="grid grid-cols-2 gap-3 text-sm">
             <div>
               <p className="text-xs text-gray-500 mb-0.5">No Faktur Pajak</p>
-              <p className="font-mono font-medium text-gray-900">{faktur.nomorFakturPajak}</p>
+              <p className="font-medium text-gray-900">{faktur.nomorFakturPajak}</p>
             </div>
             <div>
               <p className="text-xs text-gray-500 mb-0.5">No MVP</p>
@@ -1291,7 +1328,7 @@ const ApprovalModal: React.FC<ApprovalModalProps> = ({ isOpen, onClose, faktur, 
             </div>
             <div>
               <p className="text-xs text-gray-500 mb-0.5">NPWP Vendor</p>
-              <p className="font-mono text-gray-900 tracking-wider text-xs pt-1">{faktur.npwpVendor}</p>
+              <p className="text-gray-900 text-xs pt-1">{faktur.npwpVendor}</p>
             </div>
             <div>
               <p className="text-xs text-gray-500 mb-0.5">Nilai PPN</p>
@@ -1471,7 +1508,7 @@ const DetailField: React.FC<{ label: string; value: string; mono?: boolean; bold
     <p
       className={cn(
         'text-gray-900',
-        mono && 'font-mono tracking-wider text-xs',
+        mono && 'text-xs',
         bold && 'font-semibold'
       )}
     >

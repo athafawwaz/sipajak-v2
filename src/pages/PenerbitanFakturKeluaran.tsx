@@ -14,6 +14,7 @@ import Pagination from '../components/ui/Pagination';
 import { Plus, Download, Trash2, FileSpreadsheet, CheckCircle, Clock, Search } from 'lucide-react';
 import { useToastStore } from '../store/toastStore';
 import { useParams, useNavigate } from 'react-router-dom';
+import { exportToExcel } from '../utils/exportExcel';
 
 const PenerbitanFakturKeluaranPage: React.FC = () => {
   const navigate = useNavigate();
@@ -238,6 +239,28 @@ const PenerbitanFakturKeluaranPage: React.FC = () => {
     setIsBatalOpen(true);
   };
 
+  const handleExport = () => {
+    const exportData = filteredData.map(d => ({
+      'No': d.no,
+      'Tgl Request FP': d.tanggalRequestFP,
+      'No SO / No Doc': d.noSONoDoc,
+      'Tgl SO': d.tanggalSO,
+      'Nama Customer': d.namaCustomer,
+      'NPWP': d.npwp,
+      'Total Tagihan': d.totalTagihan,
+      'Nilai Transaksi': d.nilaiTransaksi,
+      'DPP': d.dpp,
+      'PPN': d.ppn,
+      'Requester': `${d.requesterNama}/${d.requesterBadge}`,
+      'Unit Kerja': d.unitKerja,
+      'Status': d.status,
+      'No Faktur Pajak': d.nomorFakturPajak || '-',
+      'Tgl Faktur Pajak': d.tanggalFakturPajak || '-',
+    }));
+    exportToExcel(exportData, `faktur-keluaran-${jenisFakturLabel.toLowerCase()}-${new Date().toISOString().slice(0, 10)}`, `Faktur ${jenisFakturLabel}`);
+    addToast('Data berhasil di-export ke Excel', 'success');
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -263,7 +286,7 @@ const PenerbitanFakturKeluaranPage: React.FC = () => {
                 Input Faktur
               </Button>
             )}
-            <Button size="sm" variant="outline" leftIcon={<Download className="w-4 h-4" />}>
+            <Button size="sm" variant="outline" leftIcon={<Download className="w-4 h-4" />} onClick={handleExport}>
               Export Excel
             </Button>
             {role === 'keuangan' && selectedIds.length > 0 && (

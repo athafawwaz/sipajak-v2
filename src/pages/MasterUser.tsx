@@ -120,7 +120,7 @@ const MasterUserPage: React.FC = () => {
       columnHelper.accessor('badge', {
         header: 'Badge',
         cell: (info) => (
-          <span className="font-mono text-xs font-semibold text-primary bg-primary/5 px-2 py-1 rounded">
+          <span className="text-xs font-semibold text-primary bg-primary/5 px-2 py-1 rounded">
             {info.getValue()}
           </span>
         ),
@@ -153,7 +153,7 @@ const MasterUserPage: React.FC = () => {
       }),
       columnHelper.accessor('hp', {
         header: 'No. HP',
-        cell: (info) => <span className="font-mono text-xs text-gray-600">{info.getValue()}</span>,
+        cell: (info) => <span className="text-xs text-gray-600">{info.getValue()}</span>,
         size: 130,
       }),
       columnHelper.accessor('status', {
@@ -612,7 +612,7 @@ interface DetailFieldProps {
 const DetailField: React.FC<DetailFieldProps> = ({ label, value, mono, bold }) => (
   <div className="rounded-lg border border-gray-100 bg-gray-50/70 p-3">
     <p className="text-xs text-gray-500 mb-1">{label}</p>
-    <p className={cn('text-sm text-gray-900 break-words', mono && 'font-mono', bold && 'font-semibold')}>
+    <p className={cn('text-sm text-gray-900 break-words', bold && 'font-semibold')}>
       {value || '-'}
     </p>
   </div>

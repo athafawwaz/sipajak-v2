@@ -2,30 +2,16 @@ import * as XLSX from 'xlsx';
 import type { FakturPajak } from '../types';
 import { formatCurrency } from './formatCurrency';
 
-export function exportToExcel(data: FakturPajak[], filename: string = 'faktur-pajak') {
-  const exportData = data.map((item) => ({
-    'No': item.no,
-    'Tanggal Pengajuan': item.tanggalPengajuan,
-    'Tanggal Faktur': item.tanggalFaktur,
-    'No MVP': item.noMVP,
-    'Nomor Faktur Pajak': item.nomorFakturPajak,
-    'Kode Faktur SAP': item.kodeFakturSAP,
-    'NPWP Vendor': item.npwpVendor,
-    'Nama Perusahaan': item.namaPerusahaan,
-    'Nilai PPN': formatCurrency(item.nilaiPPN),
-    'Verifikator': item.verifikator,
-    'Status': item.status,
-    'Keterangan': item.keterangan || '',
-    'Tanggal Approve': item.tanggalApprove || '',
-  }));
+export function exportToExcel(data: any[], filename: string = 'export', sheetName: string = 'Data') {
+  if (data.length === 0) return;
 
-  const ws = XLSX.utils.json_to_sheet(exportData);
+  const ws = XLSX.utils.json_to_sheet(data);
   const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'Faktur Pajak');
+  XLSX.utils.book_append_sheet(wb, ws, sheetName);
 
   // Auto-size columns
-  const colWidths = Object.keys(exportData[0] || {}).map((key) => ({
-    wch: Math.max(key.length, ...exportData.map((row) => String(row[key as keyof typeof row]).length)) + 2,
+  const colWidths = Object.keys(data[0] || {}).map((key) => ({
+    wch: Math.max(key.length, ...data.map((row) => String(row[key as keyof typeof row] || '').length)) + 2,
   }));
   ws['!cols'] = colWidths;
 

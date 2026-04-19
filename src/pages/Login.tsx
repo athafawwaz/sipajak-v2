@@ -207,15 +207,15 @@ const Login: React.FC = () => {
                     <div className="space-y-2 text-xs text-gray-600">
                       <div className="flex justify-between border-b border-gray-50 pb-1">
                         <span className="font-medium">Requester</span>
-                        <span className="font-mono bg-gray-50 text-gray-800 px-1.5 py-0.5 rounded">6121509 / Pusri2012@</span>
+                        <span className="bg-gray-50 text-gray-800 px-1.5 py-0.5 rounded">6121509 / Pusri2012@</span>
                       </div>
-                      <div className="flex justify-between border-b border-gray-50 pb-1">
-                        <span className="font-medium">VP</span>
-                        <span className="font-mono bg-gray-50 text-gray-800 px-1.5 py-0.5 rounded">6121501 / VP@1234</span>
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-gray-500">VP Staging</span>
+                        <span className="bg-gray-50 text-gray-800 px-1.5 py-0.5 rounded">6121501 / VP@1234</span>
                       </div>
-                      <div className="flex justify-between border-b border-gray-50 pb-1">
-                        <span className="font-medium">Keuangan</span>
-                        <span className="font-mono bg-gray-50 text-gray-800 px-1.5 py-0.5 rounded">6150706 / Pusri2015@</span>
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-gray-500">Finance</span>
+                        <span className="bg-gray-50 text-gray-800 px-1.5 py-0.5 rounded">6150706 / Pusri2015@</span>
                       </div>
                     </div>
                   </div>

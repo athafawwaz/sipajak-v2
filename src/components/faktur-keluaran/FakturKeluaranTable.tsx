@@ -149,7 +149,7 @@ const FakturKeluaranTable: React.FC<FakturKeluaranTableProps> = ({
                   <td className={cn(cellClass, 'font-medium text-blue-800')}>{row.noSONoDoc}</td>
                   <td className={cellClass}>{row.tanggalSO}</td>
                   <td className={cn(cellClass, 'max-w-xs truncate')} title={row.namaCustomer}>{row.namaCustomer}</td>
-                  <td className={cn(cellClass, 'font-mono text-xs')}>{row.npwp}</td>
+                  <td className={cn(cellClass, 'text-xs')}>{row.npwp}</td>
                   <td className={cn(cellClass, 'text-right font-bold text-gray-900 tabular-nums')}>{formatRupiah(row.totalTagihan)}</td>
                   <td className={cn(cellClass, 'text-right tabular-nums')}>{formatRupiah(row.nilaiTransaksi)}</td>
                   <td className={cn(cellClass, 'text-right bg-yellow-50/60 text-yellow-900 font-medium tabular-nums')}>{formatRupiah(row.dpp)}</td>
@@ -160,7 +160,7 @@ const FakturKeluaranTable: React.FC<FakturKeluaranTableProps> = ({
                   <td className={cellClass}>{row.requesterNama}/{row.requesterBadge}</td>
                   <td className={cellClass}>{row.unitKerja}</td>
                   <td className={cellClass}>{row.hp}</td>
-                  <td className={cn(cellClass, 'font-mono')}>{row.nomorFakturPajak || '-'}</td>
+                  <td className={cn(cellClass)}>{row.nomorFakturPajak || '-'}</td>
                   <td className={cellClass}>{row.tanggalFakturPajak || '-'}</td>
                   <td className={cn(cellClass, 'text-center')}>
                     {row.dokumen && row.dokumen.length > 0 ? (

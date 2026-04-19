@@ -396,23 +396,49 @@ interface StatMiniCardProps {
   trendColor?: string;
 }
 
-const StatMiniCard: React.FC<StatMiniCardProps> = ({ label, value, icon, iconBg, trend, trendColor }) => (
-  <div className="card p-4 hover:shadow-md transition-shadow duration-300 group">
-    <div className="flex items-center justify-between mb-3">
-      <div className={cn('p-2.5 rounded-xl text-white shadow-lg shadow-current/20', iconBg)}>
-        {icon}
+const StatMiniCard: React.FC<StatMiniCardProps> = ({ label, value, icon, iconBg, trend, trendColor }) => {
+  // Map iconBg to accent bar color
+  const accentMap: Record<string, string> = {
+    'bg-blue-500': 'bg-blue-500',
+    'bg-emerald-500': 'bg-emerald-500',
+    'bg-amber-500': 'bg-amber-400',
+    'bg-violet-500': 'bg-violet-500',
+    'bg-rose-500': 'bg-rose-500',
+  };
+  const accentBar = accentMap[iconBg] || 'bg-slate-400';
+
+  return (
+    <div className="group relative bg-white rounded-2xl border border-gray-100 overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+      {/* Top accent bar */}
+      <div className={cn('h-[3px] w-full', accentBar)} />
+
+      <div className="px-4 py-4">
+        {/* Icon row */}
+        <div className="flex items-center justify-between mb-4">
+          <div
+            className={cn(
+              'w-10 h-10 rounded-xl flex items-center justify-center text-white',
+              'shadow-lg transition-transform duration-300 group-hover:scale-110',
+              iconBg
+            )}
+          >
+            {icon}
+          </div>
+          {trend && (
+            <span className={cn('text-[11px] font-semibold flex items-center gap-0.5 px-2 py-1 rounded-full bg-gray-50', trendColor || 'text-gray-400')}>
+              <TrendingUp className="w-3 h-3" />
+              {trend}
+            </span>
+          )}
+        </div>
+
+        {/* Stats */}
+        <p className="text-[26px] font-extrabold text-slate-800 leading-none tabular-nums">{value}</p>
+        <p className="text-[11px] font-semibold uppercase tracking-widest text-slate-400 mt-1.5">{label}</p>
       </div>
-      {trend && (
-        <span className={cn('text-[12px] font-semibold flex items-center gap-0.5', trendColor || 'text-gray-400')}>
-          <TrendingUp className="w-3 h-3" />
-          {trend}
-        </span>
-      )}
     </div>
-    <p className="text-2xl font-bold text-gray-900 group-hover:text-primary transition-colors">{value}</p>
-    <p className="text-xs text-gray-500 mt-0.5 font-medium">{label}</p>
-  </div>
-);
+  );
+};
 
 interface StatusBarProps {
   label: string;

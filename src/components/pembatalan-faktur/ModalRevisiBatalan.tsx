@@ -71,7 +71,7 @@ const ModalRevisiBatalan: React.FC<Props> = ({
           <div>
             <h2 className="text-xl font-bold text-gray-900">Revisi Pembatalan Faktur</h2>
             <p className="text-sm text-gray-500">
-              No. Faktur Asli: <span className="font-mono">{data.nomorFakturPajak}</span>
+              No. Faktur Asli: <span>{data.nomorFakturPajak}</span>
             </p>
           </div>
           <button onClick={onClose} className="p-2 text-gray-400 hover:bg-gray-100 rounded-full transition-colors">

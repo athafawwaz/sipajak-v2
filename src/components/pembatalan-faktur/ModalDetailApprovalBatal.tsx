@@ -67,7 +67,7 @@ const ModalDetailApprovalBatal: React.FC<Props> = ({
             <div className="flex items-center gap-2 mt-1 text-sm text-gray-500">
               <span>{data.namaCustomer}</span>
               <span>•</span>
-              <span className="font-mono">{data.nomorFakturPajak}</span>
+              <span>{data.nomorFakturPajak}</span>
             </div>
           </div>
           <button
@@ -126,7 +126,7 @@ const ModalDetailApprovalBatal: React.FC<Props> = ({
                   </div>
                   <div>
                     <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">NPWP</label>
-                    <p className="text-sm font-medium font-mono text-gray-900">{data.npwp}</p>
+                    <p className="text-sm font-medium text-gray-900">{data.npwp}</p>
                   </div>
                   <div>
                     <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Keterangan Transaksi</label>

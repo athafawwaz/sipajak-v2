@@ -184,7 +184,7 @@ const PembatalanTable: React.FC<Props> = ({
                       {row.jenisFaktur}
                     </span>
                   </td>
-                  <td className={cn(cellClass, 'font-mono text-xs')}>{row.npwp}</td>
+                  <td className={cn(cellClass, 'text-xs')}>{row.npwp}</td>
                   <td className={cn(cellClass, 'text-right font-bold text-gray-900 tabular-nums', isDisetujui && 'line-through text-gray-400')}>{formatRupiah(row.totalTagihan)}</td>
                   <td className={cn(cellClass, 'text-right tabular-nums', isDisetujui && 'line-through text-gray-400')}>{formatRupiah(row.nilaiTransaksi)}</td>
                   <td className={cn(cellClass, 'text-right bg-yellow-50/60 text-yellow-900 font-medium tabular-nums', isDisetujui && 'line-through opacity-50')}>{formatRupiah(row.dpp)}</td>
@@ -195,7 +195,7 @@ const PembatalanTable: React.FC<Props> = ({
                   <td className={cellClass}>{row.requesterNama}/{row.requesterBadge}</td>
                   <td className={cellClass}>{row.unitKerja}</td>
                   <td className={cellClass}>{row.hp}</td>
-                  <td className={cn(cellClass, 'font-mono')}>{row.nomorFakturPajak || '-'}</td>
+                  <td className={cn(cellClass)}>{row.nomorFakturPajak || '-'}</td>
                   <td className={cellClass}>{row.tanggalFakturPajak || '-'}</td>
                   <td className={cn(cellClass, 'max-w-[200px] truncate group relative bg-amber-50/30')}>
                     {row.alasanPembatalan}

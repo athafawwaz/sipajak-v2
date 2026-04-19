@@ -45,6 +45,7 @@ import type { FakturPajakSetor, DokumenPDF } from '../types';
 import { cn } from '../utils/cn';
 import DokumenUploader from '../components/faktur-keluaran/DokumenUploader';
 import VendorSearchInput from '../components/master-vendor/VendorSearchInput';
+import { exportToExcel } from '../utils/exportExcel';
 
 // ============================================================
 // HELPERS
@@ -148,8 +149,9 @@ const FakturPajakSetorPage: React.FC = () => {
     const totalFaktur = displayData.length;
     const sudahApprove = displayData.filter((d) => d.status === 'Sudah Approve').length;
     const pending = displayData.filter((d) => d.status === 'Pending').length;
+    const ditolak = displayData.filter((d) => d.status === 'Ditolak').length;
     const totalDppPpn = displayData.reduce((sum, d) => sum + d.dpp + d.ppn, 0);
-    return { totalFaktur, sudahApprove, pending, totalDppPpn };
+    return { totalFaktur, sudahApprove, pending, ditolak, totalDppPpn };
   }, [data, isTindakLanjutPage]);
 
   // Filtered data (column filters + status based on submenu)
@@ -265,7 +267,7 @@ const FakturPajakSetorPage: React.FC = () => {
       columnHelper.accessor('dpp', {
         header: 'DPP',
         cell: (info) => (
-          <span className="font-mono text-xs font-medium text-right block">
+          <span className="text-xs font-medium text-right block">
             {formatCurrency(info.getValue())}
           </span>
         ),
@@ -274,7 +276,7 @@ const FakturPajakSetorPage: React.FC = () => {
       columnHelper.accessor('ppn', {
         header: 'PPN',
         cell: (info) => (
-          <span className="font-mono text-xs font-medium text-right block">
+          <span className="text-xs font-medium text-right block">
             {formatCurrency(info.getValue())}
           </span>
         ),
@@ -285,7 +287,7 @@ const FakturPajakSetorPage: React.FC = () => {
       columnHelper.accessor('badge', {
         header: 'Badge',
         cell: (info) => (
-          <span className="font-mono text-xs bg-gray-100 px-1.5 py-0.5 rounded">{info.getValue()}</span>
+          <span className="text-xs bg-gray-100 px-1.5 py-0.5 rounded">{info.getValue()}</span>
         ),
         size: 90,
       }),
@@ -513,6 +515,31 @@ const FakturPajakSetorPage: React.FC = () => {
     setIsDetailModalOpen(true);
   }, []);
 
+  const handleExport = useCallback(() => {
+    const exportData = filteredData.map((d) => ({
+      'No': d.no,
+      'Tipe': d.tipeFA,
+      'Tgl Penyampaian': d.tanggalPenyampaian,
+      'No Faktur Pajak': d.nomorFakturPajak,
+      'Tgl Faktur': d.tanggalFaktur,
+      'NPWP Vendor': d.npwpVendor,
+      'Nama Vendor': d.namaVendor,
+      'Alamat': d.alamat,
+      'DPP': d.dpp,
+      'PPN': d.ppn,
+      'Badge': d.badge,
+      'Nama': d.nama,
+      'Unit Kerja': d.unitKerja,
+      'No Ext': d.noExtKantor,
+      'No WA': d.noWhatsapp,
+      'Email': d.email,
+      'Status': d.status,
+      'Tgl Approve': d.tanggalApprove || '-',
+    }));
+    exportToExcel(exportData, `faktur-setor-${new Date().toISOString().slice(0, 10)}`, 'Faktur Pajak Setor');
+    addToast('Data berhasil di-export ke Excel', 'success');
+  }, [filteredData, addToast]);
+
   const selectedCount = Object.keys(rowSelection).filter((k) => rowSelection[k]).length;
   const selectedPendingCount = useMemo(() => {
     const selectedIds = Object.keys(rowSelection).filter((id) => rowSelection[id]);
@@ -542,18 +569,37 @@ const FakturPajakSetorPage: React.FC = () => {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
-        <StatCard
-          label="Total Faktur Setor"
-          value={stats.totalFaktur}
-          icon={<FileSpreadsheet className="w-5 h-5" />}
-          color="blue"
-        />
-        <StatCard
-          label="Pending"
-          value={stats.pending}
-          icon={<Clock className="w-5 h-5" />}
-          color="yellow"
-        />
+        {isTindakLanjutPage ? (
+          <>
+            <StatCard
+              label="Sudah Approve"
+              value={stats.sudahApprove}
+              icon={<CheckCircle2 className="w-5 h-5" />}
+              color="green"
+            />
+            <StatCard
+              label="Ditolak"
+              value={stats.ditolak}
+              icon={<XCircle className="w-5 h-5" />}
+              color="red"
+            />
+          </>
+        ) : (
+          <>
+            <StatCard
+              label="Total Faktur Setor"
+              value={stats.totalFaktur}
+              icon={<FileSpreadsheet className="w-5 h-5" />}
+              color="blue"
+            />
+            <StatCard
+              label="Pending"
+              value={stats.pending}
+              icon={<Clock className="w-5 h-5" />}
+              color="yellow"
+            />
+          </>
+        )}
       </div>
 
       {/* Table Card */}
@@ -577,7 +623,12 @@ const FakturPajakSetorPage: React.FC = () => {
               {/* <Button size="sm" variant="outline" leftIcon={<Upload className="w-4 h-4" />}>
                 Upload File
               </Button> */}
-              <Button size="sm" variant="outline" leftIcon={<Download className="w-4 h-4" />}>
+              <Button
+                size="sm"
+                variant="outline"
+                leftIcon={<Download className="w-4 h-4" />}
+                onClick={handleExport}
+              >
                 Export Excel
               </Button>
               {selectedPendingCount > 0 && (
@@ -993,7 +1044,7 @@ const FakturSetorFormModal: React.FC<FormModalProps> = ({ isOpen, onClose, initi
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="block text-xs font-medium text-gray-700 mb-1">Nomor Faktur Pajak * <span className="text-gray-400">(16 digit)</span></label>
-              <input type="text" placeholder="0000000000000000" className={cn(inputClass(!!errors.nomorFakturPajak), 'font-mono')} maxLength={16} {...register('nomorFakturPajak')} />
+              <input type="text" placeholder="0000000000000000" className={cn(inputClass(!!errors.nomorFakturPajak))} maxLength={16} {...register('nomorFakturPajak')} />
               {errors.nomorFakturPajak && <p className="mt-1 text-xs text-red-600">{errors.nomorFakturPajak.message}</p>}
             </div>
             <div>
@@ -1014,7 +1065,7 @@ const FakturSetorFormModal: React.FC<FormModalProps> = ({ isOpen, onClose, initi
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">NPWP Vendor *</label>
-                <input type="text" placeholder="00.000.000.0-000.000" className={cn(inputClass(!!errors.npwpVendor), 'font-mono')} {...register('npwpVendor')} />
+                <input type="text" placeholder="00.000.000.0-000.000" className={cn(inputClass(!!errors.npwpVendor))} {...register('npwpVendor')} />
                 {errors.npwpVendor && <p className="mt-1 text-xs text-red-600">{errors.npwpVendor.message}</p>}
               </div>
               <div>
@@ -1293,7 +1344,7 @@ const ApprovalModal: React.FC<ApprovalModalProps> = ({ isOpen, onClose, faktur, 
           <div className="grid grid-cols-2 gap-3 text-sm">
             <div>
               <p className="text-xs text-gray-500 mb-0.5">No Faktur Pajak</p>
-              <p className="font-mono font-medium text-gray-900">{faktur.nomorFakturPajak}</p>
+              <p className="font-medium text-gray-900">{faktur.nomorFakturPajak}</p>
             </div>
             <div>
               <p className="text-xs text-gray-500 mb-0.5">Nama</p>
@@ -1460,7 +1511,7 @@ const DetailField: React.FC<{ label: string; value: string; mono?: boolean; bold
     <p
       className={cn(
         'text-gray-900',
-        mono && 'font-mono tracking-wider text-xs',
+        mono && 'text-xs',
         bold && 'font-semibold'
       )}
     >

@@ -110,7 +110,7 @@ const MasterVendorPage: React.FC = () => {
       columnHelper.accessor('kodeVendor', {
         header: 'Kode Vendor',
         cell: (info) => (
-          <span className="font-mono text-xs font-semibold text-primary bg-primary/5 px-2 py-1 rounded">
+          <span className="text-xs font-semibold text-primary bg-primary/5 px-2 py-1 rounded">
             {info.getValue()}
           </span>
         ),
@@ -123,7 +123,7 @@ const MasterVendorPage: React.FC = () => {
       }),
       columnHelper.accessor('npwp', {
         header: 'NPWP',
-        cell: (info) => <span className="font-mono text-xs text-gray-700">{info.getValue()}</span>,
+        cell: (info) => <span className="text-xs text-gray-700">{info.getValue()}</span>,
         size: 180,
       }),
       columnHelper.accessor('tipeVendor', {
@@ -133,7 +133,7 @@ const MasterVendorPage: React.FC = () => {
       }),
       columnHelper.accessor('noBP', {
         header: 'No BP',
-        cell: (info) => <span className="font-mono text-xs text-gray-600">{info.getValue() || '-'}</span>,
+        cell: (info) => <span className="text-xs text-gray-600">{info.getValue() || '-'}</span>,
         size: 120,
       }),
       columnHelper.accessor('pic', {
@@ -143,7 +143,7 @@ const MasterVendorPage: React.FC = () => {
       }),
       columnHelper.accessor('noTelp', {
         header: 'No. Telepon',
-        cell: (info) => <span className="font-mono text-xs text-gray-600">{info.getValue()}</span>,
+        cell: (info) => <span className="text-xs text-gray-600">{info.getValue()}</span>,
         size: 150,
       }),
       columnHelper.accessor('email', {
@@ -624,7 +624,7 @@ interface DetailFieldProps {
 const DetailField: React.FC<DetailFieldProps> = ({ label, value, mono, bold }) => (
   <div className="rounded-lg border border-gray-100 bg-gray-50/70 p-3">
     <p className="text-xs text-gray-500 mb-1">{label}</p>
-    <p className={cn('text-sm text-gray-900 break-words', mono && 'font-mono', bold && 'font-semibold')}>
+    <p className={cn('text-sm text-gray-900 break-words', bold && 'font-semibold')}>
       {value || '-'}
     </p>
   </div>

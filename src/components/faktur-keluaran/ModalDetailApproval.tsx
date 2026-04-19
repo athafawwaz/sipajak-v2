@@ -97,7 +97,7 @@ const ModalDetailApproval: React.FC<ModalDetailApprovalProps> = ({
               <div><span className="block text-gray-500 text-xs mb-1">No SO / Dok SAP</span><div className="font-medium">{data.noSONoDoc}</div></div>
               <div><span className="block text-gray-500 text-xs mb-1">Tanggal SO</span><div className="font-medium">{data.tanggalSO}</div></div>
               <div className="col-span-2"><span className="block text-gray-500 text-xs mb-1">Nama Customer</span><div className="font-medium">{data.namaCustomer}</div></div>
-              <div><span className="block text-gray-500 text-xs mb-1">NPWP</span><div className="font-mono">{data.npwp}</div></div>
+              <div><span className="block text-gray-500 text-xs mb-1">NPWP</span><div>{data.npwp}</div></div>
               <div><span className="block text-gray-500 text-xs mb-1">Nilai Transaksi</span><div className="font-medium">Rp {data.nilaiTransaksi.toLocaleString('id-ID')}</div></div>
               <div className="bg-yellow-50 p-2 rounded col-span-1"><span className="block text-yellow-800 text-xs mb-0.5">DPP</span><div className="font-bold text-yellow-900">Rp {data.dpp.toLocaleString('id-ID')}</div></div>
               <div className="bg-yellow-50 p-2 rounded col-span-1"><span className="block text-yellow-800 text-xs mb-0.5">PPN</span><div className="font-bold text-yellow-900">Rp {data.ppn.toLocaleString('id-ID')}</div></div>

@@ -135,7 +135,7 @@ const EditProfil: React.FC = () => {
 
             {/* <div className="text-left sm:text-right pt-2 sm:pt-14">
               <p className="text-xs text-gray-400">No. Badge</p>
-              <p className="text-sm font-semibold text-gray-900 font-mono">{user?.nip}</p>
+              <p className="text-sm font-semibold text-gray-900">{user?.nip}</p>
             </div> */}
           </div>
         </div>
@@ -184,7 +184,7 @@ const EditProfil: React.FC = () => {
                     type="text"
                     value={user?.nip || ''}
                     disabled
-                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3.5 py-2.5 text-sm text-gray-500 font-mono"
+                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3.5 py-2.5 text-sm text-gray-500"
                   />
                   <p className="mt-1 text-xs text-gray-400">NIP tidak dapat diubah</p>
                 </div>
@@ -199,7 +199,7 @@ const EditProfil: React.FC = () => {
                     type="text"
                     value={user?.name || ''}
                     disabled
-                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3.5 py-2.5 text-sm text-gray-500 font-mono"
+                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3.5 py-2.5 text-sm text-gray-500"
                     placeholder="Nama lengkap"
                     // className={cn(
                     //   'w-full rounded-lg border px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all',
@@ -333,7 +333,7 @@ const EditProfil: React.FC = () => {
                       </div>
                       <div>
                         <p className="text-xs text-gray-400">Token</p>
-                        <p className="font-mono text-xs text-gray-600 mt-1 truncate max-w-[200px]">
+                        <p className="text-xs text-gray-600 mt-1 truncate max-w-[200px]">
                           {user?.token || '-'}
                         </p>
                       </div>

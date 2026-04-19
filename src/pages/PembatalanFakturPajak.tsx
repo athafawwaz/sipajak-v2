@@ -11,6 +11,7 @@ import ModalAssignVP from '../components/faktur-keluaran/ModalAssignVP';
 import Pagination from '../components/ui/Pagination';
 import { Download, Trash2, FileX, Clock, CheckCircle, Search } from 'lucide-react';
 import { useToastStore } from '../store/toastStore';
+import { exportToExcel } from '../utils/exportExcel';
 
 const PembatalanFakturPajakPage: React.FC = () => {
   const { user } = useAuthStore();
@@ -183,6 +184,30 @@ const PembatalanFakturPajakPage: React.FC = () => {
     addToast('Revisi pembatalan berhasil disubmit', 'success');
   };
 
+  const handleExport = () => {
+    const exportData = filteredData.map(d => ({
+      'No': d.no,
+      'Tgl Request FP': d.tanggalRequestFP,
+      'No SO / No Doc': d.noSONoDoc,
+      'Tgl SO': d.tanggalSO,
+      'Nama Customer': d.namaCustomer,
+      'NPWP': d.npwp,
+      'Total Tagihan': d.totalTagihan,
+      'Nilai Transaksi': d.nilaiTransaksi,
+      'DPP': d.dpp,
+      'PPN': d.ppn,
+      'Requester': `${d.requesterNama}/${d.requesterBadge}`,
+      'Unit Kerja': d.unitKerja,
+      'No Faktur Pajak': d.nomorFakturPajak,
+      'Tgl Faktur Pajak': d.tanggalFakturPajak,
+      'Jenis Faktur': d.jenisFaktur,
+      'Alasan Pembatalan': d.alasanPembatalan,
+      'Status': d.status,
+    }));
+    exportToExcel(exportData, `pembatalan-faktur-${new Date().toISOString().slice(0, 10)}`, 'Pembatalan Faktur');
+    addToast('Data berhasil di-export ke Excel', 'success');
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -205,7 +230,7 @@ const PembatalanFakturPajakPage: React.FC = () => {
         {/* Toolbar & Search */}
         <div className="px-5 py-4 border-b border-gray-100 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div className="flex items-center gap-2 flex-wrap">
-            <Button size="sm" variant="outline" leftIcon={<Download className="w-4 h-4" />}>
+            <Button size="sm" variant="outline" leftIcon={<Download className="w-4 h-4" />} onClick={handleExport}>
               Export Excel
             </Button>
             {role === 'keuangan' && selectedIds.length > 0 && (
