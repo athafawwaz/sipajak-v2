@@ -4,7 +4,7 @@ import Button from '../ui/Button';
 import Input from '../ui/Input';
 
 import { useAuthStore } from '../../store/authStore';
-import type { DokumenPDF, PenerbitanFakturKeluaran } from '../../types';
+import type { PenerbitanFakturKeluaran } from '../../types';
 
 interface ModalInputFakturProps {
   isOpen: boolean;

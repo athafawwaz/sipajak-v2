@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { PenerbitanFakturKeluaran, ApprovalLog } from '../types';
+import type { PenerbitanFakturKeluaran, ApprovalLog, DokumenPDF } from '../types';
 
 export interface FakturKeluaranStore {
   items: PenerbitanFakturKeluaran[];
