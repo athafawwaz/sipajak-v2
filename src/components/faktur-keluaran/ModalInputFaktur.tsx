@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Modal from '../ui/Modal';
 import Button from '../ui/Button';
 import Input from '../ui/Input';
-import DokumenUploader from './DokumenUploader';
+
 import { useAuthStore } from '../../store/authStore';
 import type { DokumenPDF, PenerbitanFakturKeluaran } from '../../types';
 
@@ -34,8 +34,6 @@ const ModalInputFaktur: React.FC<ModalInputFakturProps> = ({
     hp: user?.hp || '',
   });
 
-  const [dokumen, setDokumen] = useState<DokumenPDF[]>([]);
-
   useEffect(() => {
     if (initialData) {
       setFormData({
@@ -50,7 +48,6 @@ const ModalInputFaktur: React.FC<ModalInputFakturProps> = ({
         keteranganTransaksi: initialData.keteranganTransaksi || '',
         hp: initialData.hp || user?.hp || '',
       });
-      setDokumen(initialData.dokumen || []);
     } else if (isOpen) {
       // Reset
       setFormData({
@@ -65,7 +62,6 @@ const ModalInputFaktur: React.FC<ModalInputFakturProps> = ({
         keteranganTransaksi: '',
         hp: user?.hp || '',
       });
-      setDokumen([]);
     }
   }, [isOpen, initialData, user]);
 
@@ -83,14 +79,14 @@ const ModalInputFaktur: React.FC<ModalInputFakturProps> = ({
       dpp,
       ppn,
       totalTagihan,
-      dokumen,
+      dokumen: [], // Document upload moved to Keuangan
       requesterNama: user?.name || '',
       requesterBadge: user?.badge || '',
       unitKerja: user?.unitKerja || '',
     }, isDraft);
   };
 
-  const isFormValid = formData.noSONoDoc && formData.namaCustomer && formData.nilaiTransaksi > 0 && dokumen.length > 0;
+  const isFormValid = formData.noSONoDoc && formData.namaCustomer && formData.nilaiTransaksi > 0;
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={initialData ? "Revisi Faktur Keluaran" : "Input Faktur Keluaran"} size="xl">
@@ -198,14 +194,7 @@ const ModalInputFaktur: React.FC<ModalInputFakturProps> = ({
           </div>
         </div>
 
-        {/* Section 5 - Dokumen */}
-        <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
-          <h3 className="font-semibold text-gray-800 mb-4 border-b pb-2">5. Dokumen Pendukung</h3>
-          <DokumenUploader value={dokumen} onChange={setDokumen} maxFiles={5} maxSizeMB={10} />
-          {dokumen.length === 0 && <p className="text-sm text-red-500 mt-2">* Minimal 1 dokumen wajib diunggah.</p>}
-        </div>
-
-        {/* Section 6 - Info Approval */}
+        {/* Section 5 - Info Approval */}
         <div className="bg-blue-50 p-4 rounded-xl border border-blue-100 flex items-start gap-3">
           <span className="text-2xl">ℹ️</span>
           <div>
@@ -218,7 +207,7 @@ const ModalInputFaktur: React.FC<ModalInputFakturProps> = ({
       {/* Footer / Actions */}
       <div className="flex items-center justify-end gap-3 pt-4 border-t mt-4">
         <Button variant="outline" onClick={onClose}>Batal</Button>
-        <Button variant="secondary" onClick={() => handleSubmit(true)} disabled={!formData.noSONoDoc && dokumen.length === 0}>Simpan Draft</Button>
+        <Button variant="secondary" onClick={() => handleSubmit(true)} disabled={!formData.noSONoDoc}>Simpan Draft</Button>
         <Button variant="primary" onClick={() => handleSubmit(false)} disabled={!isFormValid}>Submit Pengajuan</Button>
       </div>
     </Modal>

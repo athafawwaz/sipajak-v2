@@ -14,7 +14,7 @@ interface ModalDetailApprovalProps {
   isOpen: boolean;
   onClose: () => void;
   data: PenerbitanFakturKeluaran | null;
-  onApprove: (id: string, notes?: string, invoiceData?: {no: string, tgl: string}) => void;
+  onApprove: (id: string, notes?: string, invoiceData?: {no: string, tgl: string, docs: DokumenPDF[]}) => void;
   onReject: (id: string, notes: string) => void;
   onAssignVP?: (item: PenerbitanFakturKeluaran) => void;
   onRevisi?: (item: PenerbitanFakturKeluaran) => void;
@@ -53,7 +53,7 @@ const ModalDetailApproval: React.FC<ModalDetailApprovalProps> = ({
   const handleApprove = () => {
     if (canApproveKeuangan) {
       if (!nomorFaktur || !tanggalFaktur) return; // simple validation
-      onApprove(data.id, '', { no: nomorFaktur, tgl: tanggalFaktur });
+      onApprove(data.id, '', { no: nomorFaktur, tgl: tanggalFaktur, docs: uploadedDocs });
     } else {
       onApprove(data.id);
     }

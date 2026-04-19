@@ -15,7 +15,7 @@ export interface FakturKeluaranStore {
   approveVP: (id: string, approver: Omit<ApprovalLog, 'timestamp' | 'id'>) => void;
   rejectVP: (id: string, approver: Omit<ApprovalLog, 'timestamp' | 'id'>, catatan: string) => void;
   assignVP: (id: string, vpId: string, vpNama: string) => void;
-  approveKeuangan: (id: string, approver: Omit<ApprovalLog, 'timestamp' | 'id'>, nomorFaktur: string, tanggalFaktur: string) => void;
+  approveKeuangan: (id: string, approver: Omit<ApprovalLog, 'timestamp' | 'id'>, nomorFaktur: string, tanggalFaktur: string, dokumen: DokumenPDF[]) => void;
   rejectKeuangan: (id: string, approver: Omit<ApprovalLog, 'timestamp' | 'id'>, catatan: string) => void;
   submitRevisi: (id: string, data: Partial<PenerbitanFakturKeluaran>) => void;
 
@@ -75,7 +75,7 @@ const createDummyData = (): PenerbitanFakturKeluaran[] => {
       hp: "082175433331",
       jenisFaktur: "Non Subsidi",
       status: "Menunggu Approval VP",
-      dokumen: [{ id: "doc2", namaFile: "bukti.pdf", ukuran: 500000, url: "#", uploadedAt: new Date().toISOString() }],
+      dokumen: [],
       approvalLogs: [],
       assignedVPId: "VP001",
       assignedVPNama: "Bambang Susanto",
@@ -101,7 +101,7 @@ const createDummyData = (): PenerbitanFakturKeluaran[] => {
       hp: "082175433331",
       jenisFaktur: "Subsidi",
       status: "Menunggu Approval Keuangan",
-      dokumen: [{ id: "doc3", namaFile: "po.pdf", ukuran: 1200000, url: "#", uploadedAt: new Date().toISOString() }],
+      dokumen: [],
       approvalLogs: [
         { id: "l1", step: 1, role: "vp", approverName: "Bambang Susanto", approverBadge: "VP001", action: "approve", timestamp: new Date().toISOString() }
       ],
@@ -130,7 +130,7 @@ const createDummyData = (): PenerbitanFakturKeluaran[] => {
       jenisFaktur: "Subsidi",
       status: "Ditolak",
       catatanPenolakan: "Dokumen kurang jelas, mohon upload ulang scan warna",
-      dokumen: [{ id: "doc4", namaFile: "po-blur.pdf", ukuran: 1200000, url: "#", uploadedAt: new Date().toISOString() }],
+      dokumen: [],
       approvalLogs: [
         { id: "l1", step: 1, role: "vp", approverName: "Bambang Susanto", approverBadge: "VP001", action: "reject", catatan: "Dokumen kurang jelas, mohon upload ulang scan warna", timestamp: new Date().toISOString() }
       ],
@@ -158,7 +158,7 @@ const createDummyData = (): PenerbitanFakturKeluaran[] => {
       hp: "082175433331",
       jenisFaktur: "Non Subsidi",
       status: "Menunggu Assign VP",
-      dokumen: [{ id: "doc5", namaFile: "po2.pdf", ukuran: 1200000, url: "#", uploadedAt: new Date().toISOString() }],
+      dokumen: [],
       approvalLogs: [],
       createdBy: "6121509",
       createdAt: new Date().toISOString(),
@@ -238,7 +238,7 @@ const createDummyData = (): PenerbitanFakturKeluaran[] => {
       hp: "082175433331",
       jenisFaktur: i % 2 === 0 ? "Subsidi" : "Non Subsidi",
       status: status,
-      dokumen: [{ id: `doc${i}`, namaFile: `dokumen-${i}.pdf`, ukuran: 800000, url: "#", uploadedAt: new Date().toISOString() }],
+      dokumen: status === 'Selesai' ? [{ id: `doc${i}`, namaFile: `faktur-${i}.pdf`, ukuran: 800000, url: "#", uploadedAt: new Date().toISOString() }] : [],
       approvalLogs: approvalLogs,
       catatanPenolakan: status === 'Ditolak' ? approvalLogs[approvalLogs.length - 1]?.catatan : undefined,
       assignedVPId: status !== 'Draft' && status !== 'Menunggu Assign VP' ? "VP001" : undefined,
@@ -356,7 +356,7 @@ export const useFakturKeluaranStore = create<FakturKeluaranStore>((set, get) => 
     })
   })),
 
-  approveKeuangan: (id, approver, nomorFaktur, tanggalFaktur) => set((state) => ({
+  approveKeuangan: (id, approver, nomorFaktur, tanggalFaktur, dokumen) => set((state) => ({
     items: state.items.map(item => {
       if (item.id === id) {
         return {
@@ -364,6 +364,7 @@ export const useFakturKeluaranStore = create<FakturKeluaranStore>((set, get) => 
           status: "Selesai",
           nomorFakturPajak: nomorFaktur,
           tanggalFakturPajak: tanggalFaktur,
+          dokumen: dokumen,
           approvalLogs: [
             ...item.approvalLogs,
             { ...approver, id: Date.now().toString(), timestamp: new Date().toISOString() }

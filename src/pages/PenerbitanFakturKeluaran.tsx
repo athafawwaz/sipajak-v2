@@ -172,7 +172,7 @@ const PenerbitanFakturKeluaranPage: React.FC = () => {
     setIsDetailOpen(true);
   };
 
-  const handleApprove = (id: string, notes?: string, invoiceData?: {no: string, tgl: string}) => {
+  const handleApprove = (id: string, notes?: string, invoiceData?: {no: string, tgl: string, docs: any[]}) => {
     const approverLogInfo = {
        step: role === 'vp' ? 1 : 2 as 1|2,
        role: role as 'vp'|'keuangan',
@@ -185,7 +185,7 @@ const PenerbitanFakturKeluaranPage: React.FC = () => {
     if (role === 'vp') {
       approveVP(id, approverLogInfo);
     } else if (role === 'keuangan') {
-      approveKeuangan(id, approverLogInfo, invoiceData!.no, invoiceData!.tgl);
+      approveKeuangan(id, approverLogInfo, invoiceData!.no, invoiceData!.tgl, invoiceData!.docs);
     }
     setIsDetailOpen(false);
     addToast('Pengajuan berhasil di-approve', 'success');
