@@ -541,7 +541,7 @@ const FakturPajakSetorPage: React.FC = () => {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
         <StatCard
           label="Total Faktur Setor"
           value={stats.totalFaktur}
@@ -549,22 +549,10 @@ const FakturPajakSetorPage: React.FC = () => {
           color="blue"
         />
         <StatCard
-          label="Sudah Approve"
-          value={stats.sudahApprove}
-          icon={<CheckCircle2 className="w-5 h-5" />}
-          color="green"
-        />
-        <StatCard
           label="Pending"
           value={stats.pending}
           icon={<Clock className="w-5 h-5" />}
           color="yellow"
-        />
-        <StatCard
-          label="Total DPP + PPN"
-          value={formatCurrency(stats.totalDppPpn)}
-          icon={<DollarSign className="w-5 h-5" />}
-          color="gray"
         />
       </div>
 

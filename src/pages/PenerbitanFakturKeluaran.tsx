@@ -248,11 +248,9 @@ const PenerbitanFakturKeluaranPage: React.FC = () => {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
         <StatCard label="Total Pengajuan" value={stats.total} icon={<FileSpreadsheet className="w-5 h-5" />} color="blue" />
         <StatCard label="Menunggu Approval" value={stats.pending} icon={<Clock className="w-5 h-5" />} color="yellow" />
-        <StatCard label="Selesai" value={stats.approved} icon={<CheckCircle className="w-5 h-5" />} color="green" />
-        {/* <StatCard label="Total Nilai PPN" value={`Rp ${stats.totalPPN.toLocaleString('id-ID')}`} icon={<Send className="w-5 h-5" />} color="gray" /> */}
       </div>
 
       {/* Main Table Card */}
