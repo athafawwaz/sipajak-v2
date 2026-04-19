@@ -145,7 +145,7 @@ export type StatusPTKP = 'TK/0' | 'TK/1' | 'TK/2' | 'TK/3' | 'K/0' | 'K/1' | 'K/
 
 export interface ApprovalLog {
   id: string;
-  step: 1 | 2;
+  step: 0 | 1 | 2;
   role: 'vp' | 'keuangan';
   approverName: string;
   approverBadge: string;

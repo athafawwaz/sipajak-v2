@@ -180,24 +180,20 @@ const createDummyData = (): PenerbitanFakturKeluaran[] => {
     
     // Generate appropriate approval logs based on status
     if (status === 'Selesai' || status === 'Ditolak' || status === 'Revisi' || status === 'Menunggu Approval Keuangan') {
-      // Setup base submission log if progressing past VP
-      if (status !== 'Draft' && status !== 'Menunggu Assign VP' && status !== 'Menunggu Approval VP') {
-        const assignedVP = status !== 'Draft' && status !== 'Menunggu Assign VP' ? "Bambang Susanto" : undefined;
-        const assignedVPId = status !== 'Draft' && status !== 'Menunggu Assign VP' ? "VP001" : undefined;
-        
-        if (assignedVPId) {
-             approvalLogs.push({
-                id: `log-${i}-assign`,
-                step: 0,
-                role: "keuangan",
-                approverName: "Sistem",
-                approverBadge: "SYS",
-                action: "assign_vp",
-                catatan: `Assigned to ${assignedVP} (${assignedVPId})`,
-                timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString()
-             });
-        }
-      }
+      // Setup base submission log
+      const assignedVP = "Bambang Susanto";
+      const assignedVPId = "VP001";
+      
+      approvalLogs.push({
+        id: `log-${i}-assign`,
+        step: 0,
+        role: "keuangan",
+        approverName: "Sistem",
+        approverBadge: "SYS",
+        action: "assign_vp",
+        catatan: `Assigned to ${assignedVP} (${assignedVPId})`,
+        timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString()
+      });
 
       if (status === 'Selesai') {
         approvalLogs.push(
