@@ -105,6 +105,7 @@ const FakturPajakSetorPage: React.FC = () => {
 
   // Determine current view from URL
   const isTindakLanjutPage = location.pathname.includes('/tindak-lanjut');
+  const isKeuangan = user?.role === 'keuangan';
 
   // State
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -155,9 +156,16 @@ const FakturPajakSetorPage: React.FC = () => {
 
   // Filtered data (column filters + status based on submenu)
   const filteredData = useMemo(() => {
-    let result = isTindakLanjutPage 
-      ? data.filter(d => d.status === 'Sudah Approve' || d.status === 'Ditolak') 
-      : data.filter(d => d.status === 'Pending');
+    let result = data;
+
+    // Filter by Unit Kerja if not Keuangan or Admin
+    if (user?.role !== 'keuangan' && user?.role !== 'admin') {
+      result = result.filter((d) => d.unitKerja === user?.unitKerja);
+    }
+
+    result = isTindakLanjutPage 
+      ? result.filter(d => d.status === 'Sudah Approve' || d.status === 'Ditolak') 
+      : result.filter(d => d.status === 'Pending');
     
     Object.entries(columnFilters).forEach(([key, value]) => {
       if (!value) return;
@@ -168,7 +176,7 @@ const FakturPajakSetorPage: React.FC = () => {
       });
     });
     return result;
-  }, [data, isTindakLanjutPage, columnFilters]);
+  }, [data, isTindakLanjutPage, columnFilters, user]);
 
   // Columns with grouped headers
   const columns = useMemo<ColumnDef<FakturPajakSetor, any>[]>(
@@ -377,7 +385,7 @@ const FakturPajakSetorPage: React.FC = () => {
               >
                 <Eye className="w-3 h-3" />
               </button>
-              {isPending && (
+              {isKeuangan && isPending && (
                 <>
                   <button
                     onClick={() => handleApprovalClick(row.original, 'approve')}
@@ -415,7 +423,7 @@ const FakturPajakSetorPage: React.FC = () => {
         size: 160,
       }),
     ],
-    [isTindakLanjutPage]
+    [isTindakLanjutPage, isKeuangan]
   );
 
   // Table instance
@@ -630,7 +638,7 @@ const FakturPajakSetorPage: React.FC = () => {
               >
                 Export Excel
               </Button>
-              {selectedPendingCount > 0 && (
+              {isKeuangan && selectedPendingCount > 0 && (
                 <Button
                   size="sm"
                   variant="outline"

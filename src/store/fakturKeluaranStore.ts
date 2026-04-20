@@ -411,7 +411,7 @@ export const useFakturKeluaranStore = create<FakturKeluaranStore>((set, get) => 
 
   getByRole: (role, _badge, unitKerja) => {
     const { items } = get();
-    if (role === 'admin' || role === 'keuangan' || role === 'user') return items;
+    if (role === 'admin' || role === 'keuangan') return items;
     if (role === 'vp' || role === 'requester') return items.filter(item => item.unitKerja === unitKerja);
     return [];
   },

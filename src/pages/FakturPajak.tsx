@@ -125,13 +125,20 @@ const FakturPajakPage: React.FC = () => {
 
   // --- Filtered Data ---
   const filteredData = useMemo(() => {
+    let result = data;
+
+    // Filter by Unit Kerja if not Keuangan or Admin
+    if (user?.role !== 'keuangan' && user?.role !== 'admin') {
+      result = result.filter((d) => d.unitKerja === user?.unitKerja);
+    }
+
     if (isTindakLanjutPage) {
       // "Tindak Lanjut" shows Approved and Rejected
-      return data.filter((d) => d.status === 'Sudah Approve' || d.status === 'Ditolak');
+      return result.filter((d) => d.status === 'Sudah Approve' || d.status === 'Ditolak');
     }
     // "Baru" only shows Pending
-    return data.filter((d) => d.status === 'Pending');
-  }, [data, isTindakLanjutPage]);
+    return result.filter((d) => d.status === 'Pending');
+  }, [data, isTindakLanjutPage, user]);
 
   // Debounced search
   const [searchInput, setSearchInput] = useState('');
@@ -319,8 +326,8 @@ const FakturPajakPage: React.FC = () => {
                 <Eye className="w-3 h-3" />
               </button>
 
-              {/* Approve button — only for Pending */}
-              {isPending && (
+              {/* Approve button — only for Pending and Keuangan */}
+              {isKeuangan && isPending && (
                 <button
                   onClick={() => handleApprovalClick(faktur, 'approve')}
                   className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-emerald-600 border border-emerald-200 rounded-md hover:bg-emerald-50 transition-colors"
@@ -330,8 +337,8 @@ const FakturPajakPage: React.FC = () => {
                 </button>
               )}
 
-              {/* Reject button — only for Pending */}
-              {isPending && (
+              {/* Reject button — only for Pending and Keuangan */}
+              {isKeuangan && isPending && (
                 <button
                   onClick={() => handleApprovalClick(faktur, 'reject')}
                   className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-red-600 border border-red-200 rounded-md hover:bg-red-50 transition-colors"
@@ -597,8 +604,8 @@ const FakturPajakPage: React.FC = () => {
                 Export Excel
               </Button>
 
-              {/* Bulk Approve button */}
-              {selectedPendingCount > 0 && (
+              {/* Bulk Approve button — only for Keuangan */}
+              {isKeuangan && selectedPendingCount > 0 && (
                 <Button
                   size="sm"
                   variant="outline"

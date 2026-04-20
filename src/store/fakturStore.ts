@@ -10,6 +10,10 @@ const generateDummyData = (): FakturPajak[] => {
     'PT Trans Pacific', 'PT Sriwijaya Air', 'PT Hutama Karya',
   ];
   const requesters = ['Ahmad Fauzi', 'Siti Rahayu', 'Budi Santoso', 'Dewi Lestari', 'Rizki Pratama'];
+  const unitKerjas = [
+    'DEPARTEMEN TEKNOLOGI INFORMASI', 'DIVISI OPERASI (OPERASI P-VI)', 'DEPARTEMEN KEUANGAN PAJAK',
+    'Departemen Pajak', 'DEPARTEMEN LOGISTIK', 'DEPARTEMEN PEMELIHARAAN'
+  ];
   const statuses: FakturPajak['status'][] = ['Sudah Approve', 'Pending', 'Ditolak'];
   const codes: FakturPajak['kodeFakturSAP'][] = ['BV', 'BZ'];
 
@@ -35,7 +39,7 @@ const generateDummyData = (): FakturPajak[] => {
       nilaiPPN: Math.floor(Math.random() * 50000000) + 1000000,
       badge: `1100${String(Math.floor(Math.random() * 999)).padStart(3, '0')}`,
       nama: requesters[Math.floor(Math.random() * requesters.length)],
-      unitKerja: 'Departemen Pajak',
+      unitKerja: unitKerjas[i % unitKerjas.length],
       noExtKantor: '1234',
       noWhatsapp: '081234567890',
       email: 'user@example.com',

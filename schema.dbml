@@ -77,7 +77,7 @@ Table master_vendors {
   alamat text
   tipe_vendor vendor_type
   no_bp varchar [null]
-  pic_name varchar
+  pic varchar
   no_telp varchar
   email varchar
   status status_aktif [default: 'Aktif']
@@ -101,12 +101,12 @@ Table faktur_pajak {
   vendor_id uuid [ref: > master_vendors.id]
   // Snapshot Data Vendor
   npwp_vendor varchar
-  nama_vendor varchar
+  nama_perusahaan varchar
   
   requester_id uuid [ref: > users.id]
   // Snapshot Data Penyampai
   badge varchar
-  nama_penyampai varchar
+  nama varchar
   unit_kerja varchar
   no_ext_kantor varchar
   no_whatsapp varchar
@@ -150,7 +150,7 @@ Table faktur_pajak_setor {
   requester_id uuid [ref: > users.id]
   // Snapshot Data Penyampai
   badge varchar
-  nama_penyampai varchar
+  nama varchar
   unit_kerja varchar
   no_ext_kantor varchar
   no_whatsapp varchar
@@ -181,12 +181,14 @@ Table faktur_pajak_setor {
 Table penerbitan_faktur_keluaran {
   id uuid [pk]
   no_urut serial
-  tanggal_request timestamp
+  tanggal_request_fp timestamp
   no_so_no_doc varchar
   tanggal_so date
   
   // Customer/Vendor Relation
   customer_id uuid [ref: > master_vendors.id, note: 'Bisa merujuk ke tabel Customer jika terpisah']
+  nama_customer varchar [null]
+  npwp varchar [null]
   
   total_tagihan decimal(18,2)
   nilai_transaksi decimal(18,2)
@@ -196,7 +198,12 @@ Table penerbitan_faktur_keluaran {
   keterangan_transaksi text [null]
   alamat text [null, note: 'Snapshot alamat saat transaksi']
   
+  // Snapshot Data Penyampai
   requester_id uuid [ref: > users.id]
+  requester_nama varchar [null]
+  requester_badge varchar [null]
+  unit_kerja varchar [null]
+  hp varchar [null]
   
   // Output Generated
   nomor_faktur_pajak varchar(16) [null]
@@ -206,6 +213,7 @@ Table penerbitan_faktur_keluaran {
   
   // Workflow
   assigned_vp_id uuid [null, ref: > users.id]
+  assigned_vp_nama varchar [null]
   catatan_penolakan text [null]
   
   // Audit Trail
@@ -223,7 +231,29 @@ Table pembatalan_faktur_pajak {
   // Relasi Kuat ke Faktur Asli
   faktur_asli_id uuid [ref: > penerbitan_faktur_keluaran.id]
   
+  // === DATA DIAMBIL OTOMATIS DARI FAKTUR ASLI (Snapshot) ===
+  tanggal_request_fp timestamp [null]
+  no_so_no_doc varchar [null]
+  tanggal_so date [null]
+  nama_customer varchar [null]
+  npwp varchar [null]
+  total_tagihan decimal(18,2) [null]
+  nilai_transaksi decimal(18,2) [null]
+  dpp decimal(18,2) [null]
+  ppn decimal(18,2) [null]
+  keterangan_transaksi text [null]
+  quantity integer [null]
+  alamat text [null]
+  requester_nama varchar [null]
+  requester_badge varchar [null]
+  unit_kerja varchar [null]
+  hp varchar [null]
+  nomor_faktur_pajak varchar(16) [null]
+  tanggal_faktur_pajak date [null]
+  jenis_faktur tipe_faktur [null]
+  
   alasan_pembatalan text
+  dokumen_pendukung_count integer [default: 0, note: 'Jumlah dokumen pendukung, file ada di table attachments']
   status status_approval
   assigned_vp_id uuid [null, ref: > users.id]
   catatan_penolakan text [null]
@@ -245,6 +275,8 @@ Table approval_logs {
   step integer
   role varchar [note: 'Role approver pada saat itu (contoh: vp, keuangan)']
   approver_id uuid [ref: > users.id]
+  approver_name varchar [null]
+  approver_badge varchar [null]
   action varchar [note: 'approve | reject | assign_vp']
   catatan text [null]
   timestamp timestamp
