@@ -10,6 +10,8 @@ interface Props {
   data: PembatalanFakturPajak | null;
   onApprove: (id: string, notes?: string) => void;
   onReject: (id: string, notes: string) => void;
+  onAssignVP?: (item: PembatalanFakturPajak) => void;
+  onRevisi?: (item: PembatalanFakturPajak) => void;
 }
 
 const ModalDetailApprovalBatal: React.FC<Props> = ({
@@ -17,7 +19,9 @@ const ModalDetailApprovalBatal: React.FC<Props> = ({
   onClose,
   data,
   onApprove,
-  onReject
+  onReject,
+  onAssignVP,
+  onRevisi
 }) => {
   const [activeTab, setActiveTab] = useState<'detail' | 'dokumen' | 'riwayat'>('detail');
   const [notes, setNotes] = useState('');
@@ -33,6 +37,11 @@ const ModalDetailApprovalBatal: React.FC<Props> = ({
   const showApprovalActions = 
     (isVP && data.status === 'Menunggu Approval VP' && data.assignedVPId === user?.badge) ||
     (isKeuangan && data.status === 'Menunggu Approval Keuangan');
+
+  const showAssignVP = isKeuangan && data.status === 'Menunggu Approval VP' && !data.assignedVPId;
+  const showRevisi = role === 'requester' && (data.status === 'Pembatalan Ditolak' || data.status === 'Revisi') && data.createdBy === user?.badge;
+
+  const hasAnyAction = showApprovalActions || showAssignVP || showRevisi;
 
   const formatCurrency = (val: number) => {
     return new Intl.NumberFormat('id-ID', {
@@ -240,76 +249,102 @@ const ModalDetailApprovalBatal: React.FC<Props> = ({
         </div>
 
         {/* Footer Actions */}
-        {showApprovalActions && (
+        {hasAnyAction && (
           <div className="border-t border-gray-200 bg-white p-4 sm:p-6">
-            {!isRejecting ? (
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Catatan Approval/Penolakan <span className="text-gray-400 font-normal">(Opsional untuk Approve)</span>
-                  </label>
-                  <textarea
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
-                    rows={2}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-accent text-sm resize-none"
-                    placeholder="Tambahkan catatan jika diperlukan..."
-                  />
-                </div>
-                {isKeuangan && (
-                  <div className="bg-red-50 border border-red-200 rounded p-3 text-red-800 text-sm">
-                    <strong>Peringatan FINAL:</strong> Menyetujui ini akan resmi membatalkan Faktur {data.nomorFakturPajak}.
+            {showApprovalActions && (
+              <>
+                {!isRejecting ? (
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Catatan Approval/Penolakan <span className="text-gray-400 font-normal">(Opsional untuk Approve)</span>
+                      </label>
+                      <textarea
+                        value={notes}
+                        onChange={(e) => setNotes(e.target.value)}
+                        rows={2}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-accent text-sm resize-none"
+                        placeholder="Tambahkan catatan jika diperlukan..."
+                      />
+                    </div>
+                    {isKeuangan && (
+                      <div className="bg-red-50 border border-red-200 rounded p-3 text-red-800 text-sm">
+                        <strong>Peringatan FINAL:</strong> Menyetujui ini akan resmi membatalkan Faktur {data.nomorFakturPajak}.
+                      </div>
+                    )}
+                    <div className="flex items-center justify-end gap-3 pt-2">
+                      <button
+                        onClick={() => setIsRejecting(true)}
+                        className="px-4 py-2 text-sm font-medium text-red-700 bg-white border border-red-300 rounded-lg hover:bg-red-50"
+                      >
+                        Tolak Pembatalan
+                      </button>
+                      <button
+                        onClick={handleApprove}
+                        className="px-6 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-lg hover:bg-green-700"
+                      >
+                        {isKeuangan ? "Final Setujui Pembatalan" : "Setujui Pembatalan"}
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4">
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                      <h4 className="text-red-800 font-medium mb-2 flex items-center gap-2">
+                        <XCircle className="w-5 h-5 text-red-500" />
+                        Konfirmasi Penolakan
+                      </h4>
+                      <label className="block text-sm font-medium text-red-900 mb-1">
+                        Alasan Penolakan <span className="text-red-500">*</span>
+                      </label>
+                      <textarea
+                        value={notes}
+                        onChange={(e) => setNotes(e.target.value)}
+                        rows={3}
+                        autoFocus
+                        className="w-full px-3 py-2 bg-white border border-red-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm resize-none"
+                        placeholder="Wajib mengisi alasan penolakan pengajuan pembatalan ini..."
+                      />
+                    </div>
+                    <div className="flex items-center justify-end gap-3">
+                      <button
+                        onClick={() => { setIsRejecting(false); setNotes(''); }}
+                        className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+                      >
+                        Kembali
+                      </button>
+                      <button
+                        onClick={handleReject}
+                        disabled={!notes.trim()}
+                        className="px-6 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        Konfirmasi Tolak
+                      </button>
+                    </div>
                   </div>
                 )}
-                <div className="flex items-center justify-end gap-3 pt-2">
-                  <button
-                    onClick={() => setIsRejecting(true)}
-                    className="px-4 py-2 text-sm font-medium text-red-700 bg-white border border-red-300 rounded-lg hover:bg-red-50"
-                  >
-                    Tolak Pembatalan
-                  </button>
-                  <button
-                    onClick={handleApprove}
-                    className="px-6 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-lg hover:bg-green-700"
-                  >
-                    {isKeuangan ? "Final Setujui Pembatalan" : "Setujui Pembatalan"}
-                  </button>
-                </div>
+              </>
+            )}
+
+            {showAssignVP && (
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={() => onAssignVP?.(data)}
+                  className="px-6 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-lg hover:bg-indigo-700 shadow-sm"
+                >
+                  Assign VP Pendamping
+                </button>
               </div>
-            ) : (
-              <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4">
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                  <h4 className="text-red-800 font-medium mb-2 flex items-center gap-2">
-                    <XCircle className="w-5 h-5 text-red-500" />
-                    Konfirmasi Penolakan
-                  </h4>
-                  <label className="block text-sm font-medium text-red-900 mb-1">
-                    Alasan Penolakan <span className="text-red-500">*</span>
-                  </label>
-                  <textarea
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
-                    rows={3}
-                    autoFocus
-                    className="w-full px-3 py-2 bg-white border border-red-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm resize-none"
-                    placeholder="Wajib mengisi alasan penolakan pengajuan pembatalan ini..."
-                  />
-                </div>
-                <div className="flex items-center justify-end gap-3">
-                  <button
-                    onClick={() => { setIsRejecting(false); setNotes(''); }}
-                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
-                  >
-                    Kembali
-                  </button>
-                  <button
-                    onClick={handleReject}
-                    disabled={!notes.trim()}
-                    className="px-6 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Konfirmasi Tolak
-                  </button>
-                </div>
+            )}
+
+            {showRevisi && (
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={() => onRevisi?.(data)}
+                  className="px-6 py-2 text-sm font-medium text-white bg-orange-600 border border-transparent rounded-lg hover:bg-orange-700 shadow-sm"
+                >
+                  Ajukan Revisi Pembatalan
+                </button>
               </div>
             )}
           </div>

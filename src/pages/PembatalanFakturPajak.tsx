@@ -291,6 +291,8 @@ const PembatalanFakturPajakPage: React.FC = () => {
         data={activeItem}
         onApprove={handleApprove}
         onReject={handleReject}
+        onAssignVP={handleOpenAssignVP}
+        onRevisi={handleOpenRevisi}
       />
 
       <ModalRevisiBatalan

@@ -219,24 +219,7 @@ const PembatalanTable: React.FC<Props> = ({
                     </a>
                   </td>
                   <td className={cn(cellClass, 'text-center')}>
-                    {(isVP && row.status === 'Menunggu Approval VP' && row.assignedVPId === user?.badge) && (
-                      <Button size="sm" onClick={() => onReviewApprove(row)}>Review & Approve</Button>
-                    )}
-                    {(isKeuangan && row.status === 'Menunggu Approval Keuangan') && (
-                      <Button size="sm" onClick={() => onReviewApprove(row)}>Review & Approve</Button>
-                    )}
-                    {(isKeuangan && row.status === 'Menunggu Approval VP' && !row.assignedVPId) && (
-                      <Button size="sm" variant="secondary" onClick={() => onAssignVP(row)}>Assign VP</Button>
-                    )}
-                    {(isRequester && (row.status === 'Pembatalan Ditolak' || row.status === 'Revisi') && row.createdBy === user?.badge) && (
-                      <Button size="sm" variant="outline" className="text-orange-600 hover:bg-orange-50 border-orange-200" onClick={() => onRevisi(row)}>Revisi Pembatalan</Button>
-                    )}
-                    {((!isVP && !isKeuangan && !isRequester) ||
-                      (isVP && row.status !== 'Menunggu Approval VP') ||
-                      (isKeuangan && row.status !== 'Menunggu Approval Keuangan') ||
-                      (isRequester && row.status !== 'Pembatalan Ditolak' && row.status !== 'Revisi')) && (
-                      <Button size="sm" variant="outline" onClick={() => onReviewApprove(row)}>Detail</Button>
-                    )}
+                    <Button size="sm" variant="outline" onClick={() => onReviewApprove(row)}>Detail</Button>
                   </td>
                 </tr>
               );
