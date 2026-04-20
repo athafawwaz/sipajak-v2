@@ -354,6 +354,7 @@ const PenerbitanFakturKeluaranPage: React.FC = () => {
         onRevisi={handleOpenRevisi}
         onAjukanBatal={handleAjukanBatal}
         onLihatPembatalan={() => navigate('/pph-keluaran/pembatalan-faktur-pajak')}
+        showDokumenTab={!isPenerbitanBaru}
       />
 
       <ModalAssignVP

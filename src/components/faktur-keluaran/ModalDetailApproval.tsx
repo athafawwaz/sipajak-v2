@@ -20,11 +20,13 @@ interface ModalDetailApprovalProps {
   onRevisi?: (item: PenerbitanFakturKeluaran) => void;
   onAjukanBatal?: (item: PenerbitanFakturKeluaran) => void;
   onLihatPembatalan?: () => void;
+  showDokumenTab?: boolean;
 }
 
 const ModalDetailApproval: React.FC<ModalDetailApprovalProps> = ({ 
   isOpen, onClose, data, onApprove, onReject, 
-  onAssignVP, onRevisi, onAjukanBatal, onLihatPembatalan 
+  onAssignVP, onRevisi, onAjukanBatal, onLihatPembatalan,
+  showDokumenTab = true
 }) => {
   const [activeTab, setActiveTab] = useState<'detail' | 'dokumen' | 'riwayat'>('detail');
   const [rejectNotes, setRejectNotes] = useState('');
@@ -76,12 +78,14 @@ const ModalDetailApproval: React.FC<ModalDetailApprovalProps> = ({
         >
           Detail Data
         </button>
-        <button
-          className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'dokumen' ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
-          onClick={() => setActiveTab('dokumen')}
-        >
-          Dokumen <span className="text-xs bg-gray-100 px-1.5 py-0.5 rounded-full">{data.dokumen.length}</span>
-        </button>
+        {showDokumenTab && (
+          <button
+            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'dokumen' ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
+            onClick={() => setActiveTab('dokumen')}
+          >
+            Dokumen <span className="text-xs bg-gray-100 px-1.5 py-0.5 rounded-full">{data.dokumen.length}</span>
+          </button>
+        )}
         <button
           className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'riwayat' ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
           onClick={() => setActiveTab('riwayat')}
@@ -112,7 +116,7 @@ const ModalDetailApproval: React.FC<ModalDetailApprovalProps> = ({
           </div>
         )}
 
-        {activeTab === 'dokumen' && (
+        {showDokumenTab && activeTab === 'dokumen' && (
           <div className="space-y-2">
             {data.dokumen.length === 0 ? <p className="text-gray-500 text-sm">Tidak ada dokumen.</p> : null}
             {data.dokumen.map(doc => (
