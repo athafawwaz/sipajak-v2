@@ -263,8 +263,6 @@ const PembatalanFakturPajakPage: React.FC = () => {
           onToggleSelect={handleToggleSelect}
           onToggleSelectAll={handleToggleSelectAll}
           onReviewApprove={handleReviewApprove}
-          onAssignVP={handleOpenAssignVP}
-          onRevisi={handleOpenRevisi}
           columnFilters={columnFilters}
           onColumnFilterChange={handleColumnFilterChange}
         />

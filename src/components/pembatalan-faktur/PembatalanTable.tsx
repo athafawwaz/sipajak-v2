@@ -2,7 +2,6 @@ import React from 'react';
 import { FileText, Inbox } from 'lucide-react';
 
 import type { PembatalanFakturPajak } from '../../types';
-import { useAuthStore } from '../../store/authStore';
 import { cn } from '../../utils/cn';
 import Button from '../ui/Button';
 import StatusBadgeBatal from './StatusBadgeBatal';
@@ -10,8 +9,6 @@ import StatusBadgeBatal from './StatusBadgeBatal';
 interface Props {
   data: PembatalanFakturPajak[];
   onReviewApprove: (item: PembatalanFakturPajak) => void;
-  onAssignVP: (item: PembatalanFakturPajak) => void;
-  onRevisi: (item: PembatalanFakturPajak) => void;
   selectedIds: string[];
   onToggleSelect: (id: string) => void;
   onToggleSelectAll: () => void;
@@ -31,19 +28,12 @@ const formatRupiah = (value: number) => `Rp ${value.toLocaleString('id-ID')}`;
 const PembatalanTable: React.FC<Props> = ({
   data,
   onReviewApprove,
-  onAssignVP,
-  onRevisi,
   selectedIds,
   onToggleSelect,
   onToggleSelectAll,
   columnFilters,
   onColumnFilterChange,
 }) => {
-  const { user } = useAuthStore();
-  const isKeuangan = user?.role === 'keuangan';
-  const isVP = user?.role === 'vp';
-  const isRequester = user?.role === 'requester';
-
   const checkDuplicateSO = (so: string, id: string) => {
     return data.filter((d) => d.noSONoDoc === so && d.id !== id).length > 0;
   };
