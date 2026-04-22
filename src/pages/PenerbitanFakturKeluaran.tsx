@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useAuthStore } from '../store/authStore';
 import { useFakturKeluaranStore } from '../store/fakturKeluaranStore';
-import type { PenerbitanFakturKeluaran } from '../types';
+import type { PenerbitanFakturKeluaran, DokumenPDF } from '../types';
 import Button from '../components/ui/Button';
 import StatCard from '../components/ui/StatCard';
 import FakturKeluaranTable from '../components/faktur-keluaran/FakturKeluaranTable';
@@ -271,7 +271,7 @@ const PenerbitanFakturKeluaranPage: React.FC = () => {
     );
   }, [rawData]);
 
-  const handleBulkApprove = (rows: BulkApproveRow[]) => {
+  const handleBulkApprove = (rows: BulkApproveRow[], docs: DokumenPDF[]) => {
     const approverLogInfo = {
       step: 2 as 1 | 2,
       role: 'keuangan' as 'vp' | 'keuangan',
@@ -285,14 +285,7 @@ const PenerbitanFakturKeluaranPage: React.FC = () => {
     rows.forEach((row) => {
       const item = pendingApprovalItems.find((d) => d.noSONoDoc === row.noSO);
       if (item) {
-        const mockDocs = [{
-          id: `doc-bulk-${Date.now()}-${count}`,
-          namaFile: `faktur-${row.nomorFakturPajak}.pdf`,
-          ukuran: 0,
-          url: '#',
-          uploadedAt: new Date().toISOString(),
-        }];
-        approveKeuangan(item.id, approverLogInfo, row.nomorFakturPajak, row.tanggalFakturPajak, mockDocs);
+        approveKeuangan(item.id, approverLogInfo, row.nomorFakturPajak, row.tanggalFakturPajak, docs);
         count++;
       }
     });
@@ -427,6 +420,7 @@ const PenerbitanFakturKeluaranPage: React.FC = () => {
         onClose={() => setIsBulkApproveOpen(false)}
         pendingItems={pendingApprovalItems}
         onBulkApprove={handleBulkApprove}
+        selectedIds={selectedIds}
       />
     </div>
   );

@@ -3,13 +3,15 @@ import * as XLSX from 'xlsx';
 import Modal from '../ui/Modal';
 import Button from '../ui/Button';
 import { Download, Upload, CheckCircle2, XCircle, FileSpreadsheet, AlertTriangle } from 'lucide-react';
-import type { PenerbitanFakturKeluaran } from '../../types';
+import type { PenerbitanFakturKeluaran, DokumenPDF } from '../../types';
+import DokumenUploader from './DokumenUploader';
 
 interface ModalBulkApproveExcelProps {
   isOpen: boolean;
   onClose: () => void;
   pendingItems: PenerbitanFakturKeluaran[];
-  onBulkApprove: (results: BulkApproveRow[]) => void;
+  onBulkApprove: (results: BulkApproveRow[], docs: DokumenPDF[]) => void;
+  selectedIds?: string[];
 }
 
 export interface BulkApproveRow {
@@ -42,11 +44,13 @@ const ModalBulkApproveExcel: React.FC<ModalBulkApproveExcelProps> = ({
   onClose,
   pendingItems,
   onBulkApprove,
+  selectedIds = [],
 }) => {
   const [step, setStep] = useState<Step>('initial');
   const [parsedRows, setParsedRows] = useState<ParsedRow[]>([]);
   const [result, setResult] = useState<BulkResult | null>(null);
   const [fileName, setFileName] = useState('');
+  const [uploadedDocs, setUploadedDocs] = useState<DokumenPDF[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const resetState = () => {
@@ -54,6 +58,7 @@ const ModalBulkApproveExcel: React.FC<ModalBulkApproveExcelProps> = ({
     setParsedRows([]);
     setResult(null);
     setFileName('');
+    setUploadedDocs([]);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
@@ -62,9 +67,18 @@ const ModalBulkApproveExcel: React.FC<ModalBulkApproveExcelProps> = ({
     onClose();
   };
 
+  // Determine which items go into the template:
+  // - If user selected rows, only include selected items that are in pendingItems
+  // - If no selection, include all pendingItems
+  const templateItems = selectedIds.length > 0
+    ? pendingItems.filter((item) => selectedIds.includes(item.id))
+    : pendingItems;
+
+  const hasSelection = selectedIds.length > 0;
+
   // --- DOWNLOAD TEMPLATE ---
   const handleDownloadTemplate = () => {
-    const templateData = pendingItems.map((item, idx) => ({
+    const templateData = templateItems.map((item, idx) => ({
       'No': idx + 1,
       'No SO / No Doc': item.noSONoDoc,
       'Tgl Request FP': item.tanggalRequestFP,
@@ -76,8 +90,8 @@ const ModalBulkApproveExcel: React.FC<ModalBulkApproveExcelProps> = ({
       'PPN': item.ppn,
       'Requester': `${item.requesterNama} / ${item.requesterBadge}`,
       'Unit Kerja': item.unitKerja,
-      'Nomor Faktur Pajak': '',  // To be filled by user
-      'Tanggal Faktur Pajak': '', // To be filled by user
+      '★ Nomor Faktur Pajak (ISI)': '',
+      '★ Tanggal Faktur Pajak (DD/MM/YYYY)': '',
     }));
 
     if (templateData.length === 0) {
@@ -118,9 +132,26 @@ const ModalBulkApproveExcel: React.FC<ModalBulkApproveExcelProps> = ({
 
         const rows: ParsedRow[] = json.map((row) => {
           const noSO = String(row['No SO / No Doc'] || '').trim();
-          const nomorFaktur = String(row['Nomor Faktur Pajak'] || '').trim();
-          const tglFaktur = String(row['Tanggal Faktur Pajak'] || '').trim();
+          // Support both old and new column headers
+          const nomorFaktur = String(row['★ Nomor Faktur Pajak (ISI)'] || row['Nomor Faktur Pajak'] || '').trim();
+          const rawTgl = row['★ Tanggal Faktur Pajak (DD/MM/YYYY)'] ?? row['Tanggal Faktur Pajak'];
           const namaCustomer = String(row['Nama Customer'] || '').trim();
+
+          // Convert Excel serial date number to DD/MM/YYYY string
+          let tglFaktur = '';
+          if (rawTgl != null && rawTgl !== '') {
+            const num = Number(rawTgl);
+            if (!isNaN(num) && num > 10000) {
+              // Excel serial number → JS Date
+              const date = new Date(Math.round((num - 25569) * 86400 * 1000));
+              const dd = String(date.getUTCDate()).padStart(2, '0');
+              const mm = String(date.getUTCMonth() + 1).padStart(2, '0');
+              const yyyy = date.getUTCFullYear();
+              tglFaktur = `${dd}/${mm}/${yyyy}`;
+            } else {
+              tglFaktur = String(rawTgl).trim();
+            }
+          }
 
           // Find matching item in pending list by noSONoDoc
           const matchedItem = pendingItems.find((item) => item.noSONoDoc === noSO);
@@ -165,13 +196,14 @@ const ModalBulkApproveExcel: React.FC<ModalBulkApproveExcelProps> = ({
     const validRows = parsedRows.filter((r) => r.matched);
     const invalidRows = parsedRows.filter((r) => !r.matched);
 
-    // Call parent handler with valid rows
+    // Call parent handler with valid rows + uploaded documents
     onBulkApprove(
       validRows.map((r) => ({
         noSO: r.noSO,
         nomorFakturPajak: r.nomorFakturPajak,
         tanggalFakturPajak: r.tanggalFakturPajak,
-      }))
+      })),
+      uploadedDocs
     );
 
     const details = [
@@ -218,18 +250,38 @@ const ModalBulkApproveExcel: React.FC<ModalBulkApproveExcelProps> = ({
               Petunjuk Penggunaan
             </h4>
             <ol className="text-xs text-blue-700 space-y-1.5 list-decimal list-inside">
-              <li>Klik <strong>"Download Template"</strong> untuk mengunduh file Excel berisi data yang menunggu approval.</li>
-              <li>Isi kolom <strong>"Nomor Faktur Pajak"</strong> dan <strong>"Tanggal Faktur Pajak"</strong> pada baris yang ingin di-approve.</li>
-              <li>Upload file yang sudah diisi kembali ke sistem.</li>
-              <li>Sistem akan mencocokkan data berdasarkan <strong>No SO / No Doc</strong> dan memproses approval secara otomatis.</li>
+              <li>Klik <strong>"Download Template"</strong> untuk mengunduh file Excel.</li>
+              <li>Buka sheet <strong>"Petunjuk Pengisian"</strong> untuk membaca panduan lengkap.</li>
+              <li>Buka sheet <strong>"Template Bulk Approve"</strong>, isi kolom bertanda <strong>★ (bintang)</strong>:</li>
             </ol>
+            <div className="mt-2 ml-4 space-y-1">
+              <div className="flex items-start gap-2 text-xs text-blue-700">
+                <span className="text-amber-600 font-bold">★</span>
+                <span><strong>Nomor Faktur Pajak</strong> — contoh: <code className="bg-blue-100 px-1 rounded">010.008-24.24104051</code></span>
+              </div>
+              <div className="flex items-start gap-2 text-xs text-blue-700">
+                <span className="text-amber-600 font-bold">★</span>
+                <span><strong>Tanggal Faktur Pajak</strong> — format: <code className="bg-blue-100 px-1 rounded">DD/MM/YYYY</code>, contoh: <code className="bg-blue-100 px-1 rounded">13/07/2024</code></span>
+              </div>
+            </div>
+            <ol className="text-xs text-blue-700 space-y-1.5 list-decimal list-inside mt-2" start={4}>
+              <li>Upload kembali file Excel yang sudah diisi ke sistem.</li>
+              <li>Upload dokumen PDF pendukung, lalu klik <strong>"Proses Approve"</strong>.</li>
+            </ol>
+            <div className="mt-3 p-2 bg-amber-50 border border-amber-200 rounded text-xs text-amber-800">
+              <strong>💡 Tips:</strong> Ketik tanda kutip satu (<code className="bg-amber-100 px-1 rounded">'</code>) sebelum tanggal agar Excel tidak mengubah formatnya. Contoh: <code className="bg-amber-100 px-1 rounded">'13/07/2024</code>
+            </div>
           </div>
 
           {/* Pending count info */}
           <div className="flex items-center gap-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
             <AlertTriangle className="w-5 h-5 text-yellow-600 flex-shrink-0" />
             <p className="text-sm text-yellow-800">
-              Terdapat <strong>{pendingItems.length}</strong> data yang menunggu approval Keuangan untuk Subsidi.
+              {hasSelection ? (
+                <>Template akan berisi <strong>{templateItems.length}</strong> data terpilih dari <strong>{pendingItems.length}</strong> data yang menunggu approval.{templateItems.length === 0 && ' (Tidak ada data terpilih yang berstatus menunggu approval.)'}</>
+              ) : (
+                <>Terdapat <strong>{pendingItems.length}</strong> data yang menunggu approval Keuangan untuk Subsidi. Semua data akan dimasukkan ke template.</>
+              )}
             </p>
           </div>
 
@@ -238,7 +290,7 @@ const ModalBulkApproveExcel: React.FC<ModalBulkApproveExcelProps> = ({
             {/* Download Template */}
             <button
               onClick={handleDownloadTemplate}
-              disabled={pendingItems.length === 0}
+              disabled={templateItems.length === 0}
               className="flex flex-col items-center gap-3 p-6 rounded-xl border-2 border-dashed border-primary/30 bg-primary/5 hover:bg-primary/10 hover:border-primary/50 transition-all group disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
@@ -334,6 +386,31 @@ const ModalBulkApproveExcel: React.FC<ModalBulkApproveExcelProps> = ({
             </table>
           </div>
 
+          {/* Document Upload Section */}
+          {validCount > 0 && (
+            <div className="space-y-3">
+              <div className="border-t pt-4">
+                <h4 className="text-sm font-semibold text-gray-800 mb-1">Upload Dokumen PDF</h4>
+                <p className="text-xs text-gray-500 mb-3">
+                  Upload dokumen pendukung (PDF) yang akan dilampirkan ke semua data yang di-approve.
+                  Minimal 1 dokumen wajib diunggah.
+                </p>
+                <DokumenUploader
+                  value={uploadedDocs}
+                  onChange={setUploadedDocs}
+                  maxFiles={10}
+                  maxSizeMB={10}
+                />
+              </div>
+              {uploadedDocs.length === 0 && (
+                <div className="flex items-center gap-2 p-2.5 bg-amber-50 border border-amber-200 rounded-lg">
+                  <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0" />
+                  <p className="text-xs text-amber-700">Upload minimal 1 dokumen PDF untuk melanjutkan proses approval.</p>
+                </div>
+              )}
+            </div>
+          )}
+
           <div className="flex justify-between border-t pt-4">
             <Button variant="outline" onClick={() => { resetState(); }}>
               Kembali
@@ -343,7 +420,7 @@ const ModalBulkApproveExcel: React.FC<ModalBulkApproveExcelProps> = ({
               <Button
                 variant="primary"
                 onClick={handleProcessApprove}
-                disabled={validCount === 0}
+                disabled={validCount === 0 || uploadedDocs.length === 0}
                 leftIcon={<CheckCircle2 className="w-4 h-4" />}
               >
                 Proses Approve ({validCount})
