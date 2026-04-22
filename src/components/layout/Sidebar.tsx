@@ -128,9 +128,16 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed }) => {
   });
 
   const checkPermission = (path: string) => {
+    if (!user) return false;
+
+    // Master Data restriction: only 'keuangan' role can see these
+    const isMasterData = path.startsWith('/master/') || path === '/pengaturan/master-unit-kerja';
+    if (isMasterData) {
+      return user.role === 'keuangan';
+    }
+
     // Only 'Faktur Pajak' (non-setor) is restricted by Unit Kerja Master Data
     if (path === '/pph-masukan/faktur-pajak') {
-      if (!user) return false;
       // Admin, VP, and Keuangan always have access to oversee everything
       if (user.role === 'admin' || user.role === 'vp' || user.role === 'keuangan') return true;
 
@@ -210,91 +217,104 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed }) => {
             </div>
           )}
         </NavLink>
-        {menuGroups.map((group) => (
-          <div key={group.title}>
-            {!collapsed && (
-              <div className="flex items-center gap-1 px-3 mb-2">
-                <span className="text-[11px] font-semibold uppercase tracking-wider text-white/40">
-                  {group.title}
-                </span>
-                <ChevronDown className="w-3 h-3 text-white/30" />
-              </div>
-            )}
-            <div className="space-y-1">
-              {group.items.filter(item => checkPermission(item.path)).map((item) => {
-                const hasChildren = item.children && item.children.length > 0;
-                return (
-                  <div key={item.path} className="space-y-1">
-                    {hasChildren ? (
-                      <div
-                        onClick={() => toggleMenu(item.path)}
-                        className={cn(
-                          'flex items-center justify-between px-3 py-2.5 rounded-lg transition-all duration-200 group relative',
-                          'text-white/65 hover:text-white hover:bg-white/10 cursor-pointer',
-                          collapsed && 'justify-center px-0'
-                        )}
-                      >
-                        <div className="flex items-center gap-3">
+        {menuGroups.map((group) => {
+          const visibleItems = group.items.filter((item) => checkPermission(item.path));
+          if (visibleItems.length === 0) return null;
+
+          return (
+            <div key={group.title}>
+              {!collapsed && (
+                <div className="flex items-center gap-1 px-3 mb-2">
+                  <span className="text-[11px] font-semibold uppercase tracking-wider text-white/40">
+                    {group.title}
+                  </span>
+                  <ChevronDown className="w-3 h-3 text-white/30" />
+                </div>
+              )}
+              <div className="space-y-1">
+                {visibleItems.map((item) => {
+                  const hasChildren = item.children && item.children.length > 0;
+                  return (
+                    <div key={item.path} className="space-y-1">
+                      {hasChildren ? (
+                        <div
+                          onClick={() => toggleMenu(item.path)}
+                          className={cn(
+                            'flex items-center justify-between px-3 py-2.5 rounded-lg transition-all duration-200 group relative',
+                            'text-white/65 hover:text-white hover:bg-white/10 cursor-pointer',
+                            collapsed && 'justify-center px-0'
+                          )}
+                        >
+                          <div className="flex items-center gap-3">
+                            <span className="flex-shrink-0">{item.icon}</span>
+                            {!collapsed && <span className="text-sm font-medium truncate">{item.label}</span>}
+                          </div>
+                          {!collapsed && (
+                            <ChevronDown
+                              className={cn(
+                                'w-4 h-4 transition-transform',
+                                openMenus[item.path] && 'rotate-180'
+                              )}
+                            />
+                          )}
+                          {!collapsed && getBadge(item.path)}
+                        </div>
+                      ) : (
+                        <NavLink
+                          to={item.path}
+                          title={collapsed ? item.label : undefined}
+                          className={({ isActive }) =>
+                            cn(
+                              'flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group relative',
+                              'text-white/65 hover:text-white hover:bg-white/10',
+                              isActive && 'text-white bg-white/10 border-l-[3px] border-accent',
+                              collapsed && 'justify-center px-0'
+                            )
+                          }
+                        >
                           <span className="flex-shrink-0">{item.icon}</span>
                           {!collapsed && <span className="text-sm font-medium truncate">{item.label}</span>}
-                        </div>
-                        {!collapsed && <ChevronDown className={cn("w-4 h-4 transition-transform", openMenus[item.path] && "rotate-180")} />}
-                        {!collapsed && getBadge(item.path)}
-                      </div>
-                    ) : (
-                      <NavLink
-                        to={item.path}
-                        title={collapsed ? item.label : undefined}
-                        className={({ isActive }) =>
-                          cn(
-                            'flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group relative',
-                            'text-white/65 hover:text-white hover:bg-white/10',
-                            isActive && 'text-white bg-white/10 border-l-[3px] border-accent',
-                            collapsed && 'justify-center px-0'
-                          )
-                        }
-                      >
-                        <span className="flex-shrink-0">{item.icon}</span>
-                        {!collapsed && <span className="text-sm font-medium truncate">{item.label}</span>}
-                        {!collapsed && getBadge(item.path)}
-                        {collapsed && (
-                          <div className="absolute left-full ml-2 flex items-center gap-2 px-2.5 py-1.5 bg-gray-900 text-white text-xs rounded-md whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none z-50">
-                            {item.label}
-                            {((item.path === '/pph-keluaran/penerbitan-faktur' && penerbitan > 0) || (item.path === '/pph-keluaran/pembatalan-faktur-pajak' && pembatalan > 0)) && (
-                              <span className="inline-flex items-center justify-center min-w-[16px] h-4 px-1 text-[9px] font-bold bg-red-500 rounded-full">
-                                {item.path === '/pph-keluaran/penerbitan-faktur' ? penerbitan : pembatalan}
-                              </span>
-                            )}
-                          </div>
-                        )}
-                      </NavLink>
-                    )}
+                          {!collapsed && getBadge(item.path)}
+                          {collapsed && (
+                            <div className="absolute left-full ml-2 flex items-center gap-2 px-2.5 py-1.5 bg-gray-900 text-white text-xs rounded-md whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none z-50">
+                              {item.label}
+                              {((item.path === '/pph-keluaran/penerbitan-faktur' && penerbitan > 0) ||
+                                (item.path === '/pph-keluaran/pembatalan-faktur-pajak' && pembatalan > 0)) && (
+                                <span className="inline-flex items-center justify-center min-w-[16px] h-4 px-1 text-[9px] font-bold bg-red-500 rounded-full">
+                                  {item.path === '/pph-keluaran/penerbitan-faktur' ? penerbitan : pembatalan}
+                                </span>
+                              )}
+                            </div>
+                          )}
+                        </NavLink>
+                      )}
 
-                    {hasChildren && !collapsed && openMenus[item.path] && (
-                      <div className="pl-9 pr-3 space-y-1 mt-1">
-                        {item.children!.map((child) => (
-                          <NavLink
-                            key={child.path}
-                            to={child.path}
-                            className={({ isActive }) =>
-                              cn(
-                                'block py-2 px-3 rounded-md text-xs font-medium transition-colors',
-                                'text-white/50 hover:text-white hover:bg-white/5',
-                                isActive && 'text-white bg-white/10'
-                              )
-                            }
-                          >
-                            {child.label}
-                          </NavLink>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
+                      {hasChildren && !collapsed && openMenus[item.path] && (
+                        <div className="pl-9 pr-3 space-y-1 mt-1">
+                          {item.children!.map((child) => (
+                            <NavLink
+                              key={child.path}
+                              to={child.path}
+                              className={({ isActive }) =>
+                                cn(
+                                  'block py-2 px-3 rounded-md text-xs font-medium transition-colors',
+                                  'text-white/50 hover:text-white hover:bg-white/5',
+                                  isActive && 'text-white bg-white/10'
+                                )
+                              }
+                            >
+                              {child.label}
+                            </NavLink>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </nav>
 
       {/* Footer */}

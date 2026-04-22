@@ -10,8 +10,10 @@ import ModalDetailApproval from '../components/faktur-keluaran/ModalDetailApprov
 import ModalAssignVP from '../components/faktur-keluaran/ModalAssignVP';
 import ModalRevisi from '../components/faktur-keluaran/ModalRevisi';
 import ModalKonfirmasiPembatalan from '../components/pembatalan-faktur/ModalKonfirmasiPembatalan';
+import ModalBulkApproveExcel from '../components/faktur-keluaran/ModalBulkApproveExcel';
+import type { BulkApproveRow } from '../components/faktur-keluaran/ModalBulkApproveExcel';
 import Pagination from '../components/ui/Pagination';
-import { Plus, Download, Trash2, FileSpreadsheet, Clock, Search } from 'lucide-react';
+import { Plus, Download, Trash2, FileSpreadsheet, Clock, Search, FileUp } from 'lucide-react';
 import { useToastStore } from '../store/toastStore';
 import { useParams, useNavigate } from 'react-router-dom';
 import { exportToExcel } from '../utils/exportExcel';
@@ -44,6 +46,7 @@ const PenerbitanFakturKeluaranPage: React.FC = () => {
   const [isAssignOpen, setIsAssignOpen] = useState(false);
   const [isRevisiOpen, setIsRevisiOpen] = useState(false);
   const [isBatalOpen, setIsBatalOpen] = useState(false);
+  const [isBulkApproveOpen, setIsBulkApproveOpen] = useState(false);
   const [activeItem, setActiveItem] = useState<PenerbitanFakturKeluaran | null>(null);
 
   // Reset states when switching submenus
@@ -261,6 +264,44 @@ const PenerbitanFakturKeluaranPage: React.FC = () => {
     addToast('Data berhasil di-export ke Excel', 'success');
   };
 
+  // Bulk Approve handler
+  const pendingApprovalItems = useMemo(() => {
+    return rawData.filter(
+      (d) => d.status === 'Menunggu Approval Keuangan' && d.jenisFaktur === 'Subsidi'
+    );
+  }, [rawData]);
+
+  const handleBulkApprove = (rows: BulkApproveRow[]) => {
+    const approverLogInfo = {
+      step: 2 as 1 | 2,
+      role: 'keuangan' as 'vp' | 'keuangan',
+      approverName: user?.name || '',
+      approverBadge: user?.badge || '',
+      action: 'approve' as 'approve' | 'reject',
+      catatan: 'Bulk approval via Excel',
+    };
+
+    let count = 0;
+    rows.forEach((row) => {
+      const item = pendingApprovalItems.find((d) => d.noSONoDoc === row.noSO);
+      if (item) {
+        const mockDocs = [{
+          id: `doc-bulk-${Date.now()}-${count}`,
+          namaFile: `faktur-${row.nomorFakturPajak}.pdf`,
+          ukuran: 0,
+          url: '#',
+          uploadedAt: new Date().toISOString(),
+        }];
+        approveKeuangan(item.id, approverLogInfo, row.nomorFakturPajak, row.tanggalFakturPajak, mockDocs);
+        count++;
+      }
+    });
+
+    if (count > 0) {
+      addToast(`${count} data berhasil di-approve secara bulk`, 'success');
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -289,6 +330,11 @@ const PenerbitanFakturKeluaranPage: React.FC = () => {
             <Button size="sm" variant="outline" leftIcon={<Download className="w-4 h-4" />} onClick={handleExport}>
               Export Excel
             </Button>
+            {role === 'keuangan' && isSubsidi && !isPenerbitanBaru && (
+              <Button size="sm" variant="outline" leftIcon={<FileUp className="w-4 h-4" />} onClick={() => setIsBulkApproveOpen(true)}>
+                Bulk Approval Excel
+              </Button>
+            )}
             {role === 'keuangan' && selectedIds.length > 0 && (
               <Button size="sm" onClick={handleBulkDelete} variant="danger" leftIcon={<Trash2 className="w-4 h-4" />}>
                 Hapus ({selectedIds.length})
@@ -374,6 +420,13 @@ const PenerbitanFakturKeluaranPage: React.FC = () => {
         isOpen={isBatalOpen}
         onClose={() => {setIsBatalOpen(false); setActiveItem(null);}}
         faktur={activeItem}
+      />
+
+      <ModalBulkApproveExcel
+        isOpen={isBulkApproveOpen}
+        onClose={() => setIsBulkApproveOpen(false)}
+        pendingItems={pendingApprovalItems}
+        onBulkApprove={handleBulkApprove}
       />
     </div>
   );

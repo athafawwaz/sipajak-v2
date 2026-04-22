@@ -251,6 +251,76 @@ const createDummyData = (): PenerbitanFakturKeluaran[] => {
     });
   }
 
+  // --- Bulk Approval Test Data: 15 items Subsidi + Menunggu Approval Keuangan ---
+  const bulkCustomers = [
+    "PT Telkom Indonesia", "PT Pertamina Persero", "PT Bank Mandiri Tbk",
+    "PT Garuda Indonesia", "CV Sejahtera Abadi", "PT Semen Indonesia",
+    "PT Krakatau Steel", "PT Bukit Asam", "PT Timah Tbk",
+    "PT Aneka Tambang", "PT Waskita Karya", "PT Wijaya Karya",
+    "PT Adhi Karya", "PT Jasa Marga", "PT INKA Persero"
+  ];
+  const bulkRequesters = [
+    { nama: "Handika Pranajaya", badge: "6121509", unitKerja: "DEPARTEMEN TEKNOLOGI INFORMASI" },
+    { nama: "Yunelia", badge: "121822", unitKerja: "ADM Aset" },
+    { nama: "Ahmad Fauzi", badge: "6121510", unitKerja: "DEPARTEMEN PEMASARAN" },
+  ];
+
+  for (let i = 0; i < 15; i++) {
+    const idx = 26 + i;
+    const nilai = Math.floor((Math.random() * 800 + 50) * 1000000);
+    const dppVal = Math.floor((11 / 12) * nilai);
+    const ppnVal = Math.floor(0.11 * nilai);
+    const req = bulkRequesters[i % 3];
+    const day = String((i % 28) + 1).padStart(2, '0');
+
+    dummy.push({
+      id: `FK-BULK-${String(i + 1).padStart(3, '0')}`,
+      no: idx,
+      tanggalRequestFP: `${day}/07/2024`,
+      noSONoDoc: `50100${String(70000 + i)}`,
+      tanggalSO: `${day}/07/2024`,
+      namaCustomer: bulkCustomers[i],
+      npwp: `0${(i % 9) + 1}.${String(100 + i)}.${String(200 + i)}.0-000.000`,
+      nilaiTransaksi: nilai,
+      dpp: dppVal,
+      ppn: ppnVal,
+      totalTagihan: nilai + ppnVal,
+      requesterNama: req.nama,
+      requesterBadge: req.badge,
+      unitKerja: req.unitKerja,
+      hp: "082175433331",
+      jenisFaktur: "Subsidi",
+      status: "Menunggu Approval Keuangan",
+      dokumen: [],
+      approvalLogs: [
+        {
+          id: `log-bulk-${i}-assign`,
+          step: 0,
+          role: "keuangan",
+          approverName: "Sistem",
+          approverBadge: "SYS",
+          action: "assign_vp",
+          catatan: "Assigned to Bambang Susanto (VP001)",
+          timestamp: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString()
+        },
+        {
+          id: `log-bulk-${i}-vp`,
+          step: 1,
+          role: "vp",
+          approverName: "Bambang Susanto",
+          approverBadge: "VP001",
+          action: "approve",
+          timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString()
+        }
+      ],
+      assignedVPId: "VP001",
+      assignedVPNama: "Bambang Susanto",
+      createdBy: req.badge,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    });
+  }
+
   return dummy;
 };
 
