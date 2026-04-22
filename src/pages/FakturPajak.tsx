@@ -137,7 +137,7 @@ const FakturPajakPage: React.FC = () => {
       return result.filter((d) => d.status === 'Sudah Approve' || d.status === 'Ditolak');
     }
     // "Baru" only shows Pending
-    return result.filter((d) => d.status === 'Pending');
+    return result.filter((d) => d.status === 'Baru');
   }, [data, isTindakLanjutPage, user]);
 
   // Debounced search
@@ -158,15 +158,15 @@ const FakturPajakPage: React.FC = () => {
   const stats = useMemo(() => {
     const totalFaktur = filteredData.length;
     const sudahApprove = filteredData.filter((d) => d.status === 'Sudah Approve').length;
-    const pending = filteredData.filter((d) => d.status === 'Pending').length;
+    const baru = filteredData.filter((d) => d.status === 'Baru').length;
     const ditolak = filteredData.filter((d) => d.status === 'Ditolak').length;
     const totalPPN = filteredData.reduce((sum, d) => sum + d.nilaiPPN, 0);
-    return { totalFaktur, sudahApprove, pending, ditolak, totalPPN };
+    return { totalFaktur, sudahApprove, baru, ditolak, totalPPN };
   }, [filteredData]);
 
   // --- Status badge ---
   const StatusBadge = useCallback(({ status }: { status: FakturPajak['status'] }) => {
-    const variant = status === 'Sudah Approve' ? 'success' : status === 'Pending' ? 'warning' : 'danger';
+    const variant = status === 'Sudah Approve' ? 'success' : status === 'Baru' ? 'warning' : 'danger';
     return <Badge variant={variant}>{status}</Badge>;
   }, []);
 
@@ -201,7 +201,7 @@ const FakturPajakPage: React.FC = () => {
       }),
       columnHelper.accessor('no', {
         header: 'No',
-        cell: (info) => <span className="text-gray-500 font-medium">{info.getValue()}</span>,
+        cell: (info) => <span className="text-gray-500">{info.getValue()}</span>,
         size: 50,
       }),
       columnHelper.accessor('tanggalPengajuan', {
@@ -216,12 +216,12 @@ const FakturPajakPage: React.FC = () => {
       }),
       columnHelper.accessor('noMVP', {
         header: 'No MVP',
-        cell: (info) => <span className="font-medium">{info.getValue()}</span>,
+        cell: (info) => <span>{info.getValue()}</span>,
         size: 130,
       }),
       columnHelper.accessor('nomorFakturPajak', {
         header: 'Nomor Faktur Pajak',
-        cell: (info) => <span className="font-medium tracking-wider">{info.getValue()}</span>,
+        cell: (info) => <span className="tracking-wider">{info.getValue()}</span>,
         size: 180,
       }),
       columnHelper.accessor('kodeFakturSAP', {
@@ -231,7 +231,7 @@ const FakturPajakPage: React.FC = () => {
       }),
       columnHelper.accessor('namaPerusahaan', {
         header: 'Nama Vendor',
-        cell: (info) => <span className="font-medium">{info.getValue()}</span>,
+        cell: (info) => <span>{info.getValue()}</span>,
         size: 180,
       }),
       columnHelper.accessor('npwpVendor', {
@@ -242,14 +242,14 @@ const FakturPajakPage: React.FC = () => {
       columnHelper.accessor('nilaiDPP', {
         header: 'Nilai DPP',
         cell: (info) => (
-          <span className="font-medium text-gray-900 tabular-nums">{info.getValue() ? formatCurrency(info.getValue()!) : '-'}</span>
+          <span className="text-gray-900 tabular-nums">{info.getValue() ? formatCurrency(info.getValue()!) : '-'}</span>
         ),
         size: 160,
       }),
       columnHelper.accessor('nilaiPPN', {
         header: 'Nilai PPN',
         cell: (info) => (
-          <span className="font-medium text-gray-900 tabular-nums">{formatCurrency(info.getValue())}</span>
+          <span className="text-gray-900 tabular-nums">{formatCurrency(info.getValue())}</span>
         ),
         size: 160,
       }),
@@ -260,7 +260,7 @@ const FakturPajakPage: React.FC = () => {
       }),
       columnHelper.accessor('nama', {
         header: 'Nama',
-        cell: (info) => <span className="font-medium text-gray-900 whitespace-nowrap">{info.getValue()}</span>,
+        cell: (info) => <span className="text-gray-900 whitespace-nowrap">{info.getValue()}</span>,
         size: 150,
       }),
       columnHelper.accessor('unitKerja', {
@@ -314,7 +314,7 @@ const FakturPajakPage: React.FC = () => {
         header: 'Aksi',
         cell: ({ row }) => {
           const faktur = row.original;
-          const isPending = faktur.status === 'Pending';
+          const isBaru = faktur.status === 'Baru';
           return (
             <div className="flex items-center gap-1">
               {/* Detail button */}
@@ -326,8 +326,8 @@ const FakturPajakPage: React.FC = () => {
                 <Eye className="w-3 h-3" />
               </button>
 
-              {/* Approve button — only for Pending and Keuangan */}
-              {isKeuangan && isPending && (
+              {/* Approve button — only for Baru and Keuangan */}
+              {isKeuangan && isBaru && (
                 <button
                   onClick={() => handleApprovalClick(faktur, 'approve')}
                   className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-emerald-600 border border-emerald-200 rounded-md hover:bg-emerald-50 transition-colors"
@@ -337,8 +337,8 @@ const FakturPajakPage: React.FC = () => {
                 </button>
               )}
 
-              {/* Reject button — only for Pending and Keuangan */}
-              {isKeuangan && isPending && (
+              {/* Reject button — only for Baru and Keuangan */}
+              {isKeuangan && isBaru && (
                 <button
                   onClick={() => handleApprovalClick(faktur, 'reject')}
                   className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-red-600 border border-red-200 rounded-md hover:bg-red-50 transition-colors"
@@ -495,13 +495,13 @@ const FakturPajakPage: React.FC = () => {
 
   const handleBulkApproveConfirm = useCallback(() => {
     const selectedIds = Object.keys(rowSelection).filter((id) => rowSelection[id]);
-    const pendingIds = selectedIds.filter((id) => data.find((d) => d.id === id)?.status === 'Pending');
-    if (pendingIds.length > 0) {
-      bulkApprove(pendingIds, user?.name || 'Unknown');
+    const baruIds = selectedIds.filter((id) => data.find((d) => d.id === id)?.status === 'Baru');
+    if (baruIds.length > 0) {
+      bulkApprove(baruIds, user?.name || 'Unknown');
       setRowSelection({});
-      addToast(`${pendingIds.length} faktur berhasil di-approve`, 'success');
+      addToast(`${baruIds.length} faktur berhasil di-approve`, 'success');
     } else {
-      addToast('Tidak ada faktur Pending yang dipilih', 'warning');
+      addToast('Tidak ada faktur Baru yang dipilih', 'warning');
     }
     setIsBulkApproveConfirmOpen(false);
   }, [rowSelection, data, bulkApprove, addToast, user]);
@@ -512,9 +512,9 @@ const FakturPajakPage: React.FC = () => {
   }, []);
 
   const selectedCount = Object.values(rowSelection).filter(Boolean).length;
-  const selectedPendingCount = useMemo(() => {
+  const selectedBaruCount = useMemo(() => {
     const selectedIds = Object.keys(rowSelection).filter((id) => rowSelection[id]);
-    return selectedIds.filter((id) => data.find((d) => d.id === id)?.status === 'Pending').length;
+    return selectedIds.filter((id) => data.find((d) => d.id === id)?.status === 'Baru').length;
   }, [rowSelection, data]);
 
   // --- Row status background helper ---
@@ -522,7 +522,7 @@ const FakturPajakPage: React.FC = () => {
     switch (status) {
       case 'Sudah Approve':
         return 'bg-emerald-50/40';
-      case 'Pending':
+      case 'Baru':
         return 'bg-amber-50/30';
       case 'Ditolak':
         return 'bg-red-50/30';
@@ -571,8 +571,8 @@ const FakturPajakPage: React.FC = () => {
               color="blue"
             />
             <StatCard
-              label="Pending"
-              value={stats.pending}
+              label="Baru"
+              value={stats.baru}
               icon={<Clock className="w-5 h-5" />}
               color="yellow"
             />
@@ -605,7 +605,7 @@ const FakturPajakPage: React.FC = () => {
               </Button>
 
               {/* Bulk Approve button — only for Keuangan */}
-              {isKeuangan && selectedPendingCount > 0 && (
+              {isKeuangan && selectedBaruCount > 0 && (
                 <Button
                   size="sm"
                   variant="outline"
@@ -613,7 +613,7 @@ const FakturPajakPage: React.FC = () => {
                   onClick={() => setIsBulkApproveConfirmOpen(true)}
                   className="!text-emerald-600 !border-emerald-300 hover:!bg-emerald-50"
                 >
-                  Approve ({selectedPendingCount})
+                  Approve ({selectedBaruCount})
                 </Button>
               )}
 
@@ -652,7 +652,7 @@ const FakturPajakPage: React.FC = () => {
                     {headerGroup.headers.map((header) => (
                       <th
                         key={header.id}
-                        className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap"
+                        className="px-4 py-3 text-left text-xs font-normal text-gray-600 uppercase tracking-wider whitespace-nowrap"
                         style={{ width: header.getSize() }}
                       >
                         {header.isPlaceholder ? null : (
@@ -712,12 +712,10 @@ const FakturPajakPage: React.FC = () => {
                         <Inbox className="w-8 h-8 text-gray-400" />
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-gray-600">Data tidak ditemukan</p>
+                        <p className="text-sm font-normal text-gray-600">Data tidak ditemukan</p>
                         <p className="text-xs text-gray-400 mt-1">
                           {globalFilter
                             ? `Tidak ada data yang sesuai dengan pencarian "${globalFilter}"`
-                            : isTindakLanjutPage
-                            ? 'Belum ada data tindak lanjut faktur pajak.'
                             : 'Belum ada data faktur pajak. Klik "Input Faktur" untuk menambahkan.'}
                         </p>
                       </div>
@@ -767,7 +765,7 @@ const FakturPajakPage: React.FC = () => {
         onSubmit={(formData) => {
           addFaktur({
             ...formData,
-            status: 'Pending',
+            status: 'Baru',
             tanggalApprove: '',
           });
           setIsAddModalOpen(false);
@@ -841,7 +839,7 @@ const FakturPajakPage: React.FC = () => {
         onClose={() => setIsBulkApproveConfirmOpen(false)}
         onConfirm={handleBulkApproveConfirm}
         title="Approve Massal"
-        message={`Apakah Anda yakin ingin meng-approve ${selectedPendingCount} faktur yang dipilih?`}
+        message={`Apakah Anda yakin ingin meng-approve ${selectedBaruCount} faktur yang dipilih?`}
         variant="success"
       />
 
@@ -1430,7 +1428,7 @@ interface DetailModalProps {
 const DetailModal: React.FC<DetailModalProps> = ({ isOpen, onClose, faktur }) => {
   if (!faktur) return null;
 
-  const statusVariant = faktur.status === 'Sudah Approve' ? 'success' : faktur.status === 'Pending' ? 'warning' : 'danger';
+  const statusVariant = faktur.status === 'Sudah Approve' ? 'success' : faktur.status === 'Baru' ? 'warning' : 'danger';
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Detail Faktur Pajak" size="lg">
@@ -1440,12 +1438,12 @@ const DetailModal: React.FC<DetailModalProps> = ({ isOpen, onClose, faktur }) =>
           className={cn(
             'flex items-center gap-3 p-4 rounded-lg border',
             faktur.status === 'Sudah Approve' && 'bg-emerald-50 border-emerald-200',
-            faktur.status === 'Pending' && 'bg-amber-50 border-amber-200',
+            faktur.status === 'Baru' && 'bg-amber-50 border-amber-200',
             faktur.status === 'Ditolak' && 'bg-red-50 border-red-200'
           )}
         >
           {faktur.status === 'Sudah Approve' && <CheckCircle className="w-5 h-5 text-emerald-600" />}
-          {faktur.status === 'Pending' && <Clock className="w-5 h-5 text-amber-600" />}
+          {faktur.status === 'Baru' && <Clock className="w-5 h-5 text-amber-600" />}
           {faktur.status === 'Ditolak' && <XCircle className="w-5 h-5 text-red-600" />}
           <div>
             <p className="text-sm font-semibold">

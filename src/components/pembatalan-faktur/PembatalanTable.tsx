@@ -16,7 +16,7 @@ interface Props {
   onColumnFilterChange: (key: string, value: string) => void;
 }
 
-const headerClass = 'px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap';
+const headerClass = 'px-4 py-3 text-left text-xs font-normal text-gray-600 uppercase tracking-wider whitespace-nowrap';
 const filterClass = 'px-4 py-1.5';
 const cellClass = 'px-4 py-3 text-sm text-gray-700 whitespace-nowrap';
 
@@ -132,7 +132,7 @@ const PembatalanTable: React.FC<Props> = ({
                     <Inbox className="w-8 h-8 text-gray-400" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Data tidak ditemukan</p>
+                    <p className="text-sm font-normal text-gray-600">Data tidak ditemukan</p>
                     <p className="text-xs text-gray-400 mt-1">Belum ada pengajuan pembatalan faktur pajak.</p>
                   </div>
                 </div>
@@ -159,14 +159,14 @@ const PembatalanTable: React.FC<Props> = ({
                       className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary/30 cursor-pointer"
                     />
                   </td>
-                  <td className={cn(cellClass, 'font-medium')}>{index + 1}</td>
+                  <td className={cn(cellClass)}>{index + 1}</td>
                   <td className={cellClass}>{row.tanggalRequestFP}</td>
-                  <td className={cn(cellClass, 'font-medium text-blue-800')}>{row.noSONoDoc}</td>
+                  <td className={cn(cellClass, 'text-blue-800')}>{row.noSONoDoc}</td>
                   <td className={cellClass}>{row.tanggalSO}</td>
                   <td className={cn(cellClass, 'max-w-xs truncate')} title={row.namaCustomer}>{row.namaCustomer}</td>
-                  <td className={cn(cellClass, 'text-center font-medium')}>
+                  <td className={cn(cellClass, 'text-center')}>
                     <span className={cn(
-                      'px-2 py-1 text-[10px] uppercase font-bold rounded-md border',
+                      'px-2 py-1 text-[10px] uppercase font-normal rounded-md border',
                       row.jenisFaktur === 'Subsidi'
                         ? 'bg-green-100 text-green-800 border-green-200'
                         : 'bg-gray-100 text-gray-800 border-gray-200'
@@ -175,10 +175,10 @@ const PembatalanTable: React.FC<Props> = ({
                     </span>
                   </td>
                   <td className={cn(cellClass, 'text-xs')}>{row.npwp}</td>
-                  <td className={cn(cellClass, 'text-right font-bold text-gray-900 tabular-nums', isDisetujui && 'line-through text-gray-400')}>{formatRupiah(row.totalTagihan)}</td>
+                  <td className={cn(cellClass, 'text-right text-gray-900 tabular-nums', isDisetujui && 'line-through text-gray-400')}>{formatRupiah(row.totalTagihan)}</td>
                   <td className={cn(cellClass, 'text-right tabular-nums', isDisetujui && 'line-through text-gray-400')}>{formatRupiah(row.nilaiTransaksi)}</td>
-                  <td className={cn(cellClass, 'text-right bg-yellow-50/60 text-yellow-900 font-medium tabular-nums', isDisetujui && 'line-through opacity-50')}>{formatRupiah(row.dpp)}</td>
-                  <td className={cn(cellClass, 'text-right bg-yellow-50/60 text-yellow-900 font-medium tabular-nums', isDisetujui && 'line-through opacity-50')}>{formatRupiah(row.ppn)}</td>
+                  <td className={cn(cellClass, 'text-right bg-yellow-50/60 text-yellow-900 tabular-nums', isDisetujui && 'line-through opacity-50')}>{formatRupiah(row.dpp)}</td>
+                  <td className={cn(cellClass, 'text-right bg-yellow-50/60 text-yellow-900 tabular-nums', isDisetujui && 'line-through opacity-50')}>{formatRupiah(row.ppn)}</td>
                   <td className={cn(cellClass, 'max-w-[200px] truncate')} title={row.keteranganTransaksi}>{row.keteranganTransaksi || '-'}</td>
                   <td className={cn(cellClass, 'text-center')}>{row.quantity || '-'}</td>
                   <td className={cn(cellClass, 'max-w-[200px] truncate')} title={row.alamat}>{row.alamat || '-'}</td>

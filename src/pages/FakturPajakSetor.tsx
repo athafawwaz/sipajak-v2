@@ -82,7 +82,7 @@ const fakturPajakSetorSchema = z.object({
   email: z.string().email('Format email tidak valid'),
   noSELKamish: z.string().optional(),
   noVirtuSAP: z.string().optional(),
-  status: z.enum(['Sudah Approve', 'Pending', 'Ditolak']).optional(),
+  status: z.enum(['Sudah Approve', 'Baru', 'Ditolak']).optional(),
   keterangan: z.string().optional(),
 });
 
@@ -145,13 +145,13 @@ const FakturPajakSetorPage: React.FC = () => {
   const stats = useMemo(() => {
     const displayData = isTindakLanjutPage 
       ? data.filter(d => d.status === 'Sudah Approve' || d.status === 'Ditolak') 
-      : data.filter(d => d.status === 'Pending');
+      : data.filter(d => d.status === 'Baru');
     const totalFaktur = displayData.length;
     const sudahApprove = displayData.filter((d) => d.status === 'Sudah Approve').length;
-    const pending = displayData.filter((d) => d.status === 'Pending').length;
+    const baru = displayData.filter((d) => d.status === 'Baru').length;
     const ditolak = displayData.filter((d) => d.status === 'Ditolak').length;
     const totalDppPpn = displayData.reduce((sum, d) => sum + d.dpp + d.ppn, 0);
-    return { totalFaktur, sudahApprove, pending, ditolak, totalDppPpn };
+    return { totalFaktur, sudahApprove, baru, ditolak, totalDppPpn };
   }, [data, isTindakLanjutPage]);
 
   // Filtered data (column filters + status based on submenu)
@@ -165,7 +165,7 @@ const FakturPajakSetorPage: React.FC = () => {
 
     result = isTindakLanjutPage 
       ? result.filter(d => d.status === 'Sudah Approve' || d.status === 'Ditolak') 
-      : result.filter(d => d.status === 'Pending');
+      : result.filter(d => d.status === 'Baru');
     
     Object.entries(columnFilters).forEach(([key, value]) => {
       if (!value) return;
@@ -206,7 +206,7 @@ const FakturPajakSetorPage: React.FC = () => {
       // --- IDENTITAS FAKTUR (ungrouped) ---
       columnHelper.accessor('no', {
         header: 'No',
-        cell: (info) => <span className="text-gray-500 font-medium">{info.getValue()}</span>,
+        cell: (info) => <span className="text-gray-500">{info.getValue()}</span>,
         size: 50,
         enableColumnFilter: false,
       }),
@@ -217,7 +217,7 @@ const FakturPajakSetorPage: React.FC = () => {
           return (
             <span
               className={cn(
-                'inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold tracking-wide',
+                'inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-normal tracking-wide',
                 val === 'TA'
                   ? 'bg-indigo-100 text-indigo-700 ring-1 ring-indigo-300'
                   : 'bg-orange-100 text-orange-700 ring-1 ring-orange-300'
@@ -237,7 +237,7 @@ const FakturPajakSetorPage: React.FC = () => {
       columnHelper.accessor('nomorFakturPajak', {
         header: 'Nomor Faktur Pajak',
         cell: (info) => (
-          <span className="font-medium text-primary">{info.getValue()}</span>
+          <span className="text-primary">{info.getValue()}</span>
         ),
         size: 170,
       }),
@@ -245,7 +245,7 @@ const FakturPajakSetorPage: React.FC = () => {
         id: 'tanggalFaktur',
         header: 'Tgl Faktur',
         cell: (info) => (
-          <span className="whitespace-nowrap px-2 py-1 rounded bg-yellow-50 text-yellow-800 font-medium text-xs">
+          <span className="whitespace-nowrap px-2 py-1 rounded bg-yellow-50 text-yellow-800 font-normal text-xs">
             {info.getValue()}
           </span>
         ),
@@ -254,12 +254,12 @@ const FakturPajakSetorPage: React.FC = () => {
       // --- DATA FAKTUR PAJAK ---
       columnHelper.accessor('npwpVendor', {
         header: 'NPWP Vendor',
-        cell: (info) => <span className="font-medium">{info.getValue() || '-'}</span>,
+        cell: (info) => <span>{info.getValue() || '-'}</span>,
         size: 150,
       }),
       columnHelper.accessor('namaVendor', {
         header: 'Nama Vendor',
-        cell: (info) => <span className="font-medium text-gray-900 whitespace-nowrap">{info.getValue() || '-'}</span>,
+        cell: (info) => <span className="text-gray-900 whitespace-nowrap">{info.getValue() || '-'}</span>,
         size: 200,
       }),
       columnHelper.accessor('alamat', {
@@ -274,7 +274,7 @@ const FakturPajakSetorPage: React.FC = () => {
       columnHelper.accessor('dpp', {
         header: 'DPP',
         cell: (info) => (
-          <span className="text-xs font-medium text-right block">
+          <span className="text-xs font-normal text-right block">
             {formatCurrency(info.getValue())}
           </span>
         ),
@@ -283,7 +283,7 @@ const FakturPajakSetorPage: React.FC = () => {
       columnHelper.accessor('ppn', {
         header: 'PPN',
         cell: (info) => (
-          <span className="text-xs font-medium text-right block">
+          <span className="text-xs font-normal text-right block">
             {formatCurrency(info.getValue())}
           </span>
         ),
@@ -300,7 +300,7 @@ const FakturPajakSetorPage: React.FC = () => {
       }),
       columnHelper.accessor('nama', {
         header: 'Nama',
-        cell: (info) => <span className="font-medium text-gray-900 whitespace-nowrap">{info.getValue()}</span>,
+        cell: (info) => <span className="text-gray-900 whitespace-nowrap">{info.getValue()}</span>,
         size: 150,
       }),
       columnHelper.accessor('unitKerja', {
@@ -337,7 +337,7 @@ const FakturPajakSetorPage: React.FC = () => {
         header: 'Status',
         cell: (info) => {
           const v = info.getValue();
-          const variant = v === 'Sudah Approve' ? 'success' : v === 'Pending' ? 'warning' : 'danger';
+          const variant = v === 'Sudah Approve' ? 'success' : v === 'Baru' ? 'warning' : 'danger';
           return <Badge variant={variant}>{v}</Badge>;
         },
         size: 130,
@@ -375,28 +375,28 @@ const FakturPajakSetorPage: React.FC = () => {
         id: 'actions',
         header: 'Aksi',
         cell: ({ row }) => {
-          const isPending = row.original.status === 'Pending';
+          const isBaru = row.original.status === 'Baru';
           return (
             <div className="flex items-center gap-1">
               <button
                 onClick={() => handleDetail(row.original)}
-                className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-gray-600 border border-gray-200 rounded-md hover:bg-gray-50 transition-colors"
+                className="inline-flex items-center gap-1 px-2 py-1 text-xs font-normal text-gray-600 border border-gray-200 rounded-md hover:bg-gray-50 transition-colors"
                 title="Lihat Detail"
               >
                 <Eye className="w-3 h-3" />
               </button>
-              {isKeuangan && isPending && (
+              {isKeuangan && isBaru && (
                 <>
                   <button
                     onClick={() => handleApprovalClick(row.original, 'approve')}
-                    className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-emerald-600 border border-emerald-200 rounded-md hover:bg-emerald-50 transition-colors"
+                    className="inline-flex items-center gap-1 px-2 py-1 text-xs font-normal text-emerald-600 border border-emerald-200 rounded-md hover:bg-emerald-50 transition-colors"
                     title="Approve"
                   >
                     <CheckCircle2 className="w-3 h-3" />
                   </button>
                   <button
                     onClick={() => handleApprovalClick(row.original, 'reject')}
-                    className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-red-600 border border-red-200 rounded-md hover:bg-red-50 transition-colors"
+                    className="inline-flex items-center gap-1 px-2 py-1 text-xs font-normal text-red-600 border border-red-200 rounded-md hover:bg-red-50 transition-colors"
                     title="Tolak"
                   >
                     <XCircle className="w-3 h-3" />
@@ -405,7 +405,7 @@ const FakturPajakSetorPage: React.FC = () => {
               )}
               <button
                 onClick={() => handleEdit(row.original)}
-                className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-blue-600 border border-blue-200 rounded-md hover:bg-blue-50 transition-colors"
+                className="inline-flex items-center gap-1 px-2 py-1 text-xs font-normal text-blue-600 border border-blue-200 rounded-md hover:bg-blue-50 transition-colors"
                 title="Edit"
               >
                 <Edit3 className="w-3 h-3" />
@@ -506,13 +506,13 @@ const FakturPajakSetorPage: React.FC = () => {
 
   const handleBulkApproveConfirm = useCallback(() => {
     const selectedIds = Object.keys(rowSelection).filter((id) => rowSelection[id]);
-    const pendingIds = selectedIds.filter((id) => data.find((d) => d.id === id)?.status === 'Pending');
-    if (pendingIds.length > 0) {
-      bulkApprove(pendingIds, user?.name || 'Unknown');
+    const baruIds = selectedIds.filter((id) => data.find((d) => d.id === id)?.status === 'Baru');
+    if (baruIds.length > 0) {
+      bulkApprove(baruIds, user?.name || 'Unknown');
       setRowSelection({});
-      addToast(`${pendingIds.length} faktur berhasil di-approve`, 'success');
+      addToast(`${baruIds.length} faktur berhasil di-approve`, 'success');
     } else {
-      addToast('Tidak ada faktur Pending yang dipilih', 'warning');
+      addToast('Tidak ada faktur Baru yang dipilih', 'warning');
     }
     setIsBulkApproveConfirmOpen(false);
   }, [rowSelection, data, bulkApprove, addToast, user]);
@@ -548,9 +548,9 @@ const FakturPajakSetorPage: React.FC = () => {
   }, [filteredData, addToast]);
 
   const selectedCount = Object.keys(rowSelection).filter((k) => rowSelection[k]).length;
-  const selectedPendingCount = useMemo(() => {
+  const selectedBaruCount = useMemo(() => {
     const selectedIds = Object.keys(rowSelection).filter((id) => rowSelection[id]);
-    return selectedIds.filter((id) => data.find((d) => d.id === id)?.status === 'Pending').length;
+    return selectedIds.filter((id) => data.find((d) => d.id === id)?.status === 'Baru').length;
   }, [rowSelection, data]);
 
   const columnGroupHeaders = [
@@ -600,8 +600,8 @@ const FakturPajakSetorPage: React.FC = () => {
               color="blue"
             />
             <StatCard
-              label="Pending"
-              value={stats.pending}
+              label="Baru"
+              value={stats.baru}
               icon={<Clock className="w-5 h-5" />}
               color="yellow"
             />
@@ -638,7 +638,7 @@ const FakturPajakSetorPage: React.FC = () => {
               >
                 Export Excel
               </Button>
-              {isKeuangan && selectedPendingCount > 0 && (
+              {isKeuangan && selectedBaruCount > 0 && (
                 <Button
                   size="sm"
                   variant="outline"
@@ -646,7 +646,7 @@ const FakturPajakSetorPage: React.FC = () => {
                   onClick={() => setIsBulkApproveConfirmOpen(true)}
                   className="!text-emerald-600 !border-emerald-300 hover:!bg-emerald-50"
                 >
-                  Approve ({selectedPendingCount})
+                  Approve ({selectedBaruCount})
                 </Button>
               )}
               {selectedCount > 0 && (
@@ -685,9 +685,9 @@ const FakturPajakSetorPage: React.FC = () => {
                     key={idx}
                     colSpan={g.colSpan}
                     className={cn(
-                      'px-3 py-2 text-center text-[10px] font-bold uppercase tracking-widest',
+                      'px-3 py-2 text-center text-[10px] font-normal uppercase tracking-widest',
                       g.className || 'bg-gray-50'
-                    )}
+                    ) + ' !font-normal'}
                   >
                     {g.label}
                   </th>
@@ -700,7 +700,7 @@ const FakturPajakSetorPage: React.FC = () => {
                   {headerGroup.headers.map((header) => (
                     <th
                       key={header.id}
-                      className="px-3 py-2.5 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap"
+                      className="px-3 py-2.5 text-left text-xs font-normal text-gray-600 uppercase tracking-wider whitespace-nowrap"
                       style={{ width: header.getSize() }}
                     >
                       {header.isPlaceholder ? null : (
@@ -761,7 +761,7 @@ const FakturPajakSetorPage: React.FC = () => {
                       <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center">
                         <Inbox className="w-8 h-8 text-gray-400" />
                       </div>
-                      <p className="text-sm font-medium text-gray-600">Data tidak ditemukan</p>
+                      <p className="text-sm font-normal text-gray-600">Data tidak ditemukan</p>
                       <p className="text-xs text-gray-400">
                         {globalFilter
                           ? `Tidak ada data sesuai pencarian "${globalFilter}"`
@@ -884,7 +884,7 @@ const FakturPajakSetorPage: React.FC = () => {
         onClose={() => setIsBulkApproveConfirmOpen(false)}
         onConfirm={handleBulkApproveConfirm}
         title="Approve Massal"
-        message={`Apakah Anda yakin ingin meng-approve ${selectedPendingCount} faktur yang dipilih?`}
+        message={`Apakah Anda yakin ingin meng-approve ${selectedBaruCount} faktur yang dipilih?`}
         variant="success"
       />
     </div>
@@ -931,7 +931,7 @@ const FakturSetorFormModal: React.FC<FormModalProps> = ({ isOpen, onClose, initi
       email: user?.email || 'user@pusri.co.id',
       noSELKamish: '',
       noVirtuSAP: '',
-      status: 'Pending',
+      status: 'Baru',
       keterangan: '',
     },
   });
@@ -982,7 +982,7 @@ const FakturSetorFormModal: React.FC<FormModalProps> = ({ isOpen, onClose, initi
           email: user?.email || 'user@pusri.co.id',
           noSELKamish: '',
           noVirtuSAP: '',
-          status: 'Pending',
+          status: 'Baru',
           keterangan: '',
         });
         setDokumen([]);
@@ -1009,7 +1009,7 @@ const FakturSetorFormModal: React.FC<FormModalProps> = ({ isOpen, onClose, initi
         const mm = String(today.getMonth() + 1).padStart(2, '0');
         const yyyy = today.getFullYear();
         const tanggalPenyampaian = initialData?.tanggalPenyampaian || `${dd}/${mm}/${yyyy}`;
-        const status = initialData?.status || 'Pending';
+        const status = initialData?.status || 'Baru';
         onSubmit({...data, dokumen, tanggalPenyampaian, status});
       })} className="space-y-6">
         {/* Section 1 — Identitas Faktur */}
@@ -1247,7 +1247,7 @@ const FakturSetorFormModal: React.FC<FormModalProps> = ({ isOpen, onClose, initi
             <div>
               <label className="block text-xs font-medium text-gray-700 mb-1">Status *</label>
               <select className={inputClass(!!errors.status)} {...register('status')}>
-                <option value="Pending">Pending</option>
+                <option value="Baru">Baru</option>
                 <option value="Sudah Approve">Sudah Approve</option>
                 <option value="Ditolak">Ditolak</option>
               </select>
@@ -1439,7 +1439,7 @@ interface DetailModalProps {
 const DetailModal: React.FC<DetailModalProps> = ({ isOpen, onClose, faktur }) => {
   if (!faktur) return null;
 
-  const statusVariant = faktur.status === 'Sudah Approve' ? 'success' : faktur.status === 'Pending' ? 'warning' : 'danger';
+  const statusVariant = faktur.status === 'Sudah Approve' ? 'success' : faktur.status === 'Baru' ? 'warning' : 'danger';
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Detail Faktur Pajak Setor" size="lg">
@@ -1448,12 +1448,12 @@ const DetailModal: React.FC<DetailModalProps> = ({ isOpen, onClose, faktur }) =>
           className={cn(
             'flex items-center gap-3 p-4 rounded-lg border',
             faktur.status === 'Sudah Approve' && 'bg-emerald-50 border-emerald-200',
-            faktur.status === 'Pending' && 'bg-amber-50 border-amber-200',
+            faktur.status === 'Baru' && 'bg-amber-50 border-amber-200',
             faktur.status === 'Ditolak' && 'bg-red-50 border-red-200'
           )}
         >
           {faktur.status === 'Sudah Approve' && <CheckCircle2 className="w-5 h-5 text-emerald-600" />}
-          {faktur.status === 'Pending' && <Clock className="w-5 h-5 text-amber-600" />}
+          {faktur.status === 'Baru' && <Clock className="w-5 h-5 text-amber-600" />}
           {faktur.status === 'Ditolak' && <XCircle className="w-5 h-5 text-red-600" />}
           <div>
             <p className="text-sm font-semibold">

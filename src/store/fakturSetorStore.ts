@@ -26,7 +26,7 @@ const namaList = [
 ];
 
 const generateDummyData = (): FakturPajakSetor[] => {
-  const statuses: FakturPajakSetor['status'][] = ['Sudah Approve', 'Pending', 'Ditolak'];
+  const statuses: FakturPajakSetor['status'][] = ['Sudah Approve', 'Baru', 'Ditolak'];
   const now = new Date().toISOString();
 
   return Array.from({ length: 20 }, (_, i) => {
@@ -152,7 +152,7 @@ export const useFakturSetorStore = create<FakturSetorStore>((set, get) => ({
       email: item.email || '',
       noSELKamish: item.noSELKamish,
       noVirtuSAP: item.noVirtuSAP,
-      status: item.status || 'Pending',
+      status: item.status || 'Baru',
       keterangan: item.keterangan || '',
       createdAt: now,
       updatedAt: now,
@@ -189,7 +189,7 @@ export const useFakturSetorStore = create<FakturSetorStore>((set, get) => ({
     const tanggalApprove = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`;
     set({
       data: get().data.map((item) =>
-        ids.includes(item.id) && item.status === 'Pending'
+        ids.includes(item.id) && item.status === 'Baru'
           ? { ...item, status: 'Sudah Approve' as const, tanggalApprove, approvedBy, rejectionReason: undefined }
           : item
       ),

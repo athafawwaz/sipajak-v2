@@ -110,7 +110,7 @@ const MasterVendorPage: React.FC = () => {
       columnHelper.accessor('kodeVendor', {
         header: 'Kode Vendor',
         cell: (info) => (
-          <span className="text-xs font-semibold text-primary bg-primary/5 px-2 py-1 rounded">
+          <span className="text-xs font-normal text-primary bg-primary/5 px-2 py-1 rounded">
             {info.getValue()}
           </span>
         ),
@@ -118,7 +118,7 @@ const MasterVendorPage: React.FC = () => {
       }),
       columnHelper.accessor('namaVendor', {
         header: 'Nama Vendor',
-        cell: (info) => <span className="font-medium text-gray-900">{info.getValue()}</span>,
+        cell: (info) => <span className="text-gray-900">{info.getValue()}</span>,
         size: 230,
       }),
       columnHelper.accessor('npwp', {
@@ -274,7 +274,7 @@ const MasterVendorPage: React.FC = () => {
                     {headerGroup.headers.map((header) => (
                       <th
                         key={header.id}
-                        className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap"
+                        className="px-4 py-3 text-left text-xs font-normal text-gray-600 uppercase tracking-wider whitespace-nowrap"
                         style={{ width: header.getSize() }}
                       >
                         {header.isPlaceholder ? null : (
@@ -329,7 +329,7 @@ const MasterVendorPage: React.FC = () => {
                         <Inbox className="w-8 h-8 text-gray-400" />
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-gray-600">Data tidak ditemukan</p>
+                        <p className="text-sm font-normal text-gray-600">Data tidak ditemukan</p>
                         <p className="text-xs text-gray-400 mt-1">
                           {globalFilter
                             ? `Tidak ada data yang sesuai dengan pencarian "${globalFilter}"`
@@ -582,7 +582,7 @@ const DetailVendorModal: React.FC<DetailVendorModalProps> = ({ isOpen, onClose, 
             <Building2 className="w-5 h-5 text-blue-600" />
           </div>
           <div>
-            <p className="text-sm font-semibold text-blue-950">{vendor.namaVendor}</p>
+            <p className="text-sm font-normal text-blue-950">{vendor.namaVendor}</p>
             <p className="text-xs text-blue-700">
               {vendor.kodeVendor} - {vendor.tipeVendor}
             </p>
@@ -623,7 +623,7 @@ interface DetailFieldProps {
 const DetailField: React.FC<DetailFieldProps> = ({ label, value, bold }) => (
   <div className="rounded-lg border border-gray-100 bg-gray-50/70 p-3">
     <p className="text-xs text-gray-500 mb-1">{label}</p>
-    <p className={cn('text-sm text-gray-900 break-words', bold && 'font-semibold')}>
+    <p className={cn('text-sm text-gray-900 break-words', bold && 'font-normal')}>
       {value || '-'}
     </p>
   </div>

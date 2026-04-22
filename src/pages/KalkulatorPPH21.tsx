@@ -326,10 +326,10 @@ const KalkulatorPPH21: React.FC = () => {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-gray-200">
-                  <th className="text-left py-2 pr-3 font-semibold text-gray-600">Lapisan PKP</th>
-                  <th className="text-center py-2 px-3 font-semibold text-gray-600">Tarif</th>
-                  <th className="text-right py-2 pl-3 font-semibold text-gray-600">PKP di Lapisan</th>
-                  <th className="text-right py-2 pl-3 font-semibold text-gray-600">Pajak</th>
+                  <th className="text-left py-2 pr-3 font-normal text-gray-600">Lapisan PKP</th>
+                  <th className="text-center py-2 px-3 font-normal text-gray-600">Tarif</th>
+                  <th className="text-right py-2 pl-3 font-normal text-gray-600">PKP di Lapisan</th>
+                  <th className="text-right py-2 pl-3 font-normal text-gray-600">Pajak</th>
                 </tr>
               </thead>
               <tbody>
@@ -342,11 +342,11 @@ const KalkulatorPPH21: React.FC = () => {
                     )}
                   >
                     <td className="py-2 pr-3 text-gray-700">{bracket.label}</td>
-                    <td className="py-2 px-3 text-center font-medium text-gray-700">{bracket.rate}</td>
+                    <td className="py-2 px-3 text-center text-gray-700">{bracket.rate}</td>
                     <td className="py-2 pl-3 text-right tabular-nums text-gray-600">
                       {formatCurrency(bracket.taxable)}
                     </td>
-                    <td className="py-2 pl-3 text-right tabular-nums font-medium text-gray-900">
+                    <td className="py-2 pl-3 text-right tabular-nums text-gray-900">
                       {formatCurrency(bracket.tax)}
                     </td>
                   </tr>

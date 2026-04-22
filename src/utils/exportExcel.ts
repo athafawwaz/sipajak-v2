@@ -38,7 +38,7 @@ export function parseImportFile(file: File): Promise<Partial<FakturPajak>[]> {
           namaPerusahaan: row['Nama Perusahaan'] || '',
           nilaiPPN: parseInt(String(row['Nilai PPN'] || '0').replace(/[^\d]/g, ''), 10) || 0,
           verifikator: row['Verifikator'] || '',
-          status: (row['Status'] as FakturPajak['status']) || 'Pending',
+          status: (row['Status'] as FakturPajak['status']) || 'Baru',
           keterangan: row['Keterangan'] || '',
           tanggalApprove: row['Tanggal Approve'] || '',
         }));

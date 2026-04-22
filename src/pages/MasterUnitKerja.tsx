@@ -103,7 +103,7 @@ const MasterUnitKerja: React.FC = () => {
 
       columnHelper.accessor('nama', {
         header: 'Nama Unit Kerja',
-        cell: (info) => <span className="font-medium text-gray-900">{info.getValue()}</span>,
+        cell: (info) => <span className="text-gray-900">{info.getValue()}</span>,
         size: 250,
       }),
       columnHelper.accessor('deskripsi', {
@@ -248,7 +248,7 @@ const MasterUnitKerja: React.FC = () => {
                     {headerGroup.headers.map((header) => (
                       <th
                         key={header.id}
-                        className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap"
+                        className="px-4 py-3 text-left text-xs font-normal text-gray-600 uppercase tracking-wider whitespace-nowrap"
                         style={{ width: header.getSize() }}
                       >
                         {header.isPlaceholder ? null : (
@@ -309,7 +309,7 @@ const MasterUnitKerja: React.FC = () => {
                         <Inbox className="w-8 h-8 text-gray-400" />
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-gray-600">Data tidak ditemukan</p>
+                        <p className="text-sm font-normal text-gray-600">Data tidak ditemukan</p>
                         <p className="text-xs text-gray-400 mt-1">
                           {globalFilter
                             ? `Tidak ada data yang sesuai dengan pencarian "${globalFilter}"`
@@ -519,7 +519,7 @@ const DetailUnitModal: React.FC<DetailUnitModalProps> = ({ isOpen, onClose, unit
           <div className="grid grid-cols-2 gap-3 text-sm">
             <div className="col-span-2">
               <p className="text-xs text-gray-500 mb-0.5">Nama Unit Kerja</p>
-              <p className="font-medium text-gray-900">{unitKerja.nama}</p>
+              <p className="font-normal text-gray-900">{unitKerja.nama}</p>
             </div>
             {unitKerja.deskripsi && (
               <div className="col-span-2">

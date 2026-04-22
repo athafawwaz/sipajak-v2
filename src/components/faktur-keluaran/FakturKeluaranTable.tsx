@@ -16,7 +16,7 @@ interface FakturKeluaranTableProps {
   onColumnFilterChange: (key: string, value: string) => void;
 }
 
-const headerClass = 'px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap';
+const headerClass = 'px-4 py-3 text-left text-xs font-normal text-gray-600 uppercase tracking-wider whitespace-nowrap';
 const filterClass = 'px-4 py-1.5';
 const cellClass = 'px-4 py-3 text-sm text-gray-700 whitespace-nowrap';
 
@@ -118,7 +118,7 @@ const FakturKeluaranTable: React.FC<FakturKeluaranTableProps> = ({
                     <Inbox className="w-8 h-8 text-gray-400" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Data tidak ditemukan</p>
+                    <p className="text-sm font-normal text-gray-600">Data tidak ditemukan</p>
                     <p className="text-xs text-gray-400 mt-1">Belum ada data penerbitan faktur pajak.</p>
                   </div>
                 </div>
@@ -144,16 +144,16 @@ const FakturKeluaranTable: React.FC<FakturKeluaranTableProps> = ({
                       className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary/30 cursor-pointer"
                     />
                   </td>
-                  <td className={cn(cellClass, 'font-medium')}>{index + 1}</td>
+                  <td className={cn(cellClass)}>{index + 1}</td>
                   <td className={cellClass}>{row.tanggalRequestFP}</td>
-                  <td className={cn(cellClass, 'font-medium text-blue-800')}>{row.noSONoDoc}</td>
+                  <td className={cn(cellClass, 'text-blue-800')}>{row.noSONoDoc}</td>
                   <td className={cellClass}>{row.tanggalSO}</td>
                   <td className={cn(cellClass, 'max-w-xs truncate')} title={row.namaCustomer}>{row.namaCustomer}</td>
                   <td className={cn(cellClass, 'text-xs')}>{row.npwp}</td>
-                  <td className={cn(cellClass, 'text-right font-bold text-gray-900 tabular-nums')}>{formatRupiah(row.totalTagihan)}</td>
+                  <td className={cn(cellClass, 'text-right text-gray-900 tabular-nums')}>{formatRupiah(row.totalTagihan)}</td>
                   <td className={cn(cellClass, 'text-right tabular-nums')}>{formatRupiah(row.nilaiTransaksi)}</td>
-                  <td className={cn(cellClass, 'text-right bg-yellow-50/60 text-yellow-900 font-medium tabular-nums')}>{formatRupiah(row.dpp)}</td>
-                  <td className={cn(cellClass, 'text-right bg-yellow-50/60 text-yellow-900 font-medium tabular-nums')}>{formatRupiah(row.ppn)}</td>
+                  <td className={cn(cellClass, 'text-right bg-yellow-50/60 text-yellow-900 tabular-nums')}>{formatRupiah(row.dpp)}</td>
+                  <td className={cn(cellClass, 'text-right bg-yellow-50/60 text-yellow-900 tabular-nums')}>{formatRupiah(row.ppn)}</td>
                   <td className={cn(cellClass, 'max-w-[200px] truncate')} title={row.keteranganTransaksi}>{row.keteranganTransaksi || '-'}</td>
                   <td className={cn(cellClass, 'text-center')}>{row.quantity || '-'}</td>
                   <td className={cn(cellClass, 'max-w-[200px] truncate')} title={row.alamat}>{row.alamat || '-'}</td>

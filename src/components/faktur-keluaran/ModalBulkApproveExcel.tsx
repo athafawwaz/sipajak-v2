@@ -303,11 +303,11 @@ const ModalBulkApproveExcel: React.FC<ModalBulkApproveExcelProps> = ({
             <table className="min-w-full text-xs">
               <thead className="bg-gray-50 sticky top-0">
                 <tr>
-                  <th className="px-3 py-2.5 text-left font-semibold text-gray-600">No SO</th>
-                  <th className="px-3 py-2.5 text-left font-semibold text-gray-600">Nama Customer</th>
-                  <th className="px-3 py-2.5 text-left font-semibold text-gray-600">No Faktur Pajak</th>
-                  <th className="px-3 py-2.5 text-left font-semibold text-gray-600">Tgl Faktur Pajak</th>
-                  <th className="px-3 py-2.5 text-center font-semibold text-gray-600">Status</th>
+                  <th className="px-3 py-2.5 text-left font-normal text-gray-600">No SO</th>
+                  <th className="px-3 py-2.5 text-left font-normal text-gray-600">Nama Customer</th>
+                  <th className="px-3 py-2.5 text-left font-normal text-gray-600">No Faktur Pajak</th>
+                  <th className="px-3 py-2.5 text-left font-normal text-gray-600">Tgl Faktur Pajak</th>
+                  <th className="px-3 py-2.5 text-center font-normal text-gray-600">Status</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -319,11 +319,11 @@ const ModalBulkApproveExcel: React.FC<ModalBulkApproveExcelProps> = ({
                     <td className="px-3 py-2 text-gray-800">{row.tanggalFakturPajak || '-'}</td>
                     <td className="px-3 py-2 text-center">
                       {row.matched ? (
-                        <span className="inline-flex items-center gap-1 text-green-700 bg-green-100 px-2 py-0.5 rounded-full text-[10px] font-medium">
+                        <span className="inline-flex items-center gap-1 text-green-700 bg-green-100 px-2 py-0.5 rounded-full text-[10px] font-normal">
                           <CheckCircle2 className="w-3 h-3" /> Valid
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 text-red-700 bg-red-100 px-2 py-0.5 rounded-full text-[10px] font-medium" title={row.error}>
+                        <span className="inline-flex items-center gap-1 text-red-700 bg-red-100 px-2 py-0.5 rounded-full text-[10px] font-normal" title={row.error}>
                           <XCircle className="w-3 h-3" /> {row.error}
                         </span>
                       )}
@@ -377,10 +377,10 @@ const ModalBulkApproveExcel: React.FC<ModalBulkApproveExcelProps> = ({
             <table className="min-w-full text-xs">
               <thead className="bg-gray-50 sticky top-0">
                 <tr>
-                  <th className="px-3 py-2.5 text-left font-semibold text-gray-600">No SO</th>
-                  <th className="px-3 py-2.5 text-left font-semibold text-gray-600">Nama Customer</th>
-                  <th className="px-3 py-2.5 text-left font-semibold text-gray-600">Keterangan</th>
-                  <th className="px-3 py-2.5 text-center font-semibold text-gray-600">Status</th>
+                  <th className="px-3 py-2.5 text-left font-normal text-gray-600">No SO</th>
+                  <th className="px-3 py-2.5 text-left font-normal text-gray-600">Nama Customer</th>
+                  <th className="px-3 py-2.5 text-left font-normal text-gray-600">Keterangan</th>
+                  <th className="px-3 py-2.5 text-center font-normal text-gray-600">Status</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">

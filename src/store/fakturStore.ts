@@ -14,7 +14,7 @@ const generateDummyData = (): FakturPajak[] => {
     'DEPARTEMEN TEKNOLOGI INFORMASI', 'DIVISI OPERASI (OPERASI P-VI)', 'DEPARTEMEN KEUANGAN PAJAK',
     'Departemen Pajak', 'DEPARTEMEN LOGISTIK', 'DEPARTEMEN PEMELIHARAAN'
   ];
-  const statuses: FakturPajak['status'][] = ['Sudah Approve', 'Pending', 'Ditolak'];
+  const statuses: FakturPajak['status'][] = ['Sudah Approve', 'Baru', 'Ditolak'];
   const codes: FakturPajak['kodeFakturSAP'][] = ['BV', 'BZ'];
 
   return Array.from({ length: 25 }, (_, i) => {
@@ -120,7 +120,7 @@ export const useFakturStore = create<FakturStore>((set, get) => ({
       noExtKantor: (item as any).noExtKantor || '',
       noWhatsapp: (item as any).noWhatsapp || '',
       email: (item as any).email || '',
-      status: item.status || 'Pending',
+      status: item.status || 'Baru',
       keterangan: item.keterangan || '',
       tanggalApprove: item.tanggalApprove || '',
     }));
@@ -156,7 +156,7 @@ export const useFakturStore = create<FakturStore>((set, get) => ({
     const tanggalApprove = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`;
     set({
       data: get().data.map((item) =>
-        ids.includes(item.id) && item.status === 'Pending'
+        ids.includes(item.id) && item.status === 'Baru'
           ? { ...item, status: 'Sudah Approve' as const, tanggalApprove, approvedBy, rejectionReason: undefined }
           : item
       ),

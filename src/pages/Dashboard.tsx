@@ -49,11 +49,11 @@ const Dashboard: React.FC = () => {
 
   // Stats
   const stats = useMemo(() => {
-    const fakturPending = fakturData.filter((d) => d.status === 'Pending').length;
+    const fakturBaru = fakturData.filter((d) => d.status === 'Baru').length;
     const fakturApproved = fakturData.filter((d) => d.status === 'Sudah Approve').length;
     const fakturDitolak = fakturData.filter((d) => d.status === 'Ditolak').length;
 
-    const setorPending = fakturSetorData.filter((d) => d.status === 'Pending').length;
+    const setorBaru = fakturSetorData.filter((d) => d.status === 'Baru').length;
     const setorApproved = fakturSetorData.filter((d) => d.status === 'Sudah Approve').length;
 
     const totalDppPpn = fakturSetorData.reduce((sum, d) => sum + d.dpp + d.ppn, 0);
@@ -62,21 +62,21 @@ const Dashboard: React.FC = () => {
     return {
       totalFaktur: fakturData.length,
       totalFakturSetor: fakturSetorData.length,
-      fakturPending,
+      fakturBaru,
       fakturApproved,
       fakturDitolak,
-      setorPending,
+      setorBaru,
       setorApproved,
       totalDppPpn,
       totalPPN,
-      totalPendingAll: fakturPending + setorPending,
+      totalBaruAll: fakturBaru + setorBaru,
     };
   }, [fakturData, fakturSetorData]);
 
   // Recent pending items (mix both stores)
-  const pendingItems = useMemo(() => {
-    const fakturPendingList = fakturData
-      .filter((d) => d.status === 'Pending')
+  const baruItems = useMemo(() => {
+    const fakturBaruList = fakturData
+      .filter((d) => d.status === 'Baru')
       .slice(0, 3)
       .map((d) => ({
         id: d.id,
@@ -84,8 +84,8 @@ const Dashboard: React.FC = () => {
         subtitle: `Faktur Pajak • ${d.nomorFakturPajak}`,
         type: 'faktur' as const,
       }));
-    const setorPendingList = fakturSetorData
-      .filter((d) => d.status === 'Pending')
+    const setorBaruList = fakturSetorData
+      .filter((d) => d.status === 'Baru')
       .slice(0, 3)
       .map((d) => ({
         id: d.id,
@@ -93,7 +93,7 @@ const Dashboard: React.FC = () => {
         subtitle: `Faktur Setor • ${d.nomorFakturPajak}`,
         type: 'setor' as const,
       }));
-    return [...fakturPendingList, ...setorPendingList].slice(0, 5);
+    return [...fakturBaruList, ...setorBaruList].slice(0, 5);;
   }, [fakturData, fakturSetorData]);
 
   // Quick access menu items
@@ -202,7 +202,7 @@ const Dashboard: React.FC = () => {
         />
         <StatMiniCard
           label="Menunggu Approval"
-          value={stats.totalPendingAll}
+          value={stats.totalBaruAll}
           icon={<Clock className="w-5 h-5" />}
           iconBg="bg-amber-500"
           trend="Butuh perhatian"
@@ -220,9 +220,9 @@ const Dashboard: React.FC = () => {
 
       {/* ============== MAIN CONTENT GRID ============== */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* LEFT — Pending Approval */}
+        {/* LEFT — Baru Approval */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Pending Card */}
+          {/* Baru Card */}
           <div className="card overflow-hidden">
             <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
               <div className="flex items-center gap-2">
@@ -237,7 +237,7 @@ const Dashboard: React.FC = () => {
               </button>
             </div>
 
-            {pendingItems.length === 0 ? (
+            {baruItems.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 px-4">
                 <div className="w-14 h-14 rounded-full bg-emerald-50 flex items-center justify-center mb-3">
                   <CheckCircle2 className="w-7 h-7 text-emerald-500" />
@@ -247,7 +247,7 @@ const Dashboard: React.FC = () => {
               </div>
             ) : (
               <div className="divide-y divide-gray-50">
-                {pendingItems.map((item) => (
+                {baruItems.map((item) => (
                   <button
                     key={item.id}
                     onClick={() =>
@@ -283,7 +283,7 @@ const Dashboard: React.FC = () => {
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">
                       <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-amber-50 text-amber-700 ring-1 ring-amber-200">
-                        Pending
+                        Baru
                       </span>
                       <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-primary transition-colors" />
                     </div>
@@ -308,7 +308,7 @@ const Dashboard: React.FC = () => {
                   <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Faktur Pajak</h3>
                   <div className="space-y-2.5">
                     <StatusBar label="Sudah Approve" count={stats.fakturApproved} total={stats.totalFaktur} color="bg-emerald-500" />
-                    <StatusBar label="Pending" count={stats.fakturPending} total={stats.totalFaktur} color="bg-amber-500" />
+                    <StatusBar label="Baru" count={stats.fakturBaru} total={stats.totalFaktur} color="bg-amber-500" />
                     <StatusBar label="Ditolak" count={stats.fakturDitolak} total={stats.totalFaktur} color="bg-red-500" />
                   </div>
                 </div>
@@ -318,10 +318,10 @@ const Dashboard: React.FC = () => {
                   <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Faktur Pajak Setor</h3>
                   <div className="space-y-2.5">
                     <StatusBar label="Sudah Approve" count={stats.setorApproved} total={stats.totalFakturSetor} color="bg-emerald-500" />
-                    <StatusBar label="Pending" count={stats.setorPending} total={stats.totalFakturSetor} color="bg-amber-500" />
+                    <StatusBar label="Baru" count={stats.setorBaru} total={stats.totalFakturSetor} color="bg-amber-500" />
                     <StatusBar
                       label="Ditolak"
-                      count={stats.totalFakturSetor - stats.setorApproved - stats.setorPending}
+                      count={stats.totalFakturSetor - stats.setorApproved - stats.setorBaru}
                       total={stats.totalFakturSetor}
                       color="bg-red-500"
                     />
