@@ -156,23 +156,53 @@ const ModalBulkApproveExcel: React.FC<ModalBulkApproveExcelProps> = ({
           // Find matching item in pending list by noSONoDoc
           const matchedItem = pendingItems.find((item) => item.noSONoDoc === noSO);
 
+          // --- Validation ---
           let error: string | undefined;
+
+          // Nomor Faktur: only digits, dots, dashes allowed (e.g. 010.008-24.24104051)
+          const fakturFormatValid = /^[\d.\-]+$/.test(nomorFaktur);
+
+          // Tanggal Faktur: must be DD/MM/YYYY format and a valid calendar date
+          let tglFormatValid = false;
+          if (tglFaktur) {
+            const dateMatch = tglFaktur.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+            if (dateMatch) {
+              const day = parseInt(dateMatch[1], 10);
+              const month = parseInt(dateMatch[2], 10);
+              const year = parseInt(dateMatch[3], 10);
+              // Check logical validity
+              if (month >= 1 && month <= 12 && day >= 1 && year >= 1900) {
+                const testDate = new Date(year, month - 1, day);
+                tglFormatValid =
+                  testDate.getFullYear() === year &&
+                  testDate.getMonth() === month - 1 &&
+                  testDate.getDate() === day;
+              }
+            }
+          }
+
           if (!noSO) {
             error = 'No SO kosong';
           } else if (!matchedItem) {
             error = 'No SO tidak ditemukan dalam data pending';
           } else if (!nomorFaktur) {
             error = 'Nomor Faktur Pajak belum diisi';
+          } else if (!fakturFormatValid) {
+            error = 'Format Nomor Faktur tidak valid (hanya angka, titik, strip)';
           } else if (!tglFaktur) {
             error = 'Tanggal Faktur Pajak belum diisi';
+          } else if (!tglFormatValid) {
+            error = 'Format Tanggal tidak valid (harus DD/MM/YYYY)';
           }
+
+          const isValid = !!matchedItem && !!nomorFaktur && fakturFormatValid && !!tglFaktur && tglFormatValid;
 
           return {
             noSO,
             namaCustomer: matchedItem?.namaCustomer || namaCustomer,
             nomorFakturPajak: nomorFaktur,
             tanggalFakturPajak: tglFaktur,
-            matched: !!matchedItem && !!nomorFaktur && !!tglFaktur,
+            matched: isValid,
             matchedItem,
             error,
           };
@@ -268,9 +298,9 @@ const ModalBulkApproveExcel: React.FC<ModalBulkApproveExcelProps> = ({
               <li>Upload kembali file Excel yang sudah diisi ke sistem.</li>
               <li>Upload dokumen PDF pendukung, lalu klik <strong>"Proses Approve"</strong>.</li>
             </ol>
-            <div className="mt-3 p-2 bg-amber-50 border border-amber-200 rounded text-xs text-amber-800">
+            {/* <div className="mt-3 p-2 bg-amber-50 border border-amber-200 rounded text-xs text-amber-800">
               <strong>💡 Tips:</strong> Ketik tanda kutip satu (<code className="bg-amber-100 px-1 rounded">'</code>) sebelum tanggal agar Excel tidak mengubah formatnya. Contoh: <code className="bg-amber-100 px-1 rounded">'13/07/2024</code>
-            </div>
+            </div> */}
           </div>
 
           {/* Pending count info */}

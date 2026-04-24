@@ -68,6 +68,10 @@ const menuGroups: MenuGroup[] = [
         label: 'Pembatalan Faktur Pajak',
         path: '/pph-keluaran/pembatalan-faktur-pajak',
         icon: <FileText className="w-5 h-5" />,
+        children: [
+          { label: 'Proses Pembatalan', path: '/pph-keluaran/pembatalan-faktur-pajak/proses' },
+          { label: 'Pembatalan Selesai', path: '/pph-keluaran/pembatalan-faktur-pajak/selesai' },
+        ],
       },
     ],
   },
@@ -177,7 +181,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed }) => {
   return (
     <aside
       className={cn(
-        'fixed left-0 top-0 h-screen bg-primary z-40 flex flex-col transition-all duration-300 ease-in-out',
+        'fixed left-0 top-0 h-screen bg-gradient-to-b from-slate-800 via-slate-900 to-indigo-950 z-40 flex flex-col transition-all duration-300 ease-in-out',
         collapsed ? 'w-[72px]' : 'w-[260px]'
       )}
     >

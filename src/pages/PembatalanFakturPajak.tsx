@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { useParams } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { usePembatalanFakturStore } from '../store/pembatalanFakturStore';
 import type { PembatalanFakturPajak } from '../types';
@@ -39,7 +40,17 @@ const PembatalanFakturPajakPage: React.FC = () => {
   const badge = user?.badge || '';
   const unitKerja = user?.unitKerja || '';
 
-  const data = getByRole(role, badge, unitKerja);
+  const { mode } = useParams<{ mode: string }>();
+  const isSelesai = mode === 'selesai';
+
+  const allData = getByRole(role, badge, unitKerja);
+
+  const data = useMemo(() => {
+    if (isSelesai) {
+      return allData.filter(d => d.status === 'Pembatalan Disetujui' || d.status === 'Pembatalan Ditolak');
+    }
+    return allData.filter(d => d.status !== 'Pembatalan Disetujui' && d.status !== 'Pembatalan Ditolak');
+  }, [allData, isSelesai]);
 
   // Summary stats
   const stats = useMemo(() => {
@@ -212,8 +223,14 @@ const PembatalanFakturPajakPage: React.FC = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Pembatalan Faktur Pajak</h1>
-          <p className="text-sm text-gray-500 mt-1">Daftar pengajuan pembatalan faktur pajak keluaran yang sudah selesai.</p>
+          <h1 className="text-2xl font-bold text-gray-900">
+            {isSelesai ? 'Pembatalan Selesai' : 'Proses Pembatalan'}
+          </h1>
+          <p className="text-sm text-gray-500 mt-1">
+            {isSelesai 
+              ? 'Daftar pengajuan pembatalan faktur pajak keluaran yang sudah selesai.' 
+              : 'Daftar pengajuan pembatalan faktur pajak keluaran yang sedang dalam proses.'}
+          </p>
         </div>
       </div>
 

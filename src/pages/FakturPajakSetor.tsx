@@ -26,7 +26,7 @@ import {
   FileSpreadsheet,
   CheckCircle2,
   Clock,
-  Eye,
+  ExternalLink,
   XCircle,
   ShieldCheck,
   FileText,
@@ -82,7 +82,7 @@ const fakturPajakSetorSchema = z.object({
   email: z.string().email('Format email tidak valid'),
   noSELKamish: z.string().optional(),
   noVirtuSAP: z.string().optional(),
-  status: z.enum(['Sudah Approve', 'Baru', 'Ditolak']).optional(),
+  status: z.enum(['Sudah Approve', 'Baru', 'Ditolak', 'Pending Keuangan']).optional(),
   keterangan: z.string().optional(),
 });
 
@@ -97,7 +97,7 @@ const columnHelper = createColumnHelper<FakturPajakSetor>();
 // MAIN COMPONENT
 // ============================================================
 const FakturPajakSetorPage: React.FC = () => {
-  const { data, isLoading, addFaktur, updateFaktur, deleteFaktur, deleteMultiple, setLoading, approveFaktur, rejectFaktur, bulkApprove } =
+  const { data, isLoading, addFaktur, updateFaktur, deleteFaktur, deleteMultiple, setLoading, approveFaktur, rejectFaktur, pendingFaktur, bulkApprove } =
     useFakturSetorStore();
   const addToast = useToastStore((s) => s.addToast);
   const user = useAuthStore((s) => s.user);
@@ -120,7 +120,7 @@ const FakturPajakSetorPage: React.FC = () => {
 
   // Approval state
   const [isApprovalModalOpen, setIsApprovalModalOpen] = useState(false);
-  const [approvalAction, setApprovalAction] = useState<'approve' | 'reject'>('approve');
+  const [approvalAction, setApprovalAction] = useState<'approve' | 'reject' | 'pending'>('approve');
   const [approvalFaktur, setApprovalFaktur] = useState<FakturPajakSetor | null>(null);
   const [isBulkApproveConfirmOpen, setIsBulkApproveConfirmOpen] = useState(false);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
@@ -143,15 +143,21 @@ const FakturPajakSetorPage: React.FC = () => {
 
   // Stats
   const stats = useMemo(() => {
+    let baseData = data;
+    if (user?.role !== 'keuangan' && user?.role !== 'admin') {
+      baseData = baseData.filter((d) => d.unitKerja === user?.unitKerja);
+    }
+
     const displayData = isTindakLanjutPage 
-      ? data.filter(d => d.status === 'Sudah Approve' || d.status === 'Ditolak') 
-      : data.filter(d => d.status === 'Baru');
+      ? baseData.filter(d => d.status === 'Sudah Approve' || d.status === 'Ditolak') 
+      : baseData.filter(d => d.status === 'Baru' || d.status === 'Pending Keuangan');
     const totalFaktur = displayData.length;
     const sudahApprove = displayData.filter((d) => d.status === 'Sudah Approve').length;
     const baru = displayData.filter((d) => d.status === 'Baru').length;
     const ditolak = displayData.filter((d) => d.status === 'Ditolak').length;
+    const pending = displayData.filter((d) => d.status === 'Pending Keuangan').length;
     const totalDppPpn = displayData.reduce((sum, d) => sum + d.dpp + d.ppn, 0);
-    return { totalFaktur, sudahApprove, baru, ditolak, totalDppPpn };
+    return { totalFaktur, sudahApprove, baru, ditolak, pending, totalDppPpn };
   }, [data, isTindakLanjutPage]);
 
   // Filtered data (column filters + status based on submenu)
@@ -165,7 +171,7 @@ const FakturPajakSetorPage: React.FC = () => {
 
     result = isTindakLanjutPage 
       ? result.filter(d => d.status === 'Sudah Approve' || d.status === 'Ditolak') 
-      : result.filter(d => d.status === 'Baru');
+      : result.filter(d => d.status === 'Baru' || d.status === 'Pending Keuangan');
     
     Object.entries(columnFilters).forEach(([key, value]) => {
       if (!value) return;
@@ -337,7 +343,11 @@ const FakturPajakSetorPage: React.FC = () => {
         header: 'Status',
         cell: (info) => {
           const v = info.getValue();
-          const variant = v === 'Sudah Approve' ? 'success' : v === 'Baru' ? 'warning' : 'danger';
+          let variant: 'success' | 'warning' | 'danger' | 'info' = 'warning';
+          if (v === 'Sudah Approve') variant = 'success';
+          else if (v === 'Ditolak') variant = 'danger';
+          else if (v === 'Pending Keuangan') variant = 'info';
+          
           return <Badge variant={variant}>{v}</Badge>;
         },
         size: 130,
@@ -375,48 +385,12 @@ const FakturPajakSetorPage: React.FC = () => {
         id: 'actions',
         header: 'Aksi',
         cell: ({ row }) => {
-          const isBaru = row.original.status === 'Baru';
+          const faktur = row.original;
           return (
-            <div className="flex items-center gap-1">
-              <button
-                onClick={() => handleDetail(row.original)}
-                className="inline-flex items-center gap-1 px-2 py-1 text-xs font-normal text-gray-600 border border-gray-200 rounded-md hover:bg-gray-50 transition-colors"
-                title="Lihat Detail"
-              >
-                <Eye className="w-3 h-3" />
-              </button>
-              {isKeuangan && isBaru && (
-                <>
-                  <button
-                    onClick={() => handleApprovalClick(row.original, 'approve')}
-                    className="inline-flex items-center gap-1 px-2 py-1 text-xs font-normal text-emerald-600 border border-emerald-200 rounded-md hover:bg-emerald-50 transition-colors"
-                    title="Approve"
-                  >
-                    <CheckCircle2 className="w-3 h-3" />
-                  </button>
-                  <button
-                    onClick={() => handleApprovalClick(row.original, 'reject')}
-                    className="inline-flex items-center gap-1 px-2 py-1 text-xs font-normal text-red-600 border border-red-200 rounded-md hover:bg-red-50 transition-colors"
-                    title="Tolak"
-                  >
-                    <XCircle className="w-3 h-3" />
-                  </button>
-                </>
-              )}
-              <button
-                onClick={() => handleEdit(row.original)}
-                className="inline-flex items-center gap-1 px-2 py-1 text-xs font-normal text-blue-600 border border-blue-200 rounded-md hover:bg-blue-50 transition-colors"
-                title="Edit"
-              >
-                <Edit3 className="w-3 h-3" />
-              </button>
-              <button
-                onClick={() => handleDeleteConfirm(row.original.id)}
-                className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-red-600 border border-red-200 rounded-md hover:bg-red-50 transition-colors"
-                title="Hapus"
-              >
-                <Trash2 className="w-3 h-3" />
-              </button>
+            <div className="flex justify-center">
+              <Button size="sm" variant="outline" onClick={() => handleDetail(faktur)}>
+                Detail
+              </Button>
             </div>
           );
         },
@@ -482,7 +456,7 @@ const FakturPajakSetorPage: React.FC = () => {
     setIsBulkDeleteConfirmOpen(false);
   }, [rowSelection, deleteMultiple, addToast]);
 
-  const handleApprovalClick = useCallback((faktur: FakturPajakSetor, action: 'approve' | 'reject') => {
+  const handleApprovalClick = useCallback((faktur: FakturPajakSetor, action: 'approve' | 'reject' | 'pending') => {
     setApprovalFaktur(faktur);
     setApprovalAction(action);
     setIsApprovalModalOpen(true);
@@ -495,14 +469,17 @@ const FakturPajakSetorPage: React.FC = () => {
     if (approvalAction === 'approve') {
       approveFaktur(approvalFaktur.id, approvedBy);
       addToast(`Faktur ${approvalFaktur.nomorFakturPajak} berhasil di-approve`, 'success');
-    } else {
+    } else if (approvalAction === 'reject') {
       rejectFaktur(approvalFaktur.id, approvedBy, reason || '');
       addToast(`Faktur ${approvalFaktur.nomorFakturPajak} ditolak`, 'warning');
+    } else if (approvalAction === 'pending') {
+      pendingFaktur(approvalFaktur.id, approvedBy, reason || '');
+      addToast(`Faktur ${approvalFaktur.nomorFakturPajak} diset ke Pending`, 'info');
     }
 
     setIsApprovalModalOpen(false);
     setApprovalFaktur(null);
-  }, [approvalFaktur, approvalAction, approveFaktur, rejectFaktur, addToast, user]);
+  }, [approvalFaktur, approvalAction, approveFaktur, rejectFaktur, pendingFaktur, addToast, user]);
 
   const handleBulkApproveConfirm = useCallback(() => {
     const selectedIds = Object.keys(rowSelection).filter((id) => rowSelection[id]);
@@ -782,6 +759,8 @@ const FakturPajakSetorPage: React.FC = () => {
                         ? 'bg-red-50/60 hover:bg-red-50'
                         : row.original.status === 'Sudah Approve'
                         ? 'hover:bg-green-50/40'
+                        : row.original.status === 'Pending Keuangan'
+                        ? 'bg-blue-50/30 hover:bg-blue-50'
                         : 'hover:bg-blue-50/40'
                     )}
                   >
@@ -858,6 +837,20 @@ const FakturPajakSetorPage: React.FC = () => {
           setDetailFaktur(null);
         }}
         faktur={detailFaktur}
+        isKeuangan={!!isKeuangan}
+        onAction={(action) => {
+          if (detailFaktur) {
+            handleApprovalClick(detailFaktur, action);
+          }
+        }}
+        onEdit={(faktur) => {
+          setIsDetailModalOpen(false);
+          handleEdit(faktur);
+        }}
+        onDelete={(id) => {
+          setIsDetailModalOpen(false);
+          handleDeleteConfirm(id);
+        }}
       />
 
       {/* Delete Confirm */}
@@ -1291,7 +1284,7 @@ interface ApprovalModalProps {
   isOpen: boolean;
   onClose: () => void;
   faktur: FakturPajakSetor | null;
-  action: 'approve' | 'reject';
+  action: 'approve' | 'reject' | 'pending';
   onConfirm: (reason?: string) => void;
   userName: string;
 }
@@ -1308,8 +1301,8 @@ const ApprovalModal: React.FC<ApprovalModalProps> = ({ isOpen, onClose, faktur, 
   }, [isOpen]);
 
   const handleConfirm = () => {
-    if (action === 'reject' && !reason.trim()) {
-      setReasonError('Alasan penolakan wajib diisi');
+    if (action !== 'approve' && !reason.trim()) {
+      setReasonError(`Alasan ${action === 'pending' ? 'pending' : 'penolakan'} wajib diisi`);
       return;
     }
     onConfirm(reason);
@@ -1318,30 +1311,40 @@ const ApprovalModal: React.FC<ApprovalModalProps> = ({ isOpen, onClose, faktur, 
   if (!faktur) return null;
 
   const isApprove = action === 'approve';
+  const isPending = action === 'pending';
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={isApprove ? 'Konfirmasi Approve' : 'Konfirmasi Penolakan'} size="md">
+    <Modal 
+      isOpen={isOpen} 
+      onClose={onClose} 
+      title={isApprove ? 'Konfirmasi Approve' : isPending ? 'Konfirmasi Pending' : 'Konfirmasi Penolakan'} 
+      size="md"
+    >
       <div className="space-y-5">
         <div className="flex items-center gap-3">
           <div
             className={cn(
               'flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center',
-              isApprove ? 'bg-emerald-100' : 'bg-red-100'
+              isApprove ? 'bg-emerald-100' : isPending ? 'bg-amber-100' : 'bg-red-100'
             )}
           >
             {isApprove ? (
               <CheckCircle2 className="w-6 h-6 text-emerald-600" />
+            ) : isPending ? (
+              <Clock className="w-6 h-6 text-amber-600" />
             ) : (
               <XCircle className="w-6 h-6 text-red-600" />
             )}
           </div>
           <div>
             <p className="text-sm font-semibold text-gray-900">
-              {isApprove ? 'Approve Faktur Pajak Setor' : 'Tolak Faktur Pajak Setor'}
+              {isApprove ? 'Approve Faktur Pajak Setor' : isPending ? 'Set Pending Faktur Setor' : 'Tolak Faktur Pajak Setor'}
             </p>
             <p className="text-xs text-gray-500">
               {isApprove
                 ? 'Faktur akan disetujui dan statusnya berubah menjadi "Sudah Approve"'
+                : isPending
+                ? 'Faktur akan dikembalikan ke Requester untuk diperbaiki'
                 : 'Faktur akan ditolak dan statusnya berubah menjadi "Ditolak"'}
             </p>
           </div>
@@ -1370,7 +1373,7 @@ const ApprovalModal: React.FC<ApprovalModalProps> = ({ isOpen, onClose, faktur, 
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1.5">
-            {isApprove ? 'Disetujui oleh' : 'Ditolak oleh'}
+            {isApprove ? 'Disetujui oleh' : isPending ? 'Pending oleh' : 'Ditolak oleh'}
           </label>
           <input
             type="text"
@@ -1383,7 +1386,7 @@ const ApprovalModal: React.FC<ApprovalModalProps> = ({ isOpen, onClose, faktur, 
         {!isApprove && (
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1.5">
-              Alasan Penolakan <span className="text-red-500">*</span>
+              Alasan {isPending ? 'Pending' : 'Penolakan'} <span className="text-red-500">*</span>
             </label>
             <textarea
               rows={3}
@@ -1392,7 +1395,7 @@ const ApprovalModal: React.FC<ApprovalModalProps> = ({ isOpen, onClose, faktur, 
                 setReason(e.target.value);
                 if (e.target.value.trim()) setReasonError('');
               }}
-              placeholder="Tuliskan alasan penolakan faktur ini..."
+              placeholder={`Tuliskan alasan ${isPending ? 'pending' : 'penolakan'} faktur ini...`}
               className={cn(
                 'w-full rounded-lg border px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 transition-all resize-none',
                 reasonError
@@ -1416,6 +1419,14 @@ const ApprovalModal: React.FC<ApprovalModalProps> = ({ isOpen, onClose, faktur, 
             >
               Ya, Approve
             </Button>
+          ) : isPending ? (
+            <Button
+              onClick={handleConfirm}
+              className="!bg-amber-600 hover:!bg-amber-700 !text-white"
+              leftIcon={<Clock className="w-4 h-4" />}
+            >
+              Ya, Set Pending
+            </Button>
           ) : (
             <Button variant="danger" onClick={handleConfirm} leftIcon={<XCircle className="w-4 h-4" />}>
               Ya, Tolak
@@ -1434,75 +1445,280 @@ interface DetailModalProps {
   isOpen: boolean;
   onClose: () => void;
   faktur: FakturPajakSetor | null;
+  isKeuangan: boolean;
+  onAction: (action: 'approve' | 'reject' | 'pending') => void;
+  onEdit: (faktur: FakturPajakSetor) => void;
+  onDelete: (id: string) => void;
 }
 
-const DetailModal: React.FC<DetailModalProps> = ({ isOpen, onClose, faktur }) => {
+const DetailModal: React.FC<DetailModalProps> = ({ isOpen, onClose, faktur, isKeuangan, onAction, onEdit, onDelete }) => {
+  const [activeTab, setActiveTab] = useState<'detail' | 'dokumen' | 'riwayat'>('detail');
+
+  useEffect(() => {
+    if (isOpen) setActiveTab('detail');
+  }, [isOpen]);
+
   if (!faktur) return null;
 
-  const statusVariant = faktur.status === 'Sudah Approve' ? 'success' : faktur.status === 'Baru' ? 'warning' : 'danger';
+  const isBaru = faktur.status === 'Baru';
+  const isPending = faktur.status === 'Pending Keuangan';
+  const canEdit = isKeuangan || isPending;
+  const hasDokumen = faktur.dokumen && faktur.dokumen.length > 0;
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Detail Faktur Pajak Setor" size="lg">
       <div className="space-y-5">
-        <div
-          className={cn(
-            'flex items-center gap-3 p-4 rounded-lg border',
-            faktur.status === 'Sudah Approve' && 'bg-emerald-50 border-emerald-200',
-            faktur.status === 'Baru' && 'bg-amber-50 border-amber-200',
-            faktur.status === 'Ditolak' && 'bg-red-50 border-red-200'
-          )}
-        >
-          {faktur.status === 'Sudah Approve' && <CheckCircle2 className="w-5 h-5 text-emerald-600" />}
-          {faktur.status === 'Baru' && <Clock className="w-5 h-5 text-amber-600" />}
-          {faktur.status === 'Ditolak' && <XCircle className="w-5 h-5 text-red-600" />}
-          <div>
-            <p className="text-sm font-semibold">
-              Status: <Badge variant={statusVariant}>{faktur.status}</Badge>
-            </p>
-            {faktur.approvedBy && (
-              <p className="text-xs text-gray-600 mt-0.5">
-                {faktur.status === 'Sudah Approve' ? 'Disetujui' : 'Ditolak'} oleh: <strong>{faktur.approvedBy}</strong>
-                {faktur.tanggalApprove && ` pada ${faktur.tanggalApprove}`}
-              </p>
+        {/* Tabs */}
+        <div className="flex space-x-1 border-b mb-4">
+          <button
+            className={cn(
+              'px-4 py-2 text-sm font-medium border-b-2 transition-colors',
+              activeTab === 'detail' ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             )}
-          </div>
+            onClick={() => setActiveTab('detail')}
+          >
+            Detail Data
+          </button>
+          <button
+            className={cn(
+              'px-4 py-2 text-sm font-medium border-b-2 transition-colors flex items-center gap-2',
+              activeTab === 'dokumen' ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            )}
+            onClick={() => setActiveTab('dokumen')}
+          >
+            Dokumen <span className="text-xs bg-gray-100 px-1.5 py-0.5 rounded-full">{faktur.dokumen?.length || 0}</span>
+          </button>
+          <button
+            className={cn(
+              'px-4 py-2 text-sm font-medium border-b-2 transition-colors',
+              activeTab === 'riwayat' ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            )}
+            onClick={() => setActiveTab('riwayat')}
+          >
+            Riwayat Approval
+          </button>
         </div>
 
-        {faktur.status === 'Ditolak' && faktur.rejectionReason && (
-          <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-xs font-semibold text-red-700 mb-1">Alasan Penolakan:</p>
-            <p className="text-sm text-red-800">{faktur.rejectionReason}</p>
-          </div>
-        )}
+        <div className="min-h-[300px]">
+          {activeTab === 'detail' && (
+            <div className="space-y-5">
+              <div
+                className={cn(
+                  'flex items-center gap-3 p-4 rounded-lg border',
+                  faktur.status === 'Sudah Approve' && 'bg-emerald-50 border-emerald-200',
+                  faktur.status === 'Baru' && 'bg-amber-50 border-amber-200',
+                  faktur.status === 'Ditolak' && 'bg-red-50 border-red-200',
+                  faktur.status === 'Pending Keuangan' && 'bg-blue-50 border-blue-200'
+                )}
+              >
+                {faktur.status === 'Sudah Approve' && <CheckCircle2 className="w-5 h-5 text-emerald-600" />}
+                {faktur.status === 'Baru' && <Clock className="w-5 h-5 text-amber-600" />}
+                {faktur.status === 'Ditolak' && <XCircle className="w-5 h-5 text-red-600" />}
+                {faktur.status === 'Pending Keuangan' && <Clock className="w-5 h-5 text-blue-600" />}
+                <div>
+                  <p className="text-sm font-semibold">
+                    Status: <Badge variant={
+                      faktur.status === 'Sudah Approve' ? 'success' : 
+                      faktur.status === 'Baru' ? 'warning' : 
+                      faktur.status === 'Ditolak' ? 'danger' : 'info'
+                    }>{faktur.status}</Badge>
+                  </p>
+                  {faktur.approvedBy && (
+                    <p className="text-xs text-gray-600 mt-0.5">
+                      {faktur.status === 'Sudah Approve' ? 'Disetujui' : 'Ditolak'} oleh: <strong>{faktur.approvedBy}</strong>
+                      {faktur.tanggalApprove && ` pada ${faktur.tanggalApprove}`}
+                    </p>
+                  )}
+                </div>
+              </div>
 
-        <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-            <DetailField label="Tipe FA" value={faktur.tipeFA} bold />
-            <DetailField label="No Faktur Pajak" value={faktur.nomorFakturPajak} mono />
-            <DetailField label="Tanggal Penyampaian" value={faktur.tanggalPenyampaian} />
-            <DetailField label="Tanggal Faktur" value={faktur.tanggalFaktur} />
-            <div className="md:col-span-2">
-              <DetailField label="Alamat" value={faktur.alamat} />
+              {/* Rejection/Pending Reason */}
+              {(faktur.status === 'Ditolak' || faktur.status === 'Pending Keuangan') && faktur.rejectionReason && (
+                <div className={cn(
+                  'p-3 border rounded-lg',
+                  faktur.status === 'Ditolak' ? 'bg-red-50 border-red-200' : 'bg-blue-50 border-blue-200'
+                )}>
+                  <p className={cn(
+                    'text-xs font-semibold mb-1',
+                    faktur.status === 'Ditolak' ? 'text-red-700' : 'text-blue-700'
+                  )}>
+                    Alasan {faktur.status === 'Ditolak' ? 'Penolakan' : 'Pending'}:
+                  </p>
+                  <p className={cn(
+                    'text-sm',
+                    faktur.status === 'Ditolak' ? 'text-red-800' : 'text-blue-800'
+                  )}>{faktur.rejectionReason}</p>
+                </div>
+              )}
+
+              <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <DetailField label="Tipe FA" value={faktur.tipeFA} bold />
+                  <DetailField label="No Faktur Pajak" value={faktur.nomorFakturPajak} mono />
+                  <DetailField label="Tanggal Penyampaian" value={faktur.tanggalPenyampaian} />
+                  <DetailField label="Tanggal Faktur" value={faktur.tanggalFaktur} />
+                  <div className="md:col-span-2">
+                    <DetailField label="Alamat" value={faktur.alamat} />
+                  </div>
+                  <DetailField label="DPP" value={formatCurrency(faktur.dpp)} bold />
+                  <DetailField label="PPN" value={formatCurrency(faktur.ppn)} bold />
+                  <DetailField label="No Akun Perkiraan Biaya" value={faktur.noAkunPerkiraanBiaya || '-'} />
+                  <DetailField label="No BP" value={faktur.noBP || '-'} />
+                  <DetailField label="Badge (Nama)" value={`${faktur.badge} (${faktur.nama})`} />
+                  <DetailField label="Unit Kerja" value={faktur.unitKerja} />
+                  <DetailField label="Kontak" value={`${faktur.email} / ${faktur.noWhatsapp}`} />
+                  <DetailField label="No Ext Kantor" value={faktur.noExtKantor || '-'} />
+                  <DetailField label="No SEL Kamish" value={faktur.noSELKamish || '-'} />
+                  <DetailField label="No Virtu SAP" value={faktur.noVirtuSAP || '-'} />
+                </div>
+              </div>
             </div>
-            <DetailField label="DPP" value={formatCurrency(faktur.dpp)} bold />
-            <DetailField label="PPN" value={formatCurrency(faktur.ppn)} bold />
-            <DetailField label="No Akun Perkiraan Biaya" value={faktur.noAkunPerkiraanBiaya || '-'} />
-            <DetailField label="No BP" value={faktur.noBP || '-'} />
-            <DetailField label="Badge (Nama)" value={`${faktur.badge} (${faktur.nama})`} />
-            <DetailField label="Unit Kerja" value={faktur.unitKerja} />
-            <DetailField label="Kontak" value={`${faktur.email} / ${faktur.noWhatsapp}`} />
-            <DetailField label="No Ext Kantor" value={faktur.noExtKantor || '-'} />
-            <DetailField label="No SEL Kamish" value={faktur.noSELKamish || '-'} />
-            <DetailField label="No Virtu SAP" value={faktur.noVirtuSAP || '-'} />
-          </div>
-        </div>
+          )}
 
-        <div className="flex justify-end pt-2 border-t border-gray-100">
-          <Button variant="outline" onClick={onClose}>
-            Tutup
-          </Button>
+          {activeTab === 'dokumen' && (
+            <div className="space-y-3">
+              {!hasDokumen ? (
+                <div className="text-center py-12 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
+                  <FileText className="w-10 h-10 text-gray-300 mx-auto mb-3" />
+                  <p className="text-sm text-gray-500">Tidak ada dokumen pendukung</p>
+                </div>
+              ) : (
+                faktur.dokumen?.map((doc) => (
+                  <div key={doc.id} className="flex items-center justify-between p-3 border rounded-xl hover:border-primary/50 transition-colors bg-white">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-red-50 text-red-500 rounded-lg">
+                        <FileText className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-900">{doc.namaFile}</p>
+                        <p className="text-xs text-gray-500">{(doc.ukuran / 1024 / 1024).toFixed(2)} MB • {doc.uploadedAt}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <a
+                        href={doc.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-1.5 text-gray-500 hover:text-blue-600 bg-gray-50 hover:bg-blue-50 rounded-md transition-colors"
+                        title="Lihat"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                      </a>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
+
+          {activeTab === 'riwayat' && (
+            <div className="space-y-4">
+              {!faktur.approvedBy && !faktur.rejectionReason ? (
+                <div className="text-center py-12 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
+                  <Clock className="w-10 h-10 text-gray-300 mx-auto mb-3" />
+                  <p className="text-sm text-gray-500">Belum ada riwayat approval</p>
+                </div>
+              ) : (
+                <div className="relative pl-8 before:content-[''] before:absolute before:left-3 before:top-2 before:bottom-2 before:w-0.5 before:bg-gray-200">
+                  {faktur.approvedBy && (
+                    <div className="relative mb-6 last:mb-0">
+                      <div className={cn(
+                        "absolute -left-8 w-6 h-6 rounded-full border-2 border-white flex items-center justify-center",
+                        faktur.status === 'Sudah Approve' ? "bg-emerald-500" : "bg-red-500"
+                      )}>
+                        {faktur.status === 'Sudah Approve' ? <CheckCircle2 className="w-3 h-3 text-white" /> : <XCircle className="w-3 h-3 text-white" />}
+                      </div>
+                      <div className="bg-white p-3 rounded-lg border shadow-sm">
+                        <p className="text-sm font-semibold text-gray-900">
+                          {faktur.status === 'Sudah Approve' ? 'Disetujui' : 'Ditolak'} oleh Keuangan
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          Oleh: <strong>{faktur.approvedBy}</strong> {faktur.tanggalApprove && ` pada ${faktur.tanggalApprove}`}
+                        </p>
+                        {faktur.rejectionReason && (
+                          <div className={cn(
+                            "mt-2 p-2 rounded text-xs",
+                            faktur.status === 'Ditolak' ? "bg-red-50 text-red-700" : "bg-blue-50 text-blue-700"
+                          )}>
+                            <strong>Catatan:</strong> {faktur.rejectionReason}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  <div className="relative">
+                    <div className="absolute -left-8 w-6 h-6 rounded-full bg-blue-500 border-2 border-white flex items-center justify-center">
+                      <FileText className="w-3 h-3 text-white" />
+                    </div>
+                    <div className="bg-white p-3 rounded-lg border shadow-sm">
+                      <p className="text-sm font-semibold text-gray-900">Pengajuan Berhasil Dikirim</p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Oleh: <strong>{faktur.nama} ({faktur.badge})</strong> pada {faktur.tanggalPenyampaian}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
+
+        <div className="flex justify-end gap-2 pt-2 border-t border-gray-100">
+          {isKeuangan && (
+            <Button
+              variant="danger"
+              size="sm"
+              onClick={() => onDelete(faktur.id)}
+              leftIcon={<Trash2 className="w-4 h-4" />}
+            >
+              Hapus
+            </Button>
+          )}
+          {canEdit && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onEdit(faktur)}
+              className="!text-blue-600 !border-blue-200 hover:!bg-blue-50"
+              leftIcon={<Edit3 className="w-4 h-4" />}
+            >
+              Edit
+            </Button>
+          )}
+          <div className="flex-1" />
+          <Button variant="outline" size="sm" onClick={onClose}>
+            Tutup
+          </Button>
+          {isKeuangan && isBaru && (
+            <>
+              <Button
+                onClick={() => onAction('approve')}
+                className="!bg-emerald-600 hover:!bg-emerald-700 !text-white"
+                leftIcon={<CheckCircle2 className="w-4 h-4" />}
+                size="sm"
+              >
+                Approve
+              </Button>
+              <Button
+                onClick={() => onAction('reject')}
+                variant="danger"
+                leftIcon={<XCircle className="w-4 h-4" />}
+                size="sm"
+              >
+                Tolak
+              </Button>
+              <Button
+                onClick={() => onAction('pending')}
+                className="!bg-amber-500 hover:!bg-amber-600 !text-white"
+                leftIcon={<Clock className="w-4 h-4" />}
+                size="sm"
+              >
+                Pending
+              </Button>
+            </>
+          )}
+        </div>
     </Modal>
   );
 };

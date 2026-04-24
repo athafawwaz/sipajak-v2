@@ -13,9 +13,16 @@ Enum status_aktif {
 }
 
 Enum status_approval { 
-  "Pending" 
-  "Sudah Approve" 
-  "Ditolak" 
+  "Draft"
+  "Baru"
+  "Menunggu Assign VP"
+  "Menunggu Approval VP"
+  "Menunggu Approval Keuangan"
+  "Pending Keuangan"
+  "Sudah Approve"
+  "Ditolak"
+  "Pembatalan Disetujui"
+  "Pembatalan Ditolak"
   "Dalam Proses Pembatalan"
   "Dibatalkan"
   "Revisi"
@@ -114,7 +121,7 @@ Table faktur_pajak {
   
   nilai_dpp decimal(18,2) [null]
   nilai_ppn decimal(18,2)
-  status status_approval [default: 'Pending']
+  status status_approval [default: 'Baru']
   keterangan text [null]
   
   // Logging dan Approval
@@ -162,7 +169,7 @@ Table faktur_pajak_setor {
   no_sel_kamish varchar [null]
   no_virtu_sap varchar [null]
 
-  status status_approval [default: 'Pending']
+  status status_approval [default: 'Baru']
   keterangan text [null]
   
   // Logging

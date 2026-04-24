@@ -83,7 +83,8 @@ const App: React.FC = () => {
 
           <Route path="/pph-keluaran/penerbitan-faktur/:jenis" element={<Navigate to="baru" relative="path" replace />} />
           <Route path="/pph-keluaran/penerbitan-faktur/:jenis/:kategori" element={<PenerbitanFakturKeluaranPage />} />
-          <Route path="/pph-keluaran/pembatalan-faktur-pajak" element={<PembatalanFakturPajakPage />} />
+          <Route path="/pph-keluaran/pembatalan-faktur-pajak" element={<Navigate to="/pph-keluaran/pembatalan-faktur-pajak/proses" replace />} />
+          <Route path="/pph-keluaran/pembatalan-faktur-pajak/:mode" element={<PembatalanFakturPajakPage />} />
           <Route path="/kalkulator/pph-21" element={<KalkulatorPPH21 />} />
           <Route path="/pengaturan/edit-profil" element={<EditProfil />} />
           <Route path="/pengaturan/master-unit-kerja" element={<MasterUnitKerja />} />

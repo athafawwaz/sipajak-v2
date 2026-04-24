@@ -26,17 +26,17 @@ const namaList = [
 ];
 
 const generateDummyData = (): FakturPajakSetor[] => {
-  const statuses: FakturPajakSetor['status'][] = ['Sudah Approve', 'Baru', 'Ditolak'];
+  const statuses: FakturPajakSetor['status'][] = ['Sudah Approve', 'Baru', 'Ditolak', 'Pending Keuangan'];
   const now = new Date().toISOString();
 
-  return Array.from({ length: 20 }, (_, i) => {
-    const status = statuses[i < 8 ? 0 : i < 15 ? 1 : 2];
+  const badges = ['6121509', '1100222', '1100333', '1100444', '1100555'];
+
+  return Array.from({ length: 240 }, (_, i) => {
+    const status = statuses[Math.floor(Math.random() * statuses.length)];
     const day = String(Math.floor(Math.random() * 28) + 1).padStart(2, '0');
     const month = String(Math.floor(Math.random() * 12) + 1).padStart(2, '0');
     const dpp = Math.floor(Math.random() * 900000000) + 10000000;
     const ppn = Math.round(dpp * 0.11);
-    const badgeNum = [1100, 2114, 2301, 1400, 1800, 2200][Math.floor(Math.random() * 6)];
-    const badge = `${badgeNum}${String(Math.floor(Math.random() * 900) + 100)}`;
     const namaIdx = i % namaList.length;
 
     return {
@@ -53,17 +53,26 @@ const generateDummyData = (): FakturPajakSetor[] => {
       ppn,
       noAkunPerkiraanBiaya: `6${String(Math.floor(Math.random() * 9000) + 1000)}.${String(Math.floor(Math.random() * 90) + 10)}`,
       noBP: `BP-${String(2024000 + i + 1)}`,
-      badge,
+      badge: badges[i % badges.length],
       nama: namaList[namaIdx],
       unitKerja: unitKerjas[i % unitKerjas.length],
       noExtKantor: `${Math.floor(Math.random() * 9000) + 1000}`,
       noWhatsapp: `0812${String(Math.floor(Math.random() * 90000000) + 10000000)}`,
-      email: `${namaList[namaIdx].toLowerCase().replace(/\s/g, '.')}@example.com`,
+      email: `${namaList[namaIdx].toLowerCase().replace(/\s/g, '.')}@pusri.co.id`,
       noSELKamish: i % 3 === 0 ? `SEL-${String(Math.floor(Math.random() * 9000) + 1000)}/KMS/${2024}` : undefined,
       noVirtuSAP: i % 4 === 0 ? `SAP-${String(Math.floor(Math.random() * 9000000) + 1000000)}` : undefined,
       status,
-      keterangan: status === 'Ditolak' ? 'Dokumen tidak lengkap' : '',
+      rejectionReason: status === 'Ditolak' ? 'Dokumen tidak lengkap' : status === 'Pending Keuangan' ? 'Silakan cek kembali nilai PPN yang diinput' : '',
       tanggalApprove: status === 'Sudah Approve' ? `${day}/${month}/2024` : undefined,
+      dokumen: [
+        {
+          id: `doc-1-${i}`,
+          namaFile: `FakturPajak_${i + 1}.pdf`,
+          ukuran: 1024 * 1024 * 1.2,
+          url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+          uploadedAt: `${day}/${month}/2024 10:00`,
+        }
+      ],
       createdAt: now,
       updatedAt: now,
     };
@@ -81,6 +90,7 @@ interface FakturSetorStore {
   setLoading: (loading: boolean) => void;
   approveFaktur: (id: string, approvedBy: string) => void;
   rejectFaktur: (id: string, approvedBy: string, reason: string) => void;
+  pendingFaktur: (id: string, approvedBy: string, reason: string) => void;
   bulkApprove: (ids: string[], approvedBy: string) => void;
 }
 
@@ -179,6 +189,16 @@ export const useFakturSetorStore = create<FakturSetorStore>((set, get) => ({
       data: get().data.map((item) =>
         item.id === id
           ? { ...item, status: 'Ditolak' as const, approvedBy, rejectionReason: reason, tanggalApprove: '' }
+          : item
+      ),
+    });
+  },
+
+  pendingFaktur: (id, approvedBy, reason) => {
+    set({
+      data: get().data.map((item) =>
+        item.id === id
+          ? { ...item, status: 'Pending Keuangan' as const, approvedBy, rejectionReason: reason, tanggalApprove: '' }
           : item
       ),
     });

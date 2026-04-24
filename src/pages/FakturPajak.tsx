@@ -31,7 +31,7 @@ import {
   XCircle,
   CheckCircle2,
   ShieldCheck,
-  Eye,
+  ExternalLink,
 } from 'lucide-react';
 
 import Button from '../components/ui/Button';
@@ -90,6 +90,7 @@ const FakturPajakPage: React.FC = () => {
     setLoading,
     approveFaktur,
     rejectFaktur,
+    pendingFaktur,
     bulkApprove,
   } = useFakturStore();
   const addToast = useToastStore((s) => s.addToast);
@@ -117,7 +118,7 @@ const FakturPajakPage: React.FC = () => {
 
   // Approval state
   const [isApprovalModalOpen, setIsApprovalModalOpen] = useState(false);
-  const [approvalAction, setApprovalAction] = useState<'approve' | 'reject'>('approve');
+  const [approvalAction, setApprovalAction] = useState<'approve' | 'reject' | 'pending'>('approve');
   const [approvalFaktur, setApprovalFaktur] = useState<FakturPajak | null>(null);
   const [isBulkApproveConfirmOpen, setIsBulkApproveConfirmOpen] = useState(false);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
@@ -136,8 +137,8 @@ const FakturPajakPage: React.FC = () => {
       // "Tindak Lanjut" shows Approved and Rejected
       return result.filter((d) => d.status === 'Sudah Approve' || d.status === 'Ditolak');
     }
-    // "Baru" only shows Pending
-    return result.filter((d) => d.status === 'Baru');
+    // "Baru" shows Baru and Pending Keuangan
+    return result.filter((d) => d.status === 'Baru' || d.status === 'Pending Keuangan');
   }, [data, isTindakLanjutPage, user]);
 
   // Debounced search
@@ -166,7 +167,11 @@ const FakturPajakPage: React.FC = () => {
 
   // --- Status badge ---
   const StatusBadge = useCallback(({ status }: { status: FakturPajak['status'] }) => {
-    const variant = status === 'Sudah Approve' ? 'success' : status === 'Baru' ? 'warning' : 'danger';
+    let variant: 'success' | 'warning' | 'danger' | 'info' = 'warning';
+    if (status === 'Sudah Approve') variant = 'success';
+    else if (status === 'Ditolak') variant = 'danger';
+    else if (status === 'Pending Keuangan') variant = 'info';
+    
     return <Badge variant={variant}>{status}</Badge>;
   }, []);
 
@@ -277,11 +282,6 @@ const FakturPajakPage: React.FC = () => {
         cell: (info) => <StatusBadge status={info.getValue()} />,
         size: 130,
       }),
-      columnHelper.accessor('keterangan', {
-        header: 'Keterangan',
-        cell: (info) => <span className="text-gray-500 text-xs">{info.getValue() || '-'}</span>,
-        size: 150,
-      }),
       ...(isTindakLanjutPage
         ? [
             columnHelper.accessor('tanggalApprove', {
@@ -314,57 +314,12 @@ const FakturPajakPage: React.FC = () => {
         header: 'Aksi',
         cell: ({ row }) => {
           const faktur = row.original;
-          const isBaru = faktur.status === 'Baru';
+
           return (
-            <div className="flex items-center gap-1">
-              {/* Detail button */}
-              <button
-                onClick={() => handleDetail(faktur)}
-                className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-gray-600 border border-gray-200 rounded-md hover:bg-gray-50 transition-colors"
-                title="Lihat Detail"
-              >
-                <Eye className="w-3 h-3" />
-              </button>
-
-              {/* Approve button — only for Baru and Keuangan */}
-              {isKeuangan && isBaru && (
-                <button
-                  onClick={() => handleApprovalClick(faktur, 'approve')}
-                  className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-emerald-600 border border-emerald-200 rounded-md hover:bg-emerald-50 transition-colors"
-                  title="Approve"
-                >
-                  <CheckCircle2 className="w-3 h-3" />
-                </button>
-              )}
-
-              {/* Reject button — only for Baru and Keuangan */}
-              {isKeuangan && isBaru && (
-                <button
-                  onClick={() => handleApprovalClick(faktur, 'reject')}
-                  className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-red-600 border border-red-200 rounded-md hover:bg-red-50 transition-colors"
-                  title="Tolak"
-                >
-                  <XCircle className="w-3 h-3" />
-                </button>
-              )}
-
-              {/* Edit button */}
-              <button
-                onClick={() => handleEdit(faktur)}
-                className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-blue-600 border border-blue-200 rounded-md hover:bg-blue-50 transition-colors"
-                title="Edit"
-              >
-                <Edit3 className="w-3 h-3" />
-              </button>
-
-              {/* Delete button */}
-              <button
-                onClick={() => handleDeleteConfirm(faktur.id)}
-                className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-red-600 border border-red-200 rounded-md hover:bg-red-50 transition-colors"
-                title="Hapus"
-              >
-                <Trash2 className="w-3 h-3" />
-              </button>
+            <div className="flex justify-center">
+              <Button size="sm" variant="outline" onClick={() => handleDetail(faktur)}>
+                Detail
+              </Button>
             </div>
           );
         },
@@ -468,7 +423,7 @@ const FakturPajakPage: React.FC = () => {
   }, [importPreviewData, importData, addToast]);
 
   // --- Approval handlers ---
-  const handleApprovalClick = useCallback((faktur: FakturPajak, action: 'approve' | 'reject') => {
+  const handleApprovalClick = useCallback((faktur: FakturPajak, action: 'approve' | 'reject' | 'pending') => {
     setApprovalFaktur(faktur);
     setApprovalAction(action);
     setIsApprovalModalOpen(true);
@@ -482,15 +437,18 @@ const FakturPajakPage: React.FC = () => {
       if (approvalAction === 'approve') {
         approveFaktur(approvalFaktur.id, approvedBy);
         addToast(`Faktur ${approvalFaktur.nomorFakturPajak} berhasil di-approve`, 'success');
-      } else {
+      } else if (approvalAction === 'reject') {
         rejectFaktur(approvalFaktur.id, approvedBy, reason || '');
         addToast(`Faktur ${approvalFaktur.nomorFakturPajak} ditolak`, 'warning');
+      } else if (approvalAction === 'pending') {
+        pendingFaktur(approvalFaktur.id, approvedBy, reason || '');
+        addToast(`Faktur ${approvalFaktur.nomorFakturPajak} diset ke Pending`, 'info');
       }
 
       setIsApprovalModalOpen(false);
       setApprovalFaktur(null);
     },
-    [approvalFaktur, approvalAction, approveFaktur, rejectFaktur, addToast, user]
+    [approvalFaktur, approvalAction, approveFaktur, rejectFaktur, pendingFaktur, addToast, user]
   );
 
   const handleBulkApproveConfirm = useCallback(() => {
@@ -526,6 +484,8 @@ const FakturPajakPage: React.FC = () => {
         return 'bg-amber-50/30';
       case 'Ditolak':
         return 'bg-red-50/30';
+      case 'Pending Keuangan':
+        return 'bg-blue-50/30';
       default:
         return '';
     }
@@ -813,6 +773,20 @@ const FakturPajakPage: React.FC = () => {
           setDetailFaktur(null);
         }}
         faktur={detailFaktur}
+        isKeuangan={!!isKeuangan}
+        onAction={(action) => {
+          if (detailFaktur) {
+            handleApprovalClick(detailFaktur, action);
+          }
+        }}
+        onEdit={(faktur) => {
+          setIsDetailModalOpen(false);
+          handleEdit(faktur);
+        }}
+        onDelete={(id) => {
+          setIsDetailModalOpen(false);
+          handleDeleteConfirm(id);
+        }}
       />
 
       {/* --- Delete Confirm --- */}
@@ -1259,7 +1233,7 @@ interface ApprovalModalProps {
   isOpen: boolean;
   onClose: () => void;
   faktur: FakturPajak | null;
-  action: 'approve' | 'reject';
+  action: 'approve' | 'reject' | 'pending';
   onConfirm: (reason?: string) => void;
   userName: string;
 }
@@ -1286,31 +1260,41 @@ const ApprovalModal: React.FC<ApprovalModalProps> = ({ isOpen, onClose, faktur, 
   if (!faktur) return null;
 
   const isApprove = action === 'approve';
+  const isPending = action === 'pending';
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={isApprove ? 'Konfirmasi Approve' : 'Konfirmasi Penolakan'} size="md">
+    <Modal 
+      isOpen={isOpen} 
+      onClose={onClose} 
+      title={isApprove ? 'Konfirmasi Approve' : isPending ? 'Konfirmasi Pending' : 'Konfirmasi Penolakan'} 
+      size="md"
+    >
       <div className="space-y-5">
         {/* Header Icon */}
         <div className="flex items-center gap-3">
           <div
             className={cn(
               'flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center',
-              isApprove ? 'bg-emerald-100' : 'bg-red-100'
+              isApprove ? 'bg-emerald-100' : isPending ? 'bg-amber-100' : 'bg-red-100'
             )}
           >
             {isApprove ? (
               <CheckCircle2 className="w-6 h-6 text-emerald-600" />
+            ) : isPending ? (
+              <Clock className="w-6 h-6 text-amber-600" />
             ) : (
               <XCircle className="w-6 h-6 text-red-600" />
             )}
           </div>
           <div>
             <p className="text-sm font-semibold text-gray-900">
-              {isApprove ? 'Approve Faktur Pajak' : 'Tolak Faktur Pajak'}
+              {isApprove ? 'Approve Faktur Pajak' : isPending ? 'Set Pending Faktur' : 'Tolak Faktur Pajak'}
             </p>
             <p className="text-xs text-gray-500">
               {isApprove
                 ? 'Faktur akan disetujui dan statusnya berubah menjadi "Sudah Approve"'
+                : isPending
+                ? 'Faktur akan dikembalikan ke Requester untuk diperbaiki'
                 : 'Faktur akan ditolak dan statusnya berubah menjadi "Ditolak"'}
             </p>
           </div>
@@ -1367,11 +1351,11 @@ const ApprovalModal: React.FC<ApprovalModalProps> = ({ isOpen, onClose, faktur, 
           />
         </div>
 
-        {/* Rejection Reason — only for reject */}
+        {/* Rejection/Pending Reason — only for reject or pending */}
         {!isApprove && (
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1.5">
-              Alasan Penolakan <span className="text-red-500">*</span>
+              Alasan {isPending ? 'Pending' : 'Penolakan'} <span className="text-red-500">*</span>
             </label>
             <textarea
               rows={3}
@@ -1380,7 +1364,7 @@ const ApprovalModal: React.FC<ApprovalModalProps> = ({ isOpen, onClose, faktur, 
                 setReason(e.target.value);
                 if (e.target.value.trim()) setReasonError('');
               }}
-              placeholder="Tuliskan alasan penolakan faktur ini..."
+              placeholder={`Tuliskan alasan ${isPending ? 'pending' : 'penolakan'} faktur ini...`}
               className={cn(
                 'w-full rounded-lg border px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 transition-all resize-none',
                 reasonError
@@ -1405,6 +1389,14 @@ const ApprovalModal: React.FC<ApprovalModalProps> = ({ isOpen, onClose, faktur, 
             >
               Ya, Approve
             </Button>
+          ) : isPending ? (
+            <Button
+              onClick={handleConfirm}
+              className="!bg-amber-600 hover:!bg-amber-700 !text-white"
+              leftIcon={<Clock className="w-4 h-4" />}
+            >
+              Ya, Set Pending
+            </Button>
           ) : (
             <Button variant="danger" onClick={handleConfirm} leftIcon={<XCircle className="w-4 h-4" />}>
               Ya, Tolak
@@ -1423,31 +1415,84 @@ interface DetailModalProps {
   isOpen: boolean;
   onClose: () => void;
   faktur: FakturPajak | null;
+  isKeuangan: boolean;
+  onAction: (action: 'approve' | 'reject' | 'pending') => void;
+  onEdit: (faktur: FakturPajak) => void;
+  onDelete: (id: string) => void;
 }
 
-const DetailModal: React.FC<DetailModalProps> = ({ isOpen, onClose, faktur }) => {
+const DetailModal: React.FC<DetailModalProps> = ({ isOpen, onClose, faktur, isKeuangan, onAction, onEdit, onDelete }) => {
+  const [activeTab, setActiveTab] = useState<'detail' | 'dokumen' | 'riwayat'>('detail');
+
+  useEffect(() => {
+    if (isOpen) setActiveTab('detail');
+  }, [isOpen]);
+
   if (!faktur) return null;
 
-  const statusVariant = faktur.status === 'Sudah Approve' ? 'success' : faktur.status === 'Baru' ? 'warning' : 'danger';
+  const isBaru = faktur.status === 'Baru';
+  const isPending = faktur.status === 'Pending Keuangan';
+  const canEdit = isKeuangan || isPending;
+  const hasDokumen = faktur.dokumen && faktur.dokumen.length > 0;
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Detail Faktur Pajak" size="lg">
       <div className="space-y-5">
+        {/* Tabs */}
+        <div className="flex space-x-1 border-b mb-4">
+          <button
+            className={cn(
+              'px-4 py-2 text-sm font-medium border-b-2 transition-colors',
+              activeTab === 'detail' ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            )}
+            onClick={() => setActiveTab('detail')}
+          >
+            Detail Data
+          </button>
+          <button
+            className={cn(
+              'px-4 py-2 text-sm font-medium border-b-2 transition-colors flex items-center gap-2',
+              activeTab === 'dokumen' ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            )}
+            onClick={() => setActiveTab('dokumen')}
+          >
+            Dokumen <span className="text-xs bg-gray-100 px-1.5 py-0.5 rounded-full">{faktur.dokumen?.length || 0}</span>
+          </button>
+          <button
+            className={cn(
+              'px-4 py-2 text-sm font-medium border-b-2 transition-colors',
+              activeTab === 'riwayat' ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            )}
+            onClick={() => setActiveTab('riwayat')}
+          >
+            Riwayat Approval
+          </button>
+        </div>
+
+        <div className="min-h-[300px]">
+          {activeTab === 'detail' && (
+            <div className="space-y-5">
         {/* Status Banner */}
         <div
           className={cn(
             'flex items-center gap-3 p-4 rounded-lg border',
             faktur.status === 'Sudah Approve' && 'bg-emerald-50 border-emerald-200',
             faktur.status === 'Baru' && 'bg-amber-50 border-amber-200',
-            faktur.status === 'Ditolak' && 'bg-red-50 border-red-200'
+            faktur.status === 'Ditolak' && 'bg-red-50 border-red-200',
+            faktur.status === 'Pending Keuangan' && 'bg-blue-50 border-blue-200'
           )}
         >
           {faktur.status === 'Sudah Approve' && <CheckCircle className="w-5 h-5 text-emerald-600" />}
           {faktur.status === 'Baru' && <Clock className="w-5 h-5 text-amber-600" />}
           {faktur.status === 'Ditolak' && <XCircle className="w-5 h-5 text-red-600" />}
+          {faktur.status === 'Pending Keuangan' && <Clock className="w-5 h-5 text-blue-600" />}
           <div>
             <p className="text-sm font-semibold">
-              Status: <Badge variant={statusVariant}>{faktur.status}</Badge>
+              Status: <Badge variant={
+                faktur.status === 'Sudah Approve' ? 'success' : 
+                faktur.status === 'Baru' ? 'warning' : 
+                faktur.status === 'Ditolak' ? 'danger' : 'info'
+              }>{faktur.status}</Badge>
             </p>
             {faktur.approvedBy && (
               <p className="text-xs text-gray-600 mt-0.5">
@@ -1458,11 +1503,22 @@ const DetailModal: React.FC<DetailModalProps> = ({ isOpen, onClose, faktur }) =>
           </div>
         </div>
 
-        {/* Rejection Reason */}
-        {faktur.status === 'Ditolak' && faktur.rejectionReason && (
-          <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-xs font-semibold text-red-700 mb-1">Alasan Penolakan:</p>
-            <p className="text-sm text-red-800">{faktur.rejectionReason}</p>
+        {/* Rejection/Pending Reason */}
+        {(faktur.status === 'Ditolak' || faktur.status === 'Pending Keuangan') && faktur.rejectionReason && (
+          <div className={cn(
+            'p-3 border rounded-lg',
+            faktur.status === 'Ditolak' ? 'bg-red-50 border-red-200' : 'bg-blue-50 border-blue-200'
+          )}>
+            <p className={cn(
+              'text-xs font-semibold mb-1',
+              faktur.status === 'Ditolak' ? 'text-red-700' : 'text-blue-700'
+            )}>
+              Alasan {faktur.status === 'Ditolak' ? 'Penolakan' : 'Pending'}:
+            </p>
+            <p className={cn(
+              'text-sm',
+              faktur.status === 'Ditolak' ? 'text-red-800' : 'text-blue-800'
+            )}>{faktur.rejectionReason}</p>
           </div>
         )}
 
@@ -1488,13 +1544,153 @@ const DetailModal: React.FC<DetailModalProps> = ({ isOpen, onClose, faktur }) =>
                 <DetailField label="Keterangan" value={faktur.keterangan} />
               </div>
             )}
+            </div>
           </div>
         </div>
+        )}
 
-        <div className="flex justify-end pt-2 border-t border-gray-100">
-          <Button variant="outline" onClick={onClose}>
+        {activeTab === 'dokumen' && (
+          <div className="space-y-3">
+            {!hasDokumen ? (
+              <div className="text-center py-12 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
+                <FileText className="w-10 h-10 text-gray-300 mx-auto mb-3" />
+                <p className="text-sm text-gray-500">Tidak ada dokumen pendukung</p>
+              </div>
+            ) : (
+              faktur.dokumen?.map((doc) => (
+                <div key={doc.id} className="flex items-center justify-between p-3 border rounded-xl hover:border-primary/50 transition-colors bg-white">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-red-50 text-red-500 rounded-lg">
+                      <FileText className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">{doc.namaFile}</p>
+                      <p className="text-xs text-gray-500">{(doc.ukuran / 1024 / 1024).toFixed(2)} MB • {doc.uploadedAt}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <a
+                      href={doc.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-1.5 text-gray-500 hover:text-blue-600 bg-gray-50 hover:bg-blue-50 rounded-md transition-colors"
+                      title="Lihat"
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                    </a>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        )}
+
+        {activeTab === 'riwayat' && (
+          <div className="space-y-4">
+            {!faktur.approvedBy && !faktur.rejectionReason ? (
+              <div className="text-center py-12 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
+                <Clock className="w-10 h-10 text-gray-300 mx-auto mb-3" />
+                <p className="text-sm text-gray-500">Belum ada riwayat approval</p>
+              </div>
+            ) : (
+              <div className="relative pl-8 before:content-[''] before:absolute before:left-3 before:top-2 before:bottom-2 before:w-0.5 before:bg-gray-200">
+                {faktur.approvedBy && (
+                  <div className="relative mb-6 last:mb-0">
+                    <div className={cn(
+                      "absolute -left-8 w-6 h-6 rounded-full border-2 border-white flex items-center justify-center",
+                      faktur.status === 'Sudah Approve' ? "bg-emerald-500" : "bg-red-500"
+                    )}>
+                      {faktur.status === 'Sudah Approve' ? <CheckCircle2 className="w-3 h-3 text-white" /> : <XCircle className="w-3 h-3 text-white" />}
+                    </div>
+                    <div className="bg-white p-3 rounded-lg border shadow-sm">
+                      <p className="text-sm font-semibold text-gray-900">
+                        {faktur.status === 'Sudah Approve' ? 'Disetujui' : 'Ditolak'} oleh Keuangan
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Oleh: <strong>{faktur.approvedBy}</strong> {faktur.tanggalApprove && ` pada ${faktur.tanggalApprove}`}
+                      </p>
+                      {faktur.rejectionReason && (
+                        <div className={cn(
+                          "mt-2 p-2 rounded text-xs",
+                          faktur.status === 'Ditolak' ? "bg-red-50 text-red-700" : "bg-blue-50 text-blue-700"
+                        )}>
+                          <strong>Catatan:</strong> {faktur.rejectionReason}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+                <div className="relative">
+                  <div className="absolute -left-8 w-6 h-6 rounded-full bg-blue-500 border-2 border-white flex items-center justify-center">
+                    <FileText className="w-3 h-3 text-white" />
+                  </div>
+                  <div className="bg-white p-3 rounded-lg border shadow-sm">
+                    <p className="text-sm font-semibold text-gray-900">Pengajuan Berhasil Dikirim</p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Oleh: <strong>{faktur.nama} ({faktur.badge})</strong> pada {faktur.tanggalPengajuan}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+        </div>
+
+        <div className="flex justify-end gap-2 pt-2 border-t border-gray-100">
+          {isKeuangan && (
+            <Button
+              variant="danger"
+              size="sm"
+              onClick={() => onDelete(faktur.id)}
+              leftIcon={<Trash2 className="w-4 h-4" />}
+            >
+              Hapus
+            </Button>
+          )}
+          {canEdit && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onEdit(faktur)}
+              className="!text-blue-600 !border-blue-200 hover:!bg-blue-50"
+              leftIcon={<Edit3 className="w-4 h-4" />}
+            >
+              Edit
+            </Button>
+          )}
+          <div className="flex-1" />
+          <Button variant="outline" size="sm" onClick={onClose}>
             Tutup
           </Button>
+          {isKeuangan && isBaru && (
+            <>
+              <Button
+                onClick={() => onAction('approve')}
+                className="!bg-emerald-600 hover:!bg-emerald-700 !text-white"
+                leftIcon={<CheckCircle2 className="w-4 h-4" />}
+                size="sm"
+              >
+                Approve
+              </Button>
+              <Button
+                onClick={() => onAction('reject')}
+                variant="danger"
+                leftIcon={<XCircle className="w-4 h-4" />}
+                size="sm"
+              >
+                Tolak
+              </Button>
+              <Button
+                onClick={() => onAction('pending')}
+                className="!bg-amber-500 hover:!bg-amber-600 !text-white"
+                leftIcon={<Clock className="w-4 h-4" />}
+                size="sm"
+              >
+                Pending
+              </Button>
+            </>
+          )}
         </div>
       </div>
     </Modal>

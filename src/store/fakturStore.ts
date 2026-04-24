@@ -14,11 +14,13 @@ const generateDummyData = (): FakturPajak[] => {
     'DEPARTEMEN TEKNOLOGI INFORMASI', 'DIVISI OPERASI (OPERASI P-VI)', 'DEPARTEMEN KEUANGAN PAJAK',
     'Departemen Pajak', 'DEPARTEMEN LOGISTIK', 'DEPARTEMEN PEMELIHARAAN'
   ];
-  const statuses: FakturPajak['status'][] = ['Sudah Approve', 'Baru', 'Ditolak'];
+  const statuses: FakturPajak['status'][] = ['Sudah Approve', 'Baru', 'Ditolak', 'Pending Keuangan'];
   const codes: FakturPajak['kodeFakturSAP'][] = ['BV', 'BZ'];
 
-  return Array.from({ length: 25 }, (_, i) => {
-    const status = statuses[Math.floor(Math.random() * (i < 15 ? 2 : 3))];
+  const badges = ['6121509', '1100222', '1100333', '1100444', '1100555'];
+
+  return Array.from({ length: 120 }, (_, i) => {
+    const status = statuses[Math.floor(Math.random() * statuses.length)];
     const day = String(Math.floor(Math.random() * 28) + 1).padStart(2, '0');
     const month = String(Math.floor(Math.random() * 12) + 1).padStart(2, '0');
     const tanggal = `${day}/${month}/2024`;
@@ -37,15 +39,24 @@ const generateDummyData = (): FakturPajak[] => {
       namaPerusahaan: companies[i % companies.length],
       nilaiDPP: Math.floor(Math.random() * 500000000) + 10000000,
       nilaiPPN: Math.floor(Math.random() * 50000000) + 1000000,
-      badge: `1100${String(Math.floor(Math.random() * 999)).padStart(3, '0')}`,
-      nama: requesters[Math.floor(Math.random() * requesters.length)],
+      badge: badges[i % badges.length],
+      nama: requesters[i % requesters.length],
       unitKerja: unitKerjas[i % unitKerjas.length],
       noExtKantor: '1234',
       noWhatsapp: '081234567890',
       email: 'user@example.com',
       status,
-      keterangan: status === 'Ditolak' ? 'Nomor faktur tidak valid' : '',
+      rejectionReason: status === 'Ditolak' ? 'Nomor faktur tidak valid' : status === 'Pending Keuangan' ? 'Mohon lampirkan dokumen pendukung yang lebih jelas' : '',
       tanggalApprove: status === 'Sudah Approve' ? `${String(Math.floor(Math.random() * 28) + 1).padStart(2, '0')}/${month}/2024` : '',
+      dokumen: [
+        {
+          id: `doc-1-${i}`,
+          namaFile: `FakturPajak_${i + 1}.pdf`,
+          ukuran: 1024 * 1024 * 1.5,
+          url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+          uploadedAt: `${day}/${month}/2024 09:30`,
+        }
+      ],
     };
   });
 };
@@ -61,6 +72,7 @@ interface FakturStore {
   setLoading: (loading: boolean) => void;
   approveFaktur: (id: string, approvedBy: string) => void;
   rejectFaktur: (id: string, approvedBy: string, reason: string) => void;
+  pendingFaktur: (id: string, approvedBy: string, reason: string) => void;
   bulkApprove: (ids: string[], approvedBy: string) => void;
 }
 
@@ -146,6 +158,16 @@ export const useFakturStore = create<FakturStore>((set, get) => ({
       data: get().data.map((item) =>
         item.id === id
           ? { ...item, status: 'Ditolak' as const, approvedBy, rejectionReason: reason, tanggalApprove: '' }
+          : item
+      ),
+    });
+  },
+
+  pendingFaktur: (id, approvedBy, reason) => {
+    set({
+      data: get().data.map((item) =>
+        item.id === id
+          ? { ...item, status: 'Pending Keuangan' as const, approvedBy, rejectionReason: reason, tanggalApprove: '' }
           : item
       ),
     });

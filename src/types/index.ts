@@ -16,7 +16,7 @@ export interface FakturPajak {
   noExtKantor: string;
   noWhatsapp: string;
   email: string;
-  status: 'Sudah Approve' | 'Baru' | 'Ditolak';
+  status: 'Sudah Approve' | 'Baru' | 'Ditolak' | 'Pending Keuangan';
   keterangan?: string;
   tanggalApprove?: string;
   approvedBy?: string;
@@ -56,7 +56,7 @@ export interface FakturPajakSetor {
   email: string;
   noSELKamish?: string;
   noVirtuSAP?: string;
-  status: 'Sudah Approve' | 'Baru' | 'Ditolak';
+  status: 'Sudah Approve' | 'Baru' | 'Ditolak' | 'Pending Keuangan';
   keterangan?: string;
   tanggalApprove?: string;
   approvedBy?: string;
