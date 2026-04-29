@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Eye, EyeOff, Info, Lock, User } from 'lucide-react';
+import { Eye, EyeOff, Info, Lock, User, X } from 'lucide-react';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import { useAuthStore } from '../store/authStore';
@@ -19,6 +19,7 @@ type LoginForm = z.infer<typeof loginSchema>;
 const Login: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [showQuickLogin, setShowQuickLogin] = useState(false);
   const navigate = useNavigate();
   const login = useAuthStore((s) => s.login);
   const addToast = useToastStore((s) => s.addToast);
@@ -171,20 +172,11 @@ const Login: React.FC = () => {
               <button
                 type="button"
                 className="w-full flex items-center justify-center gap-2 bg-white border border-gray-300 rounded-lg px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200 shadow-sm"
-                onClick={() => addToast('SSO Pusri belum tersedia', 'info')}
+                onClick={() => setShowQuickLogin(true)}
               >
                 <img src="/favicon.svg" alt="SSO Pusri Logo" className="w-5 h-5 object-contain" />
-                Login with SSO Pusri
+                Quick Login (Dev)
               </button>
-
-              {/* <button
-                type="button"
-                className="w-full flex items-center justify-center gap-2 bg-white border border-gray-300 rounded-lg px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200 shadow-sm"
-                onClick={() => addToast('SSO Pusri belum tersedia', 'info')}
-              >
-                <img src="/favicon.svg" alt="SSO Pusri Logo" className="w-5 h-5 object-contain" />
-                Login with PI Identik
-              </button> */}
 
             </form>
 
@@ -233,6 +225,55 @@ const Login: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Quick Login Modal */}
+      {showQuickLogin && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="p-5 border-b border-gray-100 flex items-center justify-between">
+              <h3 className="font-bold text-gray-900">Quick Login (Dev Mode)</h3>
+              <button
+                onClick={() => setShowQuickLogin(false)}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-5 flex flex-col gap-3 bg-gray-50/50">
+              <button
+                type="button"
+                className="w-full flex items-center justify-center gap-2 bg-primary text-white rounded-lg px-4 py-2.5 text-sm font-medium hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all duration-200 shadow-sm"
+                onClick={() => {
+                  setShowQuickLogin(false);
+                  onSubmit({ badge: '6121509', password: 'Pusri2012@' });
+                }}
+              >
+                Login sebagai Requester
+              </button>
+              <button
+                type="button"
+                className="w-full flex items-center justify-center gap-2 bg-slate-100 text-slate-800 rounded-lg px-4 py-2.5 text-sm font-medium hover:bg-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-300 transition-all duration-200 shadow-sm border border-slate-200"
+                onClick={() => {
+                  setShowQuickLogin(false);
+                  onSubmit({ badge: '6121501', password: 'VP@1234' });
+                }}
+              >
+                Login sebagai VP Staging
+              </button>
+              <button
+                type="button"
+                className="w-full flex items-center justify-center gap-2 bg-white border border-gray-300 text-gray-700 rounded-lg px-4 py-2.5 text-sm font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-200 transition-all duration-200 shadow-sm"
+                onClick={() => {
+                  setShowQuickLogin(false);
+                  onSubmit({ badge: '6150706', password: 'Pusri2015@' });
+                }}
+              >
+                Login sebagai Finance
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
