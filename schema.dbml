@@ -34,10 +34,7 @@ Enum sap_code {
   "BZ" 
 }
 
-Enum tipe_faktur {
-  "Subsidi"
-  "Non Subsidi"
-}
+
 
 // --- Tabel Master & Organisasi ---
 
@@ -185,7 +182,7 @@ Table faktur_pajak_setor {
   deleted_at timestamp [null]
 }
 
-Table penerbitan_faktur_keluaran {
+Table penerbitan_faktur_keluaran_subsidi {
   id uuid [pk]
   no_urut serial
   tanggal_request_fp timestamp
@@ -215,7 +212,51 @@ Table penerbitan_faktur_keluaran {
   // Output Generated
   nomor_faktur_pajak varchar(16) [null]
   tanggal_faktur_pajak date [null]
-  jenis_faktur tipe_faktur
+  status status_approval
+  
+  // Workflow
+  assigned_vp_id uuid [null, ref: > users.id]
+  assigned_vp_nama varchar [null]
+  catatan_penolakan text [null]
+  
+  // Audit Trail
+  created_by uuid [ref: > users.id]
+  created_at timestamp
+  updated_by uuid [null, ref: > users.id]
+  updated_at timestamp
+  deleted_at timestamp [null]
+}
+
+Table penerbitan_faktur_keluaran_nonsubsidi {
+  id uuid [pk]
+  no_urut serial
+  tanggal_request_fp timestamp
+  no_so_no_doc varchar
+  tanggal_so date
+  
+  // Customer/Vendor Relation
+  customer_id uuid [ref: > master_vendors.id, note: 'Bisa merujuk ke tabel Customer jika terpisah']
+  nama_customer varchar [null]
+  npwp varchar [null]
+  
+  total_tagihan decimal(18,2)
+  nilai_transaksi decimal(18,2)
+  dpp decimal(18,2)
+  ppn decimal(18,2)
+  quantity integer [null]
+  keterangan_transaksi text [null]
+  alamat text [null, note: 'Snapshot alamat saat transaksi']
+  
+  // Snapshot Data Penyampai
+  requester_id uuid [ref: > users.id]
+  requester_nama varchar [null]
+  requester_badge varchar [null]
+  unit_kerja varchar [null]
+  hp varchar [null]
+  
+  // Output Generated
+  nomor_faktur_pajak varchar(16) [null]
+  tanggal_faktur_pajak date [null]
   status status_approval
   
   // Workflow
@@ -235,8 +276,9 @@ Table pembatalan_faktur_pajak {
   id uuid [pk]
   no_urut serial
   
-  // Relasi Kuat ke Faktur Asli
-  faktur_asli_id uuid [ref: > penerbitan_faktur_keluaran.id]
+  // Relasi Polymorphic ke Faktur Asli
+  faktur_asli_id uuid [note: 'Merujuk ke id di penerbitan_faktur_keluaran_subsidi atau nonsubsidi']
+  faktur_asli_type varchar [note: "'Subsidi' atau 'Non Subsidi'"]
   
   // === DATA DIAMBIL OTOMATIS DARI FAKTUR ASLI (Snapshot) ===
   tanggal_request_fp timestamp [null]
@@ -257,7 +299,6 @@ Table pembatalan_faktur_pajak {
   hp varchar [null]
   nomor_faktur_pajak varchar(16) [null]
   tanggal_faktur_pajak date [null]
-  jenis_faktur tipe_faktur [null]
   
   alasan_pembatalan text
   dokumen_pendukung_count integer [default: 0, note: 'Jumlah dokumen pendukung, file ada di table attachments']

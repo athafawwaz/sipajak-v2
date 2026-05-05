@@ -1,4 +1,4 @@
-export const APP_VERSION = "2.1.1";
+export const APP_VERSION = "2.2.0";
 
 export interface ChangelogEntry {
   version: string;
@@ -8,6 +8,12 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: "2.2.0",
+    date: "2026-05-05",
+    type: "minor",
+    description: "Remove PDF upload for Finance approval, refactor DB schema to separate Subsidi/Non-Subsidi tables, and add new dummy data."
+  },
   {
     version: "2.1.1",
     date: "2026-05-05",

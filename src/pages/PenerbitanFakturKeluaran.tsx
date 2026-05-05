@@ -176,7 +176,7 @@ const PenerbitanFakturKeluaranPage: React.FC = () => {
     setIsDetailOpen(true);
   };
 
-  const handleApprove = (id: string, notes?: string, invoiceData?: {no: string, tgl: string, docs: any[]}) => {
+  const handleApprove = (id: string, notes?: string, invoiceData?: {no: string, tgl: string}) => {
     const approverLogInfo = {
        step: role === 'vp' ? 1 : 2 as 1|2,
        role: role as 'vp'|'keuangan',
@@ -189,7 +189,7 @@ const PenerbitanFakturKeluaranPage: React.FC = () => {
     if (role === 'vp') {
       approveVP(id, approverLogInfo);
     } else if (role === 'keuangan') {
-      approveKeuangan(id, approverLogInfo, invoiceData!.no, invoiceData!.tgl, invoiceData!.docs);
+      approveKeuangan(id, approverLogInfo, invoiceData!.no, invoiceData!.tgl, []);
     }
     setIsDetailOpen(false);
     addToast('Pengajuan berhasil di-approve', 'success');
@@ -271,7 +271,7 @@ const PenerbitanFakturKeluaranPage: React.FC = () => {
     );
   }, [rawData]);
 
-  const handleBulkApprove = (rows: BulkApproveRow[], docs: DokumenPDF[]) => {
+  const handleBulkApprove = (rows: BulkApproveRow[]) => {
     const approverLogInfo = {
       step: 2 as 1 | 2,
       role: 'keuangan' as 'vp' | 'keuangan',
@@ -285,7 +285,7 @@ const PenerbitanFakturKeluaranPage: React.FC = () => {
     rows.forEach((row) => {
       const item = pendingApprovalItems.find((d) => d.noSONoDoc === row.noSO);
       if (item) {
-        approveKeuangan(item.id, approverLogInfo, row.nomorFakturPajak, row.tanggalFakturPajak, docs);
+        approveKeuangan(item.id, approverLogInfo, row.nomorFakturPajak, row.tanggalFakturPajak, []);
         count++;
       }
     });

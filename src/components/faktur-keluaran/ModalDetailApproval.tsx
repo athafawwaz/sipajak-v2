@@ -4,7 +4,6 @@ import Button from '../ui/Button';
 import Input from '../ui/Input';
 import type { PenerbitanFakturKeluaran, DokumenPDF } from '../../types';
 import ApprovalTimeline from './ApprovalTimeline';
-import DokumenUploader from './DokumenUploader';
 import { FileText, Download, ExternalLink } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 
@@ -14,7 +13,7 @@ interface ModalDetailApprovalProps {
   isOpen: boolean;
   onClose: () => void;
   data: PenerbitanFakturKeluaran | null;
-  onApprove: (id: string, notes?: string, invoiceData?: {no: string, tgl: string, docs: DokumenPDF[]}) => void;
+  onApprove: (id: string, notes?: string, invoiceData?: {no: string, tgl: string}) => void;
   onReject: (id: string, notes: string) => void;
   onAssignVP?: (item: PenerbitanFakturKeluaran) => void;
   onRevisi?: (item: PenerbitanFakturKeluaran) => void;
@@ -34,7 +33,6 @@ const ModalDetailApproval: React.FC<ModalDetailApprovalProps> = ({
   const [showRejectForm, setShowRejectForm] = useState(false);
   const [nomorFaktur, setNomorFaktur] = useState('');
   const [tanggalFaktur, setTanggalFaktur] = useState('');
-  const [uploadedDocs, setUploadedDocs] = useState<DokumenPDF[]>([]);
 
   const { user } = useAuthStore();
   const getByFakturAsliId = usePembatalanFakturStore((s) => s.getByFakturAsliId);
@@ -57,7 +55,7 @@ const ModalDetailApproval: React.FC<ModalDetailApprovalProps> = ({
   const handleApprove = () => {
     if (canApproveKeuangan) {
       if (!nomorFaktur || !tanggalFaktur) return; // simple validation
-      onApprove(data.id, '', { no: nomorFaktur, tgl: tanggalFaktur, docs: uploadedDocs });
+      onApprove(data.id, '', { no: nomorFaktur, tgl: tanggalFaktur });
     } else {
       onApprove(data.id);
     }
@@ -171,15 +169,6 @@ const ModalDetailApproval: React.FC<ModalDetailApprovalProps> = ({
                    <Input label="Nomor Faktur Pajak" placeholder="Wajib diisi..." value={nomorFaktur} onChange={(e) => setNomorFaktur(e.target.value)} required />
                    <Input label="Tanggal Faktur Pajak" type="date" value={tanggalFaktur} onChange={(e) => setTanggalFaktur(e.target.value)} required />
                  </div>
-                 <div>
-                   <label className="block text-sm font-medium text-gray-700 mb-1.5">Upload Dokumen Faktur Pajak (PDF) *</label>
-                   <DokumenUploader
-                     value={uploadedDocs}
-                     onChange={setUploadedDocs}
-                     maxFiles={1}
-                     maxSizeMB={5}
-                   />
-                 </div>
                </div>
             )}
             <div className="flex justify-end gap-3 flex-wrap">
@@ -201,7 +190,7 @@ const ModalDetailApproval: React.FC<ModalDetailApprovalProps> = ({
               {(canApproveVP || canApproveKeuangan) && (
                 <>
                   <Button variant="outline" className="text-red-600 hover:bg-red-50 hover:border-red-200" onClick={() => setShowRejectForm(true)}>❌ Tolak Pengajuan</Button>
-                  <Button variant="primary" className="bg-emerald-600 hover:bg-emerald-700" onClick={handleApprove} disabled={canApproveKeuangan && (!nomorFaktur || !tanggalFaktur || uploadedDocs.length === 0)}>
+                  <Button variant="primary" className="bg-emerald-600 hover:bg-emerald-700" onClick={handleApprove} disabled={canApproveKeuangan && (!nomorFaktur || !tanggalFaktur)}>
                     ✅ {isVP ? 'Approve' : 'Final Approve'}
                   </Button>
                 </>

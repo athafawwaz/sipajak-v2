@@ -4,13 +4,12 @@ import Modal from '../ui/Modal';
 import Button from '../ui/Button';
 import { Download, Upload, CheckCircle2, XCircle, FileSpreadsheet, AlertTriangle } from 'lucide-react';
 import type { PenerbitanFakturKeluaran, DokumenPDF } from '../../types';
-import DokumenUploader from './DokumenUploader';
 
 interface ModalBulkApproveExcelProps {
   isOpen: boolean;
   onClose: () => void;
   pendingItems: PenerbitanFakturKeluaran[];
-  onBulkApprove: (results: BulkApproveRow[], docs: DokumenPDF[]) => void;
+  onBulkApprove: (results: BulkApproveRow[]) => void;
   selectedIds?: string[];
 }
 
@@ -50,7 +49,6 @@ const ModalBulkApproveExcel: React.FC<ModalBulkApproveExcelProps> = ({
   const [parsedRows, setParsedRows] = useState<ParsedRow[]>([]);
   const [result, setResult] = useState<BulkResult | null>(null);
   const [fileName, setFileName] = useState('');
-  const [uploadedDocs, setUploadedDocs] = useState<DokumenPDF[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const resetState = () => {
@@ -58,7 +56,6 @@ const ModalBulkApproveExcel: React.FC<ModalBulkApproveExcelProps> = ({
     setParsedRows([]);
     setResult(null);
     setFileName('');
-    setUploadedDocs([]);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
@@ -226,14 +223,13 @@ const ModalBulkApproveExcel: React.FC<ModalBulkApproveExcelProps> = ({
     const validRows = parsedRows.filter((r) => r.matched);
     const invalidRows = parsedRows.filter((r) => !r.matched);
 
-    // Call parent handler with valid rows + uploaded documents
+    // Call parent handler with valid rows
     onBulkApprove(
       validRows.map((r) => ({
         noSO: r.noSO,
         nomorFakturPajak: r.nomorFakturPajak,
         tanggalFakturPajak: r.tanggalFakturPajak,
-      })),
-      uploadedDocs
+      }))
     );
 
     const details = [
@@ -295,12 +291,8 @@ const ModalBulkApproveExcel: React.FC<ModalBulkApproveExcelProps> = ({
               </div>
             </div>
             <ol className="text-xs text-blue-700 space-y-1.5 list-decimal list-inside mt-2" start={4}>
-              <li>Upload kembali file Excel yang sudah diisi ke sistem.</li>
-              <li>Upload dokumen PDF pendukung, lalu klik <strong>"Proses Approve"</strong>.</li>
+              <li>Upload kembali file Excel yang sudah diisi ke sistem, lalu klik <strong>"Proses Approve"</strong>.</li>
             </ol>
-            {/* <div className="mt-3 p-2 bg-amber-50 border border-amber-200 rounded text-xs text-amber-800">
-              <strong>💡 Tips:</strong> Ketik tanda kutip satu (<code className="bg-amber-100 px-1 rounded">'</code>) sebelum tanggal agar Excel tidak mengubah formatnya. Contoh: <code className="bg-amber-100 px-1 rounded">'13/07/2024</code>
-            </div> */}
           </div>
 
           {/* Pending count info */}
@@ -416,30 +408,7 @@ const ModalBulkApproveExcel: React.FC<ModalBulkApproveExcelProps> = ({
             </table>
           </div>
 
-          {/* Document Upload Section */}
-          {validCount > 0 && (
-            <div className="space-y-3">
-              <div className="border-t pt-4">
-                <h4 className="text-sm font-semibold text-gray-800 mb-1">Upload Dokumen PDF</h4>
-                <p className="text-xs text-gray-500 mb-3">
-                  Upload dokumen pendukung (PDF) yang akan dilampirkan ke semua data yang di-approve.
-                  Minimal 1 dokumen wajib diunggah.
-                </p>
-                <DokumenUploader
-                  value={uploadedDocs}
-                  onChange={setUploadedDocs}
-                  maxFiles={10}
-                  maxSizeMB={10}
-                />
-              </div>
-              {uploadedDocs.length === 0 && (
-                <div className="flex items-center gap-2 p-2.5 bg-amber-50 border border-amber-200 rounded-lg">
-                  <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0" />
-                  <p className="text-xs text-amber-700">Upload minimal 1 dokumen PDF untuk melanjutkan proses approval.</p>
-                </div>
-              )}
-            </div>
-          )}
+
 
           <div className="flex justify-between border-t pt-4">
             <Button variant="outline" onClick={() => { resetState(); }}>
@@ -450,7 +419,7 @@ const ModalBulkApproveExcel: React.FC<ModalBulkApproveExcelProps> = ({
               <Button
                 variant="primary"
                 onClick={handleProcessApprove}
-                disabled={validCount === 0 || uploadedDocs.length === 0}
+                disabled={validCount === 0}
                 leftIcon={<CheckCircle2 className="w-4 h-4" />}
               >
                 Proses Approve ({validCount})

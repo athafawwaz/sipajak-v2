@@ -79,7 +79,6 @@ const FakturKeluaranTable: React.FC<FakturKeluaranTableProps> = ({
             <th className={headerClass}>HP/Ext</th>
             <th className={headerClass}>Nomor Faktur Pajak</th>
             <th className={headerClass}>Tgl Faktur Pajak</th>
-            <th className={cn(headerClass, 'text-center')}>PDF</th>
             <th className={headerClass}>Status</th>
             <th className={headerClass}>Aksi</th>
           </tr>
@@ -103,7 +102,6 @@ const FakturKeluaranTable: React.FC<FakturKeluaranTableProps> = ({
             <th className={filterClass}>{renderFilter('hp')}</th>
             <th className={filterClass}>{renderFilter('nomorFakturPajak')}</th>
             <th className={filterClass}>{renderFilter('tanggalFakturPajak')}</th>
-            <th className={filterClass} />
             <th className={filterClass}>{renderFilter('status')}</th>
             <th className={filterClass} />
           </tr>
@@ -162,21 +160,6 @@ const FakturKeluaranTable: React.FC<FakturKeluaranTableProps> = ({
                   <td className={cellClass}>{row.hp}</td>
                   <td className={cn(cellClass)}>{row.nomorFakturPajak || '-'}</td>
                   <td className={cellClass}>{row.tanggalFakturPajak || '-'}</td>
-                  <td className={cn(cellClass, 'text-center')}>
-                    {row.dokumen && row.dokumen.length > 0 ? (
-                      <a
-                        href="https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center justify-center p-1.5 text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 rounded transition-colors"
-                        title="Lihat PDF"
-                      >
-                        <FileText className="w-4 h-4" />
-                      </a>
-                    ) : (
-                      <span className="text-xs text-gray-400">-</span>
-                    )}
-                  </td>
                   <td className={cn(cellClass, 'min-w-[170px]')}>
                     <StatusBadge status={row.status} />
                   </td>

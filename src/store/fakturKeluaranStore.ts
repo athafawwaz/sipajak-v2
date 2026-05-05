@@ -298,6 +298,65 @@ const createDummyData = (): PenerbitanFakturKeluaran[] => {
     });
   }
 
+  // --- Non Subsidi Approval Test Data: 5 items Menunggu Approval Keuangan ---
+  const nonSubsidiCustomers = [
+    "PT Astra Honda Motor", "PT Toyota Astra Motor", "PT Unilever Indonesia",
+    "PT Indofood CBP", "PT Gudang Garam"
+  ];
+  for (let i = 0; i < 5; i++) {
+    const idx = 50 + i;
+    const nilai = Math.floor((Math.random() * 500 + 50) * 1000000);
+    const dppVal = Math.floor((11 / 12) * nilai);
+    const ppnVal = Math.floor(0.11 * nilai);
+    
+    dummy.push({
+      id: `FK-NON-SUB-${String(i + 1).padStart(3, '0')}`,
+      no: idx,
+      tanggalRequestFP: `15/07/2024`,
+      noSONoDoc: `60100${String(70000 + i)}`,
+      tanggalSO: `12/07/2024`,
+      namaCustomer: nonSubsidiCustomers[i],
+      npwp: `0${(i % 9) + 1}.${String(200 + i)}.${String(300 + i)}.0-000.000`,
+      nilaiTransaksi: nilai,
+      dpp: dppVal,
+      ppn: ppnVal,
+      totalTagihan: nilai + ppnVal,
+      requesterNama: "Ahmad Fauzi",
+      requesterBadge: "6121510",
+      unitKerja: "DEPARTEMEN PEMASARAN",
+      hp: "081278900001",
+      jenisFaktur: "Non Subsidi",
+      status: "Menunggu Approval Keuangan",
+      dokumen: [],
+      approvalLogs: [
+        {
+          id: `log-nonsub-${i}-assign`,
+          step: 0,
+          role: "keuangan",
+          approverName: "Sistem",
+          approverBadge: "SYS",
+          action: "assign_vp",
+          catatan: "Assigned to Cipta Atsahlantusay (6121501)",
+          timestamp: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString()
+        },
+        {
+          id: `log-nonsub-${i}-vp`,
+          step: 1,
+          role: "vp",
+          approverName: "Cipta Atsahlantusay",
+          approverBadge: "6121501",
+          action: "approve",
+          timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString()
+        }
+      ],
+      assignedVPId: "6121501",
+      assignedVPNama: "Cipta Atsahlantusay",
+      createdBy: "6121510",
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    });
+  }
+
   return dummy;
 };
 
