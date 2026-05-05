@@ -3,7 +3,7 @@
 Gunakan dokumen ini sebagai acuan standar pesan commit dan penomoran versi (Versioning) untuk proyek **SI PAJAK v2** — Sistem Informasi Pajak PT. Pupuk Sriwidjaja Palembang.
 
 > [!IMPORTANT]
-> **Trigger Otomatis**: Jika USER menyebutkan (mention) file ini atau memberikan instruksi "@git_guidelines", AI wajib melakukan proses `git add`, `git commit`, dan `git push` secara otomatis mengikuti prosedur yang tertulis di sini.
+> **Trigger Otomatis**: Jika USER menyebutkan (mention) file ini atau memberikan instruksi "@git_guidelines", AI **WAJIB** melakukan update file `src/store/changelogStore.ts` terlebih dahulu (ubah versi & tambah riwayat), lalu baru melakukan proses `git add`, `git commit`, dan `git push` secara otomatis mengikuti prosedur yang tertulis di sini. JANGAN PERNAH commit dan push sebelum update changelog.
 
 ## Format Pesan Commit
 
@@ -34,22 +34,27 @@ Naikkan untuk perbaikan bug, refactor kode, atau perubahan UI kecil.
 
 ## Alur Kerja Git (Step-by-Step)
 
-1. **Cek Status**:
+1. **Update Changelog (WAJIB PERTAMA)**:
+    - Buka `src/store/changelogStore.ts`
+    - Update konstanta `APP_VERSION`
+    - Tambahkan entry history di bagian paling atas array `CHANGELOG`
+
+2. **Cek Status**:
     ```bash
     git status
     ```
 
-2. **Staging (Tambah File)**:
+3. **Staging (Tambah File)**:
     ```bash
     git add .
     ```
 
-3. **Commit (Gunakan Template)**:
+4. **Commit (Gunakan Template)**:
     ```bash
     git commit -m "[Update X.Y.Z] - Penjelasan singkat"
     ```
 
-4. **Push**:
+5. **Push**:
     ```bash
     git push origin main
     ```
