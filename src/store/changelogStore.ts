@@ -1,4 +1,4 @@
-export const APP_VERSION = "2.1.0";
+export const APP_VERSION = "2.1.1";
 
 export interface ChangelogEntry {
   version: string;
@@ -8,6 +8,12 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: "2.1.1",
+    date: "2026-05-05",
+    type: "patch",
+    description: "Update git_guidelines.md with auto-push trigger rule"
+  },
   {
     version: "2.1.0",
     date: "2026-05-05",

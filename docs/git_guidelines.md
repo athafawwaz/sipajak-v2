@@ -2,6 +2,9 @@
 
 Gunakan dokumen ini sebagai acuan standar pesan commit dan penomoran versi (Versioning) untuk proyek **SI PAJAK v2** — Sistem Informasi Pajak PT. Pupuk Sriwidjaja Palembang.
 
+> [!IMPORTANT]
+> **Trigger Otomatis**: Jika USER menyebutkan (mention) file ini atau memberikan instruksi "@git_guidelines", AI wajib melakukan proses `git add`, `git commit`, dan `git push` secara otomatis mengikuti prosedur yang tertulis di sini.
+
 ## Format Pesan Commit
 
 Pesan commit harus mengikuti template berikut:
