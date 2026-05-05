@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { PenerbitanFakturKeluaran, ApprovalLog, DokumenPDF } from '../types';
+import type { PenerbitanFakturKeluaran, ApprovalLog } from '../types';
 import { useMasterUserStore } from './masterUserStore';
 
 export interface FakturKeluaranStore {
@@ -16,7 +16,7 @@ export interface FakturKeluaranStore {
   approveVP: (id: string, approver: Omit<ApprovalLog, 'timestamp' | 'id'>) => void;
   rejectVP: (id: string, approver: Omit<ApprovalLog, 'timestamp' | 'id'>, catatan: string) => void;
   assignVP: (id: string, vpId: string, vpNama: string) => void;
-  approveKeuangan: (id: string, approver: Omit<ApprovalLog, 'timestamp' | 'id'>, nomorFaktur: string, tanggalFaktur: string, dokumen: DokumenPDF[]) => void;
+  approveKeuangan: (id: string, approver: Omit<ApprovalLog, 'timestamp' | 'id'>, nomorFaktur: string, tanggalFaktur: string) => void;
   rejectKeuangan: (id: string, approver: Omit<ApprovalLog, 'timestamp' | 'id'>, catatan: string) => void;
   submitRevisi: (id: string, data: Partial<PenerbitanFakturKeluaran>) => void;
 
@@ -480,7 +480,7 @@ export const useFakturKeluaranStore = create<FakturKeluaranStore>((set, get) => 
     })
   })),
 
-  approveKeuangan: (id, approver, nomorFaktur, tanggalFaktur, dokumen) => set((state) => ({
+  approveKeuangan: (id, approver, nomorFaktur, tanggalFaktur) => set((state) => ({
     items: state.items.map(item => {
       if (item.id === id) {
         return {
@@ -488,7 +488,6 @@ export const useFakturKeluaranStore = create<FakturKeluaranStore>((set, get) => 
           status: "Selesai",
           nomorFakturPajak: nomorFaktur,
           tanggalFakturPajak: tanggalFaktur,
-          dokumen: dokumen,
           approvalLogs: [
             ...item.approvalLogs,
             { ...approver, id: Date.now().toString(), timestamp: new Date().toISOString() }

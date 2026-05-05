@@ -1,5 +1,5 @@
 import React from 'react';
-import { FileText, Inbox } from 'lucide-react';
+import { Inbox } from 'lucide-react';
 
 import type { PenerbitanFakturKeluaran } from '../../types';
 import { cn } from '../../utils/cn';

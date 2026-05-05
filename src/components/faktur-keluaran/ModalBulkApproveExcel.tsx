@@ -3,7 +3,7 @@ import * as XLSX from 'xlsx';
 import Modal from '../ui/Modal';
 import Button from '../ui/Button';
 import { Download, Upload, CheckCircle2, XCircle, FileSpreadsheet, AlertTriangle } from 'lucide-react';
-import type { PenerbitanFakturKeluaran, DokumenPDF } from '../../types';
+import type { PenerbitanFakturKeluaran } from '../../types';
 
 interface ModalBulkApproveExcelProps {
   isOpen: boolean;

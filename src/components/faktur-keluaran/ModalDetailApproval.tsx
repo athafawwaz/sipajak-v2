@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Modal from '../ui/Modal';
 import Button from '../ui/Button';
 import Input from '../ui/Input';
-import type { PenerbitanFakturKeluaran, DokumenPDF } from '../../types';
+import type { PenerbitanFakturKeluaran } from '../../types';
 import ApprovalTimeline from './ApprovalTimeline';
 import { FileText, Download, ExternalLink } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';

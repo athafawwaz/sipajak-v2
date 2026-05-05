@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useAuthStore } from '../store/authStore';
 import { useFakturKeluaranStore } from '../store/fakturKeluaranStore';
-import type { PenerbitanFakturKeluaran, DokumenPDF } from '../types';
+import type { PenerbitanFakturKeluaran } from '../types';
 import Button from '../components/ui/Button';
 import StatCard from '../components/ui/StatCard';
 import FakturKeluaranTable from '../components/faktur-keluaran/FakturKeluaranTable';
@@ -189,7 +189,7 @@ const PenerbitanFakturKeluaranPage: React.FC = () => {
     if (role === 'vp') {
       approveVP(id, approverLogInfo);
     } else if (role === 'keuangan') {
-      approveKeuangan(id, approverLogInfo, invoiceData!.no, invoiceData!.tgl, []);
+      approveKeuangan(id, approverLogInfo, invoiceData!.no, invoiceData!.tgl);
     }
     setIsDetailOpen(false);
     addToast('Pengajuan berhasil di-approve', 'success');
@@ -285,7 +285,7 @@ const PenerbitanFakturKeluaranPage: React.FC = () => {
     rows.forEach((row) => {
       const item = pendingApprovalItems.find((d) => d.noSONoDoc === row.noSO);
       if (item) {
-        approveKeuangan(item.id, approverLogInfo, row.nomorFakturPajak, row.tanggalFakturPajak, []);
+        approveKeuangan(item.id, approverLogInfo, row.nomorFakturPajak, row.tanggalFakturPajak);
         count++;
       }
     });
