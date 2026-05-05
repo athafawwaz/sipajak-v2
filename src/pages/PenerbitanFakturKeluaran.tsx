@@ -393,6 +393,12 @@ const PenerbitanFakturKeluaranPage: React.FC = () => {
         onRevisi={handleOpenRevisi}
         onAjukanBatal={handleAjukanBatal}
         onLihatPembatalan={() => navigate('/pph-keluaran/pembatalan-faktur-pajak')}
+        onSubmitDraft={(id) => {
+          submitPengajuan(id);
+          setIsDetailOpen(false);
+          setActiveItem(null);
+          addToast('Pengajuan berhasil disubmit', 'success');
+        }}
         showDokumenTab={!isPenerbitanBaru}
       />
 

@@ -20,12 +20,13 @@ interface ModalDetailApprovalProps {
   onRevisi?: (item: PenerbitanFakturKeluaran) => void;
   onAjukanBatal?: (item: PenerbitanFakturKeluaran) => void;
   onLihatPembatalan?: () => void;
+  onSubmitDraft?: (id: string) => void;
   showDokumenTab?: boolean;
 }
 
 const ModalDetailApproval: React.FC<ModalDetailApprovalProps> = ({ 
   isOpen, onClose, data, onApprove, onReject, 
-  onAssignVP, onRevisi, onAjukanBatal, onLihatPembatalan,
+  onAssignVP, onRevisi, onAjukanBatal, onLihatPembatalan, onSubmitDraft,
   showDokumenTab = true
 }) => {
   const [activeTab, setActiveTab] = useState<'detail' | 'dokumen' | 'riwayat'>('detail');
@@ -49,8 +50,9 @@ const ModalDetailApproval: React.FC<ModalDetailApprovalProps> = ({
   const canRevisi = isRequester && data.status === 'Ditolak' && data.createdBy === user?.badge;
   const canAjukanBatal = isRequester && data.status === 'Selesai' && data.createdBy === user?.badge && !getByFakturAsliId(data.id);
   const canLihatPembatalan = isRequester && data.status === 'Dalam Proses Pembatalan' && data.createdBy === user?.badge;
+  const canSubmitDraft = isRequester && data.status === 'Draft' && data.createdBy === user?.badge;
 
-  const hasAnyAction = canApproveVP || canApproveKeuangan || canAssignVP || canRevisi || canAjukanBatal || canLihatPembatalan;
+  const hasAnyAction = canApproveVP || canApproveKeuangan || canAssignVP || canRevisi || canAjukanBatal || canLihatPembatalan || canSubmitDraft;
 
   const handleApprove = () => {
     if (canApproveKeuangan) {
@@ -192,6 +194,9 @@ const ModalDetailApproval: React.FC<ModalDetailApprovalProps> = ({
               )}
               {canLihatPembatalan && (
                 <Button variant="outline" className="text-orange-600 hover:bg-orange-50 border-orange-200" onClick={() => { onClose(); onLihatPembatalan?.(); }}>Lihat Status Pembatalan</Button>
+              )}
+              {canSubmitDraft && (
+                <Button variant="primary" onClick={() => { onClose(); onSubmitDraft?.(data.id); }}>Kirim Pengajuan</Button>
               )}
               {(canApproveVP || canApproveKeuangan) && (
                 <>

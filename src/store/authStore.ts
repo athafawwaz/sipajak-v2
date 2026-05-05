@@ -10,58 +10,38 @@ interface AuthState {
   updateProfile: (updates: Partial<User>) => void;
 }
 
-const dummyAccounts = [
-  {
-    badge: "6121509",
-    username: "Handika Pranajaya",
-    password: "Pusri2012@",
-    role: "requester",
-    unitKerja: "DEPARTEMEN TEKNOLOGI INFORMASI",
-    hp: "082175433331",
-    email: "handikapj@example.com",
-  },
-  {
-    badge: "6121501",
-    username: "Bambang Susanto",
-    password: "VP@1234",
-    role: "vp",
-    unitKerja: "DIVISI OPERASI (OPERASI P-VI)",
-    hp: "08211234567",
-    email: "bambang.susanto@example.com",
-  },
-  {
-    badge: "6150706",
-    username: "Sukirman Kuhapa",
-    password: "Pusri2015@",
-    role: "keuangan",
-    unitKerja: "DEPARTEMEN KEUANGAN PAJAK",
-    hp: "08119876543",
-    email: "sukirman@example.com",
-  },
-];
+import { useMasterUserStore } from './masterUserStore';
+
+const dummyPasswords: Record<string, string> = {
+  "6121509": "Pusri2012@",
+  "6121501": "VP@1234",
+  "6150706": "Pusri2015@",
+};
 
 export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   isAuthenticated: false,
 
-  login: (badge: string, _password: string) => {
-    const dummy = dummyAccounts.find((d) => d.badge === badge);
+  login: (badge: string, password: string) => {
+    const masterData = useMasterUserStore.getState().data;
+    const dummy = masterData.find((d) => d.badge === badge);
     const token = `sim-token-${Date.now()}`;
     let user: User;
 
     if (dummy) {
-      if (_password !== dummy.password) return false;
+      const expectedPassword = dummyPasswords[badge];
+      if (expectedPassword && password !== expectedPassword) return false;
       user = {
         nip: dummy.badge,
-        name: dummy.username,
+        name: dummy.name,
         token,
         email: dummy.email || `${dummy.badge}@example.com`,
-        jabatan: dummy.role === 'vp' ? 'Vice President' : dummy.role === 'keuangan' ? 'Staf Keuangan' : 'Officer Koordinator Digitalisasi',
+        jabatan: dummy.jabatan,
         unitKerja: dummy.unitKerja,
-        noTelp: dummy.hp,
-        role: dummy.role,
+        noTelp: dummy.hp || dummy.noTelp,
+        role: dummy.role as any,
         badge: dummy.badge,
-        hp: dummy.hp,
+        hp: dummy.hp || dummy.noTelp,
       };
     } else {
       user = {

@@ -120,11 +120,14 @@ const menuGroups: MenuGroup[] = [
 import { usePendingCount } from '../../hooks/usePendingCount';
 import { useAuthStore } from '../../store/authStore';
 import { useUnitKerjaStore } from '../../store/unitKerjaStore';
+import { APP_VERSION } from '../../store/changelogStore';
+import ModalChangelog from './ModalChangelog';
 
 const Sidebar: React.FC<SidebarProps> = ({ collapsed }) => {
   const { user } = useAuthStore();
   const { data: unitKerjaData } = useUnitKerjaStore();
   const { penerbitan, pembatalan } = usePendingCount();
+  const [isChangelogOpen, setIsChangelogOpen] = useState(false);
 
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({
     '/pph-keluaran/penerbitan-faktur/subsidi': true,
@@ -322,11 +325,27 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed }) => {
       </nav>
 
       {/* Footer */}
-      {!collapsed && (
-        <div className="px-4 py-3 border-t border-white/10">
-          <p className="text-white/30 text-[10px] text-center">© 2026 PT. Pupuk Sriwidjaja Palembang</p>
-        </div>
-      )}
+      <div className={`border-t border-white/10 ${collapsed ? 'px-2 py-3' : 'px-4 py-3'}`}>
+        {!collapsed && (
+          <p className="text-white/30 text-[10px] text-center mb-1">© 2026 PT. Pupuk Sriwidjaja Palembang</p>
+        )}
+        <button
+          onClick={() => setIsChangelogOpen(true)}
+          title="Lihat riwayat update"
+          className="w-full flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-md hover:bg-white/10 transition-colors group"
+        >
+          <span className="text-[10px] font-mono font-semibold text-white/40 group-hover:text-white/70 transition-colors">
+            v{APP_VERSION}
+          </span>
+          {!collapsed && (
+            <span className="text-[9px] text-white/25 group-hover:text-white/50 transition-colors">
+              • Lihat Changelog
+            </span>
+          )}
+        </button>
+      </div>
+
+      <ModalChangelog isOpen={isChangelogOpen} onClose={() => setIsChangelogOpen(false)} />
     </aside>
   );
 };

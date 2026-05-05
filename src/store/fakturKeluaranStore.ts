@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import type { PenerbitanFakturKeluaran, ApprovalLog, DokumenPDF } from '../types';
+import { useMasterUserStore } from './masterUserStore';
 
 export interface FakturKeluaranStore {
   items: PenerbitanFakturKeluaran[];
@@ -49,7 +50,7 @@ const createDummyData = (): PenerbitanFakturKeluaran[] => {
       tanggalFakturPajak: "02/07/2024",
       dokumen: [{ id: "doc1", namaFile: "invoice.pdf", ukuran: 1048576, url: "#", uploadedAt: new Date().toISOString() }],
       approvalLogs: [{
-        id: "log1", step: 1, role: "vp", approverName: "Bambang Susanto", approverBadge: "VP001", action: "approve", timestamp: new Date().toISOString() 
+        id: "log1", step: 1, role: "vp", approverName: "Cipta Atsahlantusay", approverBadge: "6121501", action: "approve", timestamp: new Date().toISOString() 
       }, {
         id: "log2", step: 2, role: "keuangan", approverName: "Siti Rahayu", approverBadge: "KEU001", action: "approve", timestamp: new Date().toISOString()
       }],
@@ -77,8 +78,8 @@ const createDummyData = (): PenerbitanFakturKeluaran[] => {
       status: "Menunggu Approval VP",
       dokumen: [],
       approvalLogs: [],
-      assignedVPId: "VP001",
-      assignedVPNama: "Bambang Susanto",
+      assignedVPId: "6121501",
+      assignedVPNama: "Cipta Atsahlantusay",
       createdBy: "6121509",
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
@@ -103,10 +104,10 @@ const createDummyData = (): PenerbitanFakturKeluaran[] => {
       status: "Menunggu Approval Keuangan",
       dokumen: [],
       approvalLogs: [
-        { id: "l1", step: 1, role: "vp", approverName: "Bambang Susanto", approverBadge: "VP001", action: "approve", timestamp: new Date().toISOString() }
+        { id: "l1", step: 1, role: "vp", approverName: "Cipta Atsahlantusay", approverBadge: "6121501", action: "approve", timestamp: new Date().toISOString() }
       ],
-      assignedVPId: "VP001",
-      assignedVPNama: "Bambang Susanto",
+      assignedVPId: "6121501",
+      assignedVPNama: "Cipta Atsahlantusay",
       createdBy: "6121509",
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
@@ -132,34 +133,10 @@ const createDummyData = (): PenerbitanFakturKeluaran[] => {
       catatanPenolakan: "Dokumen kurang jelas, mohon upload ulang scan warna",
       dokumen: [],
       approvalLogs: [
-        { id: "l1", step: 1, role: "vp", approverName: "Bambang Susanto", approverBadge: "VP001", action: "reject", catatan: "Dokumen kurang jelas, mohon upload ulang scan warna", timestamp: new Date().toISOString() }
+        { id: "l1", step: 1, role: "vp", approverName: "Cipta Atsahlantusay", approverBadge: "6121501", action: "reject", catatan: "Dokumen kurang jelas, mohon upload ulang scan warna", timestamp: new Date().toISOString() }
       ],
-      assignedVPId: "VP001",
-      assignedVPNama: "Bambang Susanto",
-      createdBy: "6121509",
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    },
-    {
-      id: "FK-005",
-      no: 5,
-      tanggalRequestFP: "12/07/2024",
-      noSONoDoc: "3820285952", // Duplicate SO for testing highlight
-      tanggalSO: "06/07/2024",
-      namaCustomer: "CV Karsa Cipta",
-      npwp: "02.345.678.9-000.000",
-      nilaiTransaksi: 2000000,
-      dpp: 1818181,
-      ppn: 218181,
-      totalTagihan: 2000000,
-      requesterNama: "Handika Pranajaya",
-      requesterBadge: "6121509",
-      unitKerja: "DEPARTEMEN TEKNOLOGI INFORMASI",
-      hp: "082175433331",
-      jenisFaktur: "Non Subsidi",
-      status: "Menunggu Assign VP",
-      dokumen: [],
-      approvalLogs: [],
+      assignedVPId: "6121501",
+      assignedVPNama: "Cipta Atsahlantusay",
       createdBy: "6121509",
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
@@ -168,7 +145,7 @@ const createDummyData = (): PenerbitanFakturKeluaran[] => {
 
   // Tambahan data dummy acak untuk mencapai 15+ baris
   const customers = ["PT Indofood", "PT Astra", "CV Maju Jaya", "Toko Sinar Makmur", "PT PLN Persero"];
-  const statuses: PenerbitanFakturKeluaran['status'][] = ['Draft', 'Selesai', 'Selesai', 'Selesai', 'Selesai', 'Selesai', 'Menunggu Approval VP', 'Menunggu Approval Keuangan', 'Menunggu Assign VP'];
+  const statuses: PenerbitanFakturKeluaran['status'][] = ['Draft', 'Selesai', 'Selesai', 'Selesai', 'Selesai', 'Selesai', 'Menunggu Approval VP', 'Menunggu Approval Keuangan'];
   
   for (let i = 6; i <= 25; i++) {
     const nilai = Math.floor(Math.random() * 500 + 10) * 1000000;
@@ -181,8 +158,8 @@ const createDummyData = (): PenerbitanFakturKeluaran[] => {
     // Generate appropriate approval logs based on status
     if (status === 'Selesai' || status === 'Ditolak' || status === 'Revisi' || status === 'Menunggu Approval Keuangan') {
       // Setup base submission log
-      const assignedVP = "Bambang Susanto";
-      const assignedVPId = "VP001";
+      const assignedVP = "Cipta Atsahlantusay";
+      const assignedVPId = "6121501";
       
       approvalLogs.push({
         id: `log-${i}-assign`,
@@ -197,23 +174,23 @@ const createDummyData = (): PenerbitanFakturKeluaran[] => {
 
       if (status === 'Selesai') {
         approvalLogs.push(
-          { id: `log-${i}-vp`, step: 1, role: "vp", approverName: "Bambang Susanto", approverBadge: "VP001", action: "approve", timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString() },
+          { id: `log-${i}-vp`, step: 1, role: "vp", approverName: "Cipta Atsahlantusay", approverBadge: "6121501", action: "approve", timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString() },
           { id: `log-${i}-keu`, step: 2, role: "keuangan", approverName: "Siti Rahayu", approverBadge: "KEU001", action: "approve", timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString() }
         );
       } else if (status === 'Menunggu Approval Keuangan') {
         approvalLogs.push(
-          { id: `log-${i}-vp`, step: 1, role: "vp", approverName: "Bambang Susanto", approverBadge: "VP001", action: "approve", timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString() }
+          { id: `log-${i}-vp`, step: 1, role: "vp", approverName: "Cipta Atsahlantusay", approverBadge: "6121501", action: "approve", timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString() }
         );
       } else if (status === 'Ditolak') {
         // Randomly reject at VP or Keuangan stage
         const rejectAtVP = Math.random() > 0.5;
         if (rejectAtVP) {
           approvalLogs.push(
-            { id: `log-${i}-vp-rej`, step: 1, role: "vp", approverName: "Bambang Susanto", approverBadge: "VP001", action: "reject", catatan: "Data tidak sesuai dengan dokumen fisik.", timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString() }
+            { id: `log-${i}-vp-rej`, step: 1, role: "vp", approverName: "Cipta Atsahlantusay", approverBadge: "6121501", action: "reject", catatan: "Data tidak sesuai dengan dokumen fisik.", timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString() }
           );
         } else {
           approvalLogs.push(
-            { id: `log-${i}-vp`, step: 1, role: "vp", approverName: "Bambang Susanto", approverBadge: "VP001", action: "approve", timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString() },
+            { id: `log-${i}-vp`, step: 1, role: "vp", approverName: "Cipta Atsahlantusay", approverBadge: "6121501", action: "approve", timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString() },
             { id: `log-${i}-keu-rej`, step: 2, role: "keuangan", approverName: "Siti Rahayu", approverBadge: "KEU001", action: "reject", catatan: "Nominal PPN tidak match dengan hitungan sistem.", timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString() }
           );
         }
@@ -241,8 +218,8 @@ const createDummyData = (): PenerbitanFakturKeluaran[] => {
       dokumen: status === 'Selesai' ? [{ id: `doc${i}`, namaFile: `faktur-${i}.pdf`, ukuran: 800000, url: "#", uploadedAt: new Date().toISOString() }] : [],
       approvalLogs: approvalLogs,
       catatanPenolakan: status === 'Ditolak' ? approvalLogs[approvalLogs.length - 1]?.catatan : undefined,
-      assignedVPId: status !== 'Draft' && status !== 'Menunggu Assign VP' ? "VP001" : undefined,
-      assignedVPNama: status !== 'Draft' && status !== 'Menunggu Assign VP' ? "Bambang Susanto" : undefined,
+      assignedVPId: status !== 'Draft' && status !== 'Menunggu Assign VP' ? "6121501" : undefined,
+      assignedVPNama: status !== 'Draft' && status !== 'Menunggu Assign VP' ? "Cipta Atsahlantusay" : undefined,
       nomorFakturPajak: status === 'Selesai' ? `010.008-24.241040${i}` : undefined,
       tanggalFakturPajak: status === 'Selesai' ? '20/07/2024' : undefined,
       createdBy: i % 3 === 0 ? "121822" : "6121509",
@@ -300,21 +277,21 @@ const createDummyData = (): PenerbitanFakturKeluaran[] => {
           approverName: "Sistem",
           approverBadge: "SYS",
           action: "assign_vp",
-          catatan: "Assigned to Bambang Susanto (VP001)",
+          catatan: "Assigned to Cipta Atsahlantusay (6121501)",
           timestamp: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString()
         },
         {
           id: `log-bulk-${i}-vp`,
           step: 1,
           role: "vp",
-          approverName: "Bambang Susanto",
-          approverBadge: "VP001",
+          approverName: "Cipta Atsahlantusay",
+          approverBadge: "6121501",
           action: "approve",
           timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString()
         }
       ],
-      assignedVPId: "VP001",
-      assignedVPNama: "Bambang Susanto",
+      assignedVPId: "6121501",
+      assignedVPNama: "Cipta Atsahlantusay",
       createdBy: req.badge,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
@@ -351,17 +328,35 @@ export const useFakturKeluaranStore = create<FakturKeluaranStore>((set, get) => 
     items: state.items.filter(item => !ids.includes(item.id))
   })),
 
-  submitPengajuan: (id) => set((state) => ({
-    items: state.items.map(item => {
-      if (item.id === id) {
-        // if user unit kerja has a VP, ideally it goes to "Menunggu Approval VP", else "Menunggu Assign VP"
-        // Since we are mocking we assume "Menunggu Assign VP" if assignedVPId is missing
-        const nextStatus = item.assignedVPId ? "Menunggu Approval VP" : "Menunggu Assign VP";
-        return { ...item, status: nextStatus, updatedAt: new Date().toISOString() };
-      }
-      return item;
-    })
-  })),
+  submitPengajuan: (id) => set((state) => {
+    const masterUsers = useMasterUserStore.getState().data;
+    return {
+      items: state.items.map(item => {
+        if (item.id === id) {
+          let assignedVPId = item.assignedVPId;
+          let assignedVPNama = item.assignedVPNama;
+
+          if (!assignedVPId) {
+            const vp = masterUsers.find(u => u.unitKerja === item.unitKerja && u.role === 'vp');
+            if (vp) {
+              assignedVPId = vp.badge;
+              assignedVPNama = vp.name;
+            }
+          }
+
+          const nextStatus = assignedVPId ? "Menunggu Approval VP" : "Menunggu Assign VP";
+          return { 
+            ...item, 
+            status: nextStatus, 
+            assignedVPId,
+            assignedVPNama,
+            updatedAt: new Date().toISOString() 
+          };
+        }
+        return item;
+      })
+    };
+  }),
 
   approveVP: (id, approver) => set((state) => ({
     items: state.items.map(item => {

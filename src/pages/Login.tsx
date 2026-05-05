@@ -8,6 +8,7 @@ import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import { useAuthStore } from '../store/authStore';
 import { useToastStore } from '../store/toastStore';
+import { APP_VERSION } from '../store/changelogStore';
 
 const loginSchema = z.object({
   badge: z.string().min(1, 'Badge wajib diisi'),
@@ -66,7 +67,7 @@ const Login: React.FC = () => {
         <div className="relative z-10 flex flex-col items-center justify-center w-full px-12">
           {/* Logo */}
           <div className="w-24 h-24 rounded-lg p-2 bg-white flex items-center justify-center mb-8">
-            <img src="/favicon.svg" alt="PSP Logo" className="w-full h-full object-contain" />
+            <img src="/images.png" alt="PSP Logo" className="w-full h-full object-contain" />
           </div>
 
           <h1 className="text-4xl font-extrabold text-white mb-3 text-center">SI PAJAK</h1>
@@ -174,7 +175,7 @@ const Login: React.FC = () => {
                 className="w-full flex items-center justify-center gap-2 bg-white border border-gray-300 rounded-lg px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200 shadow-sm"
                 onClick={() => setShowQuickLogin(true)}
               >
-                <img src="/favicon.svg" alt="SSO Pusri Logo" className="w-5 h-5 object-contain" />
+                <img src="/images.png" alt="SSO Pusri Logo" className="w-5 h-5 object-contain" />
                 Quick Login (Dev)
               </button>
 
@@ -220,7 +221,7 @@ const Login: React.FC = () => {
             </div>
 
             <p className="text-xs text-gray-400 text-center mt-6">
-              Sistem Informasi Pajak v2.0 — PT Pupuk Sriwidjaja Palembang
+              Sistem Informasi Pajak v{APP_VERSION} — PT Pupuk Sriwidjaja Palembang
             </p>
           </div>
         </div>
