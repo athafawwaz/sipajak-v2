@@ -1302,7 +1302,7 @@ const ApprovalModal: React.FC<ApprovalModalProps> = ({ isOpen, onClose, faktur, 
 
         {/* Faktur Detail Card */}
         <div className="bg-gray-50 rounded-lg p-4 space-y-3 border border-gray-100">
-          <div className="grid grid-cols-2 gap-3 text-sm">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
             <div>
               <p className="text-xs text-gray-500 mb-0.5">No Faktur Pajak</p>
               <p className="font-medium text-gray-900">{faktur.nomorFakturPajak}</p>
@@ -1637,7 +1637,7 @@ const DetailModal: React.FC<DetailModalProps> = ({ isOpen, onClose, faktur, isKe
         )}
         </div>
 
-        <div className="flex justify-end gap-2 pt-2 border-t border-gray-100">
+        <div className="flex flex-wrap justify-end gap-2 pt-2 border-t border-gray-100">
           {isKeuangan && (
             <Button
               variant="danger"

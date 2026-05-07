@@ -67,7 +67,7 @@ const Login: React.FC = () => {
         <div className="relative z-10 flex flex-col items-center justify-center w-full px-12">
           {/* Logo */}
           <div className="w-24 h-24 rounded-lg p-2 bg-white flex items-center justify-center mb-8">
-            <img src="/images.png" alt="PSP Logo" className="w-full h-full object-contain" />
+            <img src="/Logo Emblem Pusri Dark.svg" alt="PSP Logo" className="w-full h-full object-contain" />
           </div>
 
           <h1 className="text-4xl font-extrabold text-white mb-3 text-center">SI PAJAK</h1>
@@ -102,8 +102,8 @@ const Login: React.FC = () => {
         <div className="w-full max-w-md">
           {/* Mobile logo */}
           <div className="lg:hidden flex flex-col items-center mb-8">
-            <div className="w-14 h-14 rounded-xl bg-accent flex items-center justify-center shadow-lg mb-4">
-              <span className="text-primary-dark font-extrabold text-lg">PSP</span>
+            <div className="w-16 h-16 rounded-xl bg-white flex items-center justify-center shadow-lg mb-4 p-2">
+              <img src="/Logo Emblem Pusri Dark.svg" alt="PSP Logo" className="w-full h-full object-contain" />
             </div>
             <h1 className="text-2xl font-bold text-primary">SI PAJAK</h1>
             <p className="text-gray-500 text-sm">Pupuk Sriwidjaja Palembang</p>
@@ -175,7 +175,7 @@ const Login: React.FC = () => {
                 className="w-full flex items-center justify-center gap-2 bg-white border border-gray-300 rounded-lg px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200 shadow-sm"
                 onClick={() => setShowQuickLogin(true)}
               >
-                <img src="/images.png" alt="SSO Pusri Logo" className="w-5 h-5 object-contain" />
+                <img src="/Logo Emblem Pusri Dark.svg" alt="SSO Pusri Logo" className="w-6 h-6 object-contain" />
                 Quick Login (Dev)
               </button>
 

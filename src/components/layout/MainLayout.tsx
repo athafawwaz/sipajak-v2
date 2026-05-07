@@ -42,7 +42,7 @@ const MainLayout: React.FC = () => {
       {/* Sidebar - mobile */}
       <div
         className={cn(
-          'lg:hidden fixed inset-y-0 left-0 z-40 transition-transform duration-300',
+          'lg:hidden fixed inset-y-0 left-0 z-40 w-[260px] transition-transform duration-300',
           mobileOpen ? 'translate-x-0' : '-translate-x-full'
         )}
       >
@@ -63,7 +63,7 @@ const MainLayout: React.FC = () => {
       >
         <Topbar onToggleSidebar={handleToggle} />
 
-        <main className="p-4 lg:p-6">
+        <main className="p-4 lg:p-6 pb-safe">
           <Outlet />
         </main>
       </div>

@@ -190,8 +190,8 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed }) => {
     >
       {/* Logo */}
       <div className="flex items-center gap-3 px-4 py-5 border-b border-white/10">
-        <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center">
-          <img src="/favicon.svg" alt="PSP Logo" className="w-full h-full object-contain" />
+        <div className="flex-shrink-0 w-14 h-14 flex items-center justify-center">
+          <img src="/Logo Emblem Pusri Dark.svg" alt="PSP Logo" className="w-full h-full object-contain" />
         </div>
         {!collapsed && (
           <div className="min-w-0">

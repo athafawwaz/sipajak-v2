@@ -295,7 +295,7 @@ const EditProfil: React.FC = () => {
             <div className="space-y-6">
               {/* Password Section */}
               <div className="p-5 rounded-xl border border-gray-200 bg-gray-50/50">
-                <div className="flex items-start justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
                   <div className="flex items-start gap-3">
                     <div className="p-2.5 rounded-lg bg-amber-100">
                       <KeyRound className="w-5 h-5 text-amber-600" />

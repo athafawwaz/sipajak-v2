@@ -45,7 +45,7 @@ const Pagination: React.FC<PaginationProps> = ({
   return (
     <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4">
       <div className="flex items-center gap-2 text-sm text-gray-600">
-        <span>Tampilkan</span>
+        <span className="hidden sm:inline">Tampilkan</span>
         <select
           value={pageSize}
           onChange={(e) => onPageSizeChange(Number(e.target.value))}
@@ -57,8 +57,11 @@ const Pagination: React.FC<PaginationProps> = ({
             </option>
           ))}
         </select>
-        <span>
+        <span className="hidden sm:inline">
           dari {totalItems} data (menampilkan {startItem}–{endItem})
+        </span>
+        <span className="sm:hidden text-xs">
+          {startItem}–{endItem} / {totalItems}
         </span>
       </div>
 

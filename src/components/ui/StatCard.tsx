@@ -83,7 +83,7 @@ const StatCard: React.FC<StatCardProps> = ({ label, value, icon, color, subtitle
       {/* Top accent bar */}
       <div className={cn('h-[3px] w-full', c.accentBar)} />
 
-      <div className="px-5 py-5 flex items-center gap-4">
+      <div className="px-4 sm:px-5 py-4 sm:py-5 flex items-center gap-3 sm:gap-4">
         {/* Icon */}
         <div
           className={cn(

@@ -1,4 +1,4 @@
-export const APP_VERSION = "2.2.3";
+export const APP_VERSION = "2.3.0";
 
 export interface ChangelogEntry {
   version: string;
@@ -8,6 +8,12 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: "2.3.0",
+    date: "2026-05-07",
+    type: "minor",
+    description: "Implement mobile optimization, fix mobile sidebar navigation, and update branding logo across sidebar and login page"
+  },
   {
     version: "2.2.3",
     date: "2026-05-05",
