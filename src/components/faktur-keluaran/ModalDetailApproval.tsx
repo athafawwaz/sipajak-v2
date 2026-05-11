@@ -26,7 +26,7 @@ interface ModalDetailApprovalProps {
 const ModalDetailApproval: React.FC<ModalDetailApprovalProps> = ({ 
   isOpen, onClose, data, onApprove, onReject, 
   onAssignVP, onRevisi, onAjukanBatal, onLihatPembatalan, onSubmitDraft,
-  showDokumenTab = true
+  showDokumenTab = false
 }) => {
   const [activeTab, setActiveTab] = useState<'detail' | 'dokumen' | 'riwayat'>('detail');
   const [rejectNotes, setRejectNotes] = useState('');

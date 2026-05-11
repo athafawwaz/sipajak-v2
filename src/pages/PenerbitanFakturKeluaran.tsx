@@ -399,7 +399,7 @@ const PenerbitanFakturKeluaranPage: React.FC = () => {
           setActiveItem(null);
           addToast('Pengajuan berhasil disubmit', 'success');
         }}
-        showDokumenTab={!isPenerbitanBaru}
+        showDokumenTab={false}
       />
 
       <ModalAssignVP

@@ -1,20 +1,23 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './store/authStore';
 import MainLayout from './components/layout/MainLayout';
-import Login from './pages/Login';
-import Dashboard from './pages/Dashboard';
-import FakturPajakPage from './pages/FakturPajak';
-import KalkulatorPPH21 from './pages/KalkulatorPPH21';
-import EditProfil from './pages/EditProfil';
-import MasterUnitKerja from './pages/MasterUnitKerja';
-import MasterVendor from './pages/MasterVendor';
-import MasterUser from './pages/MasterUser';
-import FakturPajakSetorPage from './pages/FakturPajakSetor';
-import PenerbitanFakturKeluaranPage from './pages/PenerbitanFakturKeluaran';
-import PembatalanFakturPajakPage from './pages/PembatalanFakturPajak';
-import NotFound from './pages/NotFound';
+import PageLoader from './components/ui/PageLoader';
 import NotificationModal from './components/ui/NotificationModal';
+
+// --- Lazy loaded pages ---
+const Login = lazy(() => import('./pages/Login'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const FakturPajakPage = lazy(() => import('./pages/FakturPajak'));
+const KalkulatorPPH21 = lazy(() => import('./pages/KalkulatorPPH21'));
+const EditProfil = lazy(() => import('./pages/EditProfil'));
+const MasterUnitKerja = lazy(() => import('./pages/MasterUnitKerja'));
+const MasterVendor = lazy(() => import('./pages/MasterVendor'));
+const MasterUser = lazy(() => import('./pages/MasterUser'));
+const FakturPajakSetorPage = lazy(() => import('./pages/FakturPajakSetor'));
+const PenerbitanFakturKeluaranPage = lazy(() => import('./pages/PenerbitanFakturKeluaran'));
+const PembatalanFakturPajakPage = lazy(() => import('./pages/PembatalanFakturPajak'));
+const NotFound = lazy(() => import('./pages/NotFound'));
 
 // --- PrivateRoute: redirect to /login if not authenticated ---
 const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -49,53 +52,55 @@ const App: React.FC = () => {
 
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
-        {/* Public routes */}
-        <Route
-          path="/login"
-          element={
-            <PublicRoute>
-              <Login />
-            </PublicRoute>
-          }
-        />
+      <Suspense fallback={<PageLoader />}>
+        <Routes>
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          {/* Public routes */}
+          <Route
+            path="/login"
+            element={
+              <PublicRoute>
+                <Login />
+              </PublicRoute>
+            }
+          />
 
-        {/* Protected routes */}
-        <Route
-          element={
-            <PrivateRoute>
-              <MainLayout />
-            </PrivateRoute>
-          }
-        >
-          <Route path="/dashboard" element={<Dashboard />} />
-          
-          {/* Faktur Pajak Routes */}
-          <Route path="/pph-masukan/faktur-pajak" element={<Navigate to="/pph-masukan/faktur-pajak/baru" replace />} />
-          <Route path="/pph-masukan/faktur-pajak/baru" element={<FakturPajakPage />} />
-          <Route path="/pph-masukan/faktur-pajak/tindak-lanjut" element={<FakturPajakPage />} />
-          
-          {/* Faktur Pajak Setor Routes */}
-          <Route path="/pph-masukan/faktur-pajak-setor" element={<Navigate to="/pph-masukan/faktur-pajak-setor/baru" replace />} />
-          <Route path="/pph-masukan/faktur-pajak-setor/baru" element={<FakturPajakSetorPage />} />
-          <Route path="/pph-masukan/faktur-pajak-setor/tindak-lanjut" element={<FakturPajakSetorPage />} />
+          {/* Protected routes */}
+          <Route
+            element={
+              <PrivateRoute>
+                <MainLayout />
+              </PrivateRoute>
+            }
+          >
+            <Route path="/dashboard" element={<Dashboard />} />
+            
+            {/* Faktur Pajak Routes */}
+            <Route path="/pph-masukan/faktur-pajak" element={<Navigate to="/pph-masukan/faktur-pajak/baru" replace />} />
+            <Route path="/pph-masukan/faktur-pajak/baru" element={<FakturPajakPage />} />
+            <Route path="/pph-masukan/faktur-pajak/tindak-lanjut" element={<FakturPajakPage />} />
+            
+            {/* Faktur Pajak Setor Routes */}
+            <Route path="/pph-masukan/faktur-pajak-setor" element={<Navigate to="/pph-masukan/faktur-pajak-setor/baru" replace />} />
+            <Route path="/pph-masukan/faktur-pajak-setor/baru" element={<FakturPajakSetorPage />} />
+            <Route path="/pph-masukan/faktur-pajak-setor/tindak-lanjut" element={<FakturPajakSetorPage />} />
 
-          <Route path="/pph-keluaran/penerbitan-faktur/:jenis" element={<Navigate to="baru" relative="path" replace />} />
-          <Route path="/pph-keluaran/penerbitan-faktur/:jenis/:kategori" element={<PenerbitanFakturKeluaranPage />} />
-          <Route path="/pph-keluaran/pembatalan-faktur-pajak" element={<Navigate to="/pph-keluaran/pembatalan-faktur-pajak/proses" replace />} />
-          <Route path="/pph-keluaran/pembatalan-faktur-pajak/:mode" element={<PembatalanFakturPajakPage />} />
-          <Route path="/kalkulator/pph-21" element={<KalkulatorPPH21 />} />
-          <Route path="/pengaturan/edit-profil" element={<EditProfil />} />
-          <Route path="/pengaturan/master-unit-kerja" element={<MasterUnitKerja />} />
-          
-          <Route path="/master/vendor" element={<MasterVendor />} />
-          <Route path="/master/user" element={<MasterUser />} />
-        </Route>
+            <Route path="/pph-keluaran/penerbitan-faktur/:jenis" element={<Navigate to="baru" relative="path" replace />} />
+            <Route path="/pph-keluaran/penerbitan-faktur/:jenis/:kategori" element={<PenerbitanFakturKeluaranPage />} />
+            <Route path="/pph-keluaran/pembatalan-faktur-pajak" element={<Navigate to="/pph-keluaran/pembatalan-faktur-pajak/proses" replace />} />
+            <Route path="/pph-keluaran/pembatalan-faktur-pajak/:mode" element={<PembatalanFakturPajakPage />} />
+            <Route path="/kalkulator/pph-21" element={<KalkulatorPPH21 />} />
+            <Route path="/pengaturan/edit-profil" element={<EditProfil />} />
+            <Route path="/pengaturan/master-unit-kerja" element={<MasterUnitKerja />} />
+            
+            <Route path="/master/vendor" element={<MasterVendor />} />
+            <Route path="/master/user" element={<MasterUser />} />
+          </Route>
 
-        {/* Default redirect */}
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+          {/* Default redirect */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Suspense>
       <NotificationModal />
     </BrowserRouter>
   );

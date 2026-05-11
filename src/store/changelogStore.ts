@@ -1,4 +1,4 @@
-export const APP_VERSION = "2.3.1";
+export const APP_VERSION = "2.4.0";
 
 export interface ChangelogEntry {
   version: string;
@@ -8,6 +8,12 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: "2.4.0",
+    date: "2026-05-11",
+    type: "minor",
+    description: "Implement route-based code splitting, build optimization with manual chunking, and remove document tab from faktur keluaran detail"
+  },
   {
     version: "2.3.1",
     date: "2026-05-11",
