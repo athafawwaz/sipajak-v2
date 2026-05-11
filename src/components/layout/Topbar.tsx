@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Menu, LogOut, ChevronRight } from 'lucide-react';
+import { Menu, LogOut, ChevronRight, AlertTriangle } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
+import Modal from '../ui/Modal';
+import Button from '../ui/Button';
 
 interface TopbarProps {
   onToggleSidebar: () => void;
@@ -46,6 +48,7 @@ const Topbar: React.FC<TopbarProps> = ({ onToggleSidebar }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuthStore();
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const currentPage = pageTitles[location.pathname] || {
     title: 'Dashboard',
@@ -133,7 +136,7 @@ const Topbar: React.FC<TopbarProps> = ({ onToggleSidebar }) => {
           <div className="w-px h-6 bg-gray-200 hidden sm:block" />
 
           <button
-            onClick={logout}
+            onClick={() => setShowLogoutModal(true)}
             className="p-2 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
             title="Logout"
             id="logout-btn"
@@ -142,6 +145,43 @@ const Topbar: React.FC<TopbarProps> = ({ onToggleSidebar }) => {
           </button>
         </div>
       </div>
+
+      <Modal
+        isOpen={showLogoutModal}
+        onClose={() => setShowLogoutModal(false)}
+        title="Konfirmasi Logout"
+        size="sm"
+      >
+        <div className="space-y-6">
+          <div className="flex items-start gap-4">
+            <div className="flex-shrink-0 w-10 h-10 rounded-full bg-red-50 flex items-center justify-center">
+              <AlertTriangle className="w-6 h-6 text-red-600" />
+            </div>
+            <div>
+              <p className="text-sm text-gray-600 leading-relaxed">
+                Apakah Anda yakin ingin keluar dari aplikasi? Anda harus masuk kembali untuk mengakses data Anda.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-end gap-3">
+            <Button
+              variant="outline"
+              onClick={() => setShowLogoutModal(false)}
+              className="px-4"
+            >
+              Batal
+            </Button>
+            <Button
+              variant="danger"
+              onClick={logout}
+              leftIcon={<LogOut className="w-4 h-4" />}
+            >
+              Keluar
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </header>
   );
 };

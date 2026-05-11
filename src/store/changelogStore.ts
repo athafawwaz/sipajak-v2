@@ -1,4 +1,4 @@
-export const APP_VERSION = "2.3.0";
+export const APP_VERSION = "2.3.1";
 
 export interface ChangelogEntry {
   version: string;
@@ -8,6 +8,12 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: "2.3.1",
+    date: "2026-05-11",
+    type: "patch",
+    description: "Add logout confirmation modal in topbar to prevent accidental logout"
+  },
   {
     version: "2.3.0",
     date: "2026-05-07",
